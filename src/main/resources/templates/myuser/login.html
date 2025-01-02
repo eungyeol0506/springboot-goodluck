@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Luck</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 공통 헤더 삽입 -->
+    <div th:replace="~{common/header :: header}"></div>
+
+    <section class="vh-100" style="background-color: #33a475;">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <h3 class="mb-5 text-center">로그인</h3>
+                
+                <form th:action="@{/login}" method="post">
+                    <div data-mdb-input-init class="form-outline mb-2">
+                    <label class="form-label">Id</label>    
+                    <input id="id" type="text" class="form-control form-control-lg" name="id" />
+                    </div>
+
+                    <div data-mdb-input-init class="form-outline mb-2">
+                    <label class="form-label">Password</label>
+                    <input pw="pw" type="password" class="form-control form-control-lg" name="pw"/>
+                    </div>
+
+                    <!-- Checkbox -->
+                    <div class="form-check d-flex justify-content-start mb-4">
+                        <input class="form-check-input me-1" type="checkbox" value="" />
+                        <label class="form-check-label" for="form1Example3"> 아이디 기억하기 </label>
+                        <p class="small ms-auto pb-lg-2"><a class="text-back-50" href="#!">비밀번호 찾기</a></p>
+                    </div>
+
+                    <button data-mdb-button-init data-mdb-ripple-init 
+                            class="btn btn-lg w-100 hover-gray" 
+                            style="background-color: #ebebeb;" 
+                            type="submit">
+                        로그인
+                    </button>
+                </form>
+
+                <hr class="my-4">
+                <div>
+                <p class="mb-0">처음이신가요? <a href="/register" class="hover-bg-green text-black-50 fw-bold">회원가입</a>
+                </p>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </section>
+
+    <script th:if="${message}" th:inline="javascript">
+        var message = [[${message}]]
+        alert(message);
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+src/main/resources/application.properties
+src/main/resources/oracle_cloud/cwallet.sso
+src/main/resources/oracle_cloud/ewallet.p12
+src/main/resources/oracle_cloud/ewallet.pem
+src/main/resources/oracle_cloud/keystore.jks
+src/main/resources/oracle_cloud/ojdbc.properties
+src/main/resources/oracle_cloud/README
+src/main/resources/oracle_cloud/sqlnet.ora
+src/main/resources/oracle_cloud/tnsnames.ora
+src/main/resources/oracle_cloud/truststore.jks
+libs/ojdbc8.jar
+libs/oraclepki.jar
+libs/osdt_cert.jar
+libs/osdt_core.jar
