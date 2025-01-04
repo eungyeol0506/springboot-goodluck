@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Good Luck</title>
     <!-- Bootstrap CSS -->
@@ -26,42 +27,42 @@
                     
                     <div class="form-outline mb-4">
                     <label class="form-label" for="name">이름</label>  
-                    <input type="text" name="userName" id="name" class="form-control form-control-lg"/>
+                    <input type="text" name="userName" id="userName" class="form-control form-control-lg"/>
                     <div class="invalid-feedback">이름을 입력해주세요.</div>
                     </div>
 
                     <div class="form-outline mx-auto">
                         <label class="form-label" for="id">아이디</label>    
-                        <input type="text" name="userId" class="form-control form-control-lg" />
+                        <input type="text" name="userId" id="userId" class="form-control form-control-lg" />
                         <!-- <button class="btn btn-lg btn-success">중복확인</button> -->
                         <div class="invalid-feedback">아이디를 입력해주세요.</div>
                     </div>
     
                     <div class="form-outline mb-2">
                     <label class="form-label">비밀번호</label>
-                    <input type="password" name="userPw" for="pw" class="form-control form-control-lg" />
+                    <input type="password" name="userPw" id="userPw" class="form-control form-control-lg" />
                     </div>
                     <div class="form-outline mb-2">
                     <label class="form-label">이메일</label>
-                    <input type="email" name="userEmail" class="form-control form-control-lg" />
+                    <input type="email" name="userEmail" id="userEmail" class="form-control form-control-lg" />
                     </div>
                     <div class="form-outline mb-2">
                         <label class="form-label">우편번호</label>
-                        <input type="text" name="postNo" class="form-control form-control-lg" />
+                        <input type="text" name="postNo" id="postNo" class="form-control form-control-lg" />
                     </div>
                     <div class="form-outline mb-2">
                     <label class="form-label">주소</label>
-                    <input type="text" name="addressMain" class="form-control form-control-lg" />
+                    <input type="text" name="addressMain" id="addressMain" class="form-control form-control-lg" />
                     </div>
                     <div class="form-outline mb-2">
                     <label class="form-label">상세주소 (선택)</label>
-                    <input type="text" name="addressDetail" class="form-control form-control-lg" />
+                    <input type="text" name="addressDetail" id="addressDetail" class="form-control form-control-lg" />
                     </div>
                     <div class="form-outline mb-2">
                         <label class="form-label">전화번호</label>
-                        <input type="text" name="telNo" class="form-control form-control-lg" />
+                        <input type="text" name="telNo" id="telNo" class="form-control form-control-lg" />
                     </div>
-                    <button class="btn btn-lg btn-success" type="submit">등록하기</button>
+                    <button class="btn btn-lg btn-success" type="button" onclick="postSubmit();">등록하기</button>
                 </div>
                 </div>
                 </form>
@@ -74,27 +75,27 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function 그림파일읽어출력하기(이벤트) {
-	var fileInput=이벤트.target;
-    var 그림파일 = fileInput.files[0]; 
-    var size = 그림파일.size;
-    if(size > 1024*10){
-    	alert("10K 요량초과!");
-    	fileInput.value="";
-    	return ;
-    }
-    if (!그림파일.type.match('image.*')) {
-       alert("욱! 그림이 아니예요!");
-       fileInput.value="";
-       return ;
-    }
-    var 파일리더 = new FileReader();
-         파일리더.onload = function(한그림파일) {
-  	  var imgProfile=document.getElementById("profile");    	  
-  	  imgProfile.src=한그림파일.currentTarget.result;
-    };      
-    파일리더.readAsDataURL(그림파일);
-    return ;
+function postSubmit(){
+    const formData = {
+            userName: document.getElementById('userName').value,
+            userId: document.getElementById('userId').value,
+            userPw: document.getElementById('userPw').value,
+            userEmail: document.getElementById('userEmail').value,
+        };
+
+        fetch('/regist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('회원가입 성공');
+            } else {
+                alert('오류 발생');
+            }
+        });
 }
-document.getElementById("profileFile").addEventListener("change", 그림파일읽어출력하기, false);
 </script>

@@ -20,7 +20,6 @@ public class UserService {
     public Optional<MyUser> registUser(MyUser newMyUser){
         validateDuplicateUserId(newMyUser);
         
-        
         userRepository.insertNew(newMyUser);
         return Optional.ofNullable(newMyUser);
     }

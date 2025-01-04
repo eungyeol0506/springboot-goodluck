@@ -70,9 +70,9 @@ public class UserControllerTest {
                                 .param("id", id)
                                 .param("pw", pw))
             //then
-                    .andExpect(status().is3xxRedirection())
-                    .andExpect(redirectedUrl("/")) //redirect Url 검증
-                    // .andExpect(view().name("home")) // 반환된 뷰 이름 검증
+                    // .andExpect(status().is3xxRedirection())
+                    // .andExpect(redirectedUrl("/")) //redirect Url 검증
+                    .andExpect(view().name("home")) // 반환된 뷰 이름 검증
                     ;
             // verify(null)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
         }
@@ -94,36 +94,73 @@ public class UserControllerTest {
                     ;
         }
     }
+
     @Nested
     @DisplayName("회원가입 테스트")
     class RegistUser{
         @Test
         @DisplayName("회원가입 성공 케이스")
         void RegistSuccessCase() throws Exception{
-            
             MyUser newUser = getTestNewUser();
             given(userService.registUser(any(MyUser.class))).willReturn(Optional.of(newUser));
+            
+            String jsonRequst = """
+                {
+                    "userName" : "%s",
+                    "userId" : "%s",
+                    "userPw" : "%s",
+                    "userEmail" : "%s"
+                }       
+                """.formatted(newUser.getUserName(), newUser.getUserId(), newUser.getUserPw(), newUser.getUserEmail());
 
             mockMvc.perform(post("/regist")
-                            .param("name", newUser.getUserName())
-                            .param("id", newUser.getUserId())
-                            .param("pw", newUser.getUserPw()))
+                            .contentType("application/json")
+                            .content(jsonRequst))
                         .andExpect(status().is3xxRedirection())
                         .andExpect(redirectedUrl("/login"));                         
         }
 
         @Test
-        @DisplayName("회원가입 실패 케이스")
-        void RegistFailCase() throws Exception{
+        @DisplayName("회원가입 실패 케이스 - 아이디가 중복됨")
+        void RegistFailCase1() throws Exception{
             MyUser newUser = getTestNewUser();
             given(userService.registUser(any(MyUser.class))).willThrow(new IllegalStateException("중복되는 아이디 입니다."));
-
+            String jsonRequst = """
+                {
+                    "userName" : "%s",
+                    "userId" : "%s",
+                    "userPw" : "%s",
+                    "userEmail" : "%s"
+                }       
+                """.formatted(newUser.getUserName(), newUser.getUserId(), newUser.getUserPw(), newUser.getUserEmail());
+                
             mockMvc.perform(post("/regist")
-                            .param("name", newUser.getUserName())
-                            .param("id", newUser.getUserId())
-                            .param("pw", newUser.getUserPw()))
+                            .contentType("application/json")
+                            .content(jsonRequst))
                         .andExpect(status().isOk())
-                        .andExpect(model().attribute("message", "중복되는 아이디 입니다."));      
+                        .andExpect(model().attribute("message", "중복되는 아이디 입니다."));     
+        }
+
+        @Test
+        @DisplayName("회원가입 실패 케이스 - 필수 값이 입력안됨")
+        void RegistFailCase2() throws Exception{
+            MyUser newUser = getTestNewUser();
+            given(userService.registUser(any(MyUser.class))).willReturn(Optional.of(newUser));
+            
+            String jsonRequst = """
+                {
+                    "userName" : "%s",
+                    "userId" : "%s",
+                    "userEmail" : "%s"
+                }       
+                """.formatted(  newUser.getUserName(), 
+                                newUser.getUserId(), 
+                                newUser.getUserEmail());
+                mockMvc.perform(post("/regist")
+                                .contentType("application/json")
+                                .content(jsonRequst))
+                            .andExpect(status().isOk())
+                            .andExpect(model().attribute("message", "must not be blank"));
         }
 
     }
@@ -135,6 +172,7 @@ public class UserControllerTest {
         newUser.setUserId("test");
         newUser.setUserPw("test");
         newUser.setUserName("테스터");
+        newUser.setUserName("test@test.com");
         return newUser;
     }
 }
