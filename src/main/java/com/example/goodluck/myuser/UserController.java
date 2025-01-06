@@ -55,7 +55,7 @@ public class UserController {
         try{
             MyUser loginUser = userService.loginUserService(id, pw).get();
             HttpSession session = request.getSession();
-            session.setAttribute("user", loginUser.getUserNo());
+            session.setAttribute("userNo", loginUser.getUserNo());
             return "home";
         }catch(Exception e){
             model.addAttribute("message", e.getMessage());
@@ -109,16 +109,26 @@ public class UserController {
     }
 
     //회원 정보 보기
-    @GetMapping("/user/{userNo}")
-    public String getUserInfo() {
-        return new String();
+    @GetMapping("/mypage")
+    public String getUserInfo(HttpServletRequest request, 
+                              Model model) {
+        try{
+            HttpSession session = request.getSession();
+            Long userNo = (Long) session.getAttribute("userNo");
+            
+            MyUser resultUser = userService.getUserInfo(userNo).get();   
+            model.addAttribute("user", resultUser);    
+            model.addAttribute("message", "안녕하세요");       
+        }catch(Exception e){
+            model.addAttribute("message", e.getMessage());
+        }                     
+
+        return "myuser/mypage" ;
     }
 
     //회원 정보 수정
-    @PostMapping("/user/edit")
+    @PostMapping("/user/edit/{userNo}")
     public String postMethodName(@RequestBody String entity) {
-        //TODO: process POST request
-        
         return entity;
     }
     

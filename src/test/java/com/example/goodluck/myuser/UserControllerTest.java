@@ -165,7 +165,7 @@ public class UserControllerTest {
 
     }
 
-
+    
     private MyUser getTestNewUser() {
         MyUser newUser = new MyUser();
         newUser.setUserNo(Long.valueOf(123456));
