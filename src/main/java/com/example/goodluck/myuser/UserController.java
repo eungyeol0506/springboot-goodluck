@@ -48,8 +48,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String postLogin(@RequestParam(value="id") String id,
-                            @RequestParam(value="pw") String pw, 
+    public String postLogin(@RequestParam(value="userId") String id,
+                            @RequestParam(value="userPw") String pw, 
                             HttpServletRequest request,
                             Model model) {
         try{
@@ -73,7 +73,7 @@ public class UserController {
     
     // 회원가입
     @GetMapping("/regist")
-    public String getRegisterView(Model model){
+    public String getRegisterView(){
         return "myuser/regist";
     }
     
@@ -114,8 +114,11 @@ public class UserController {
                               Model model) {
         try{
             HttpSession session = request.getSession();
+            // if(session == null){
+            //     return "redirect:/login";
+            // } 
             Long userNo = (Long) session.getAttribute("userNo");
-            
+
             MyUser resultUser = userService.getUserInfo(userNo).get();   
             model.addAttribute("user", resultUser);    
             model.addAttribute("message", "안녕하세요");       
@@ -127,9 +130,24 @@ public class UserController {
     }
 
     //회원 정보 수정
-    @PostMapping("/user/edit/{userNo}")
-    public String postMethodName(@RequestBody String entity) {
-        return entity;
+    @GetMapping("/user/edit")
+    public String getUserEditView(HttpServletRequest request,
+                                 Model model) { 
+        try{
+            HttpSession session = request.getSession();
+            Long userNo = (Long) session.getAttribute("userNo");
+
+            MyUser resultUser = userService.getUserInfo(userNo).get();   
+            model.addAttribute("user", resultUser);    
+        }catch(Exception e){
+            model.addAttribute("message", e.getMessage());
+        }
+        return "myuser/mypage_form" ;
+    }
+
+    @PostMapping("/user/edit")
+    public String postUserEdit(){
+        return "home";
     }
     
 }
