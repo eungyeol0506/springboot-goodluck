@@ -73,8 +73,29 @@ public class JdbcTemplateUserRepository implements UserRepository{
     
     @Override
     public Optional<MyUser> updateUser(MyUser user) {
-        String query = "UPDATE MY_USER SET USER_NAME = ?, USER_PROFILE = ?, USER_PW = ?, TEL_NO = ?, POST_NO = ?, ADDRESS_MAIN =?, ADDRESS_DETAIL = ? WHERE USER_NO = ?";
-        jdbcTemplate.update(query, user.getUserName(), user.getUserProfile(), user.getUserPw(), user.getTelNo(), user.getPostNo(), user.getAddressMain(), user.getAddressDetail(), user.getUserNo());
+        String query = """
+            UPDATE MY_USER 
+               SET USER_NAME = ?, 
+                   USER_PW = ?, 
+                   TEL_NO = ?, 
+                   POST_NO = ?, 
+                   ADDRESS_MAIN =?, 
+                   ADDRESS_DETAIL = ?,
+                   PROFILE_IMG_PATH = ?,
+                   PROFILE_IMG_NAME = ? 
+                   WHERE USER_NO = ?
+            """;
+        jdbcTemplate.update(query, 
+                            user.getUserName(), 
+                            user.getUserPw(), 
+                            user.getTelNo(), 
+                            user.getPostNo(), 
+                            user.getAddressMain(), 
+                            user.getAddressDetail(),
+                            user.getProfileImgPath(),
+                            user.getProfileImgName(), 
+                            user.getUserNo());
+                            
         return Optional.ofNullable(user);
     }
     
@@ -89,18 +110,20 @@ public class JdbcTemplateUserRepository implements UserRepository{
         String sequenceQuery = "SELECT MY_USER_SEQ.NEXTVAL FROM DUAL";
         return jdbcTemplate.queryForObject(sequenceQuery, Long.class);        
     }
-    private Map<String,Object> toMap(MyUser myUser){
+    private Map<String,Object> toMap(MyUser user){
         Map<String,Object> map = new HashMap<>();
-        map.put("USER_NO",  myUser.getUserNo());
-        map.put("USER_NAME",myUser.getUserName());
-        map.put("USER_ID",  myUser.getUserId());
-        map.put("USER_PW",  myUser.getUserPw());
-        map.put("USER_PROFILE",myUser.getUserProfile());
-        map.put("TEL_NO",   myUser.getTelNo());
-        map.put("USER_MAIL",myUser.getUserEmail());
-        map.put("POST_NO",  myUser.getPostNo());
-        map.put("ADDRESS_MAIN",myUser.getAddressMain());
-        map.put("ADDRESS_DETAIL",myUser.getAddressDetail());
+        map.put("USER_NO",  user.getUserNo());
+        map.put("USER_NAME",user.getUserName());
+        map.put("USER_ID",  user.getUserId());
+        map.put("USER_PW",  user.getUserPw());
+        map.put("TEL_NO",   user.getTelNo());
+        map.put("USER_MAIL",user.getUserEmail());
+        map.put("POST_NO",  user.getPostNo());
+        map.put("ADDRESS_MAIN",user.getAddressMain());
+        map.put("ADDRESS_DETAIL",user.getAddressDetail());
+        map.put("PROFILE_IMG_PATH", user.getProfileImgPath());
+        map.put("PROFILE_IMG_NAME", user.getProfileImgName());
+
         return map;
     }
     private RowMapper<MyUser> userRowMapper(){
@@ -111,14 +134,15 @@ public class JdbcTemplateUserRepository implements UserRepository{
                 user.setUserNo(rs.getLong("USER_NO"));
                 user.setUserName(rs.getString("USER_NAME"));
                 user.setUserEmail(rs.getString("USER_EMAIL"));
-                user.setUserProfile(rs.getBytes("USER_PROFILE"));
                 user.setUserId(rs.getString("USER_ID"));
                 user.setUserPw(rs.getString("USER_PW"));
                 user.setPostNo(rs.getString("POST_NO"));
                 user.setAddressMain(rs.getString("ADDRESS_MAIN"));
                 user.setAddressDetail(rs.getString("ADDRESS_DETAIL"));
                 user.setTelNo(rs.getString("TEL_NO"));
-
+                user.setProfileImgPath("PROFILE_IMG_PATH");
+                user.setProfileImgName("PROFILE_IMG_NAME");
+                
                 return user;
             }
         };
