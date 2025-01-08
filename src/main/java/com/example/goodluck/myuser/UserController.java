@@ -1,15 +1,24 @@
 package com.example.goodluck.myuser;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.goodluck.domain.MyUser;
 
@@ -74,18 +83,18 @@ public class UserController {
     // 회원가입
     @GetMapping("/regist")
     public String getRegisterView(){
-        return "myuser/regist";
+        return "myuser/regist_form";
     }
     
     @PostMapping("/regist")
     public String postRegister(@RequestBody @Valid RegistUserRequestDto userDto,
                                 BindingResult bindingResult,
                                 Model model){
-        // 검증 실패 처리
+        // 검증 실패 처리 - 이거 동작을 안함
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", userDto); // 입력 값 유지
             model.addAttribute("message", bindingResult.getAllErrors().get(0).getDefaultMessage()); // 첫 번째 오류 메시지
-            return "myuser/regist"; // 다시 등록 페이지로 이동
+            return "myuser/regist_form"; // 다시 등록 페이지로 이동
         }
         
         MyUser user = new MyUser();
@@ -146,8 +155,32 @@ public class UserController {
     }
 
     @PostMapping("/user/edit")
-    public String postUserEdit(){
-        return "home";
+    public String postUserEdit( @ModelAttribute(name="userEditRequest") @Valid EditUserRequestDto userEditRequest,
+                                @RequestParam("fileImage") MultipartFile multipartFile,
+                                RedirectAttributes ra
+                                ) throws IOException{
+        String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+        MyUser user = new MyUser();
+        user.setProfileImgName(fileName);
+        System.out.println(fileName);
+        userService.updateUser(user);
+        
+        // String fileDir = "";
+        // Path uploadPath = Paths.get(fileDir);
+        // if (!Files.exists(uploadPath)) {
+        //     Files.createDirectories(uploadPath);
+        // }
+        // try{
+        //     InputStream inputStream = multipartFile.getInputStream();
+        //     Path filePath = uploadPath.resolve(fileName);
+        //     Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+        // } catch(IOException e){
+        //     throw new IOException("업로드 파일을 저장하지 못 함");
+        // }
+        
+        ra.addAttribute("message", "사용자 정보를 수정했습니다.");
+        
+        return "redirect:/mypage";
     }
     
 }
