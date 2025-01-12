@@ -1,7 +1,5 @@
 package com.example.goodluck.domain;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import lombok.Data;
 
 @Data
@@ -18,5 +16,5 @@ public class MyUser {
     private String telNo;
     private String profileImgPath;
     private String profileImgName;
-
+    
 }

@@ -13,8 +13,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.lang.NonNull;
 
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.exception.InvalidUserNoException;
 
 public class JdbcTemplateUserRepository implements UserRepository{
 
@@ -24,89 +26,88 @@ public class JdbcTemplateUserRepository implements UserRepository{
     public JdbcTemplateUserRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-
-    @Override
-    public Optional<Long> deleteByNo(Long no) {
-        int deletedRow = jdbcTemplate.update("delete from MY_User WHERE USER_NO = ?", no);
-        if(deletedRow > 0){
-            return Optional.of(no);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public List<MyUser> selectAll() {
-        return jdbcTemplate.query("select * from MY_USER", userRowMapper());
-    }
-
-    @Override
-    public Optional<MyUser> selectById(String id) {
-        List<MyUser> result = jdbcTemplate.query("select * from MY_USER where USER_ID = ?", userRowMapper(), id);
-        return result.stream().findAny();
-    }
-
-    @Override
-    public Optional<MyUser> selectByIdPw(String id, String pw) {
-        List<MyUser> result = jdbcTemplate.query("select * from MY_USER where USER_ID = ? AND USER_PW = ?", userRowMapper(), id, pw );
-        return result.stream().findAny();
-    }
-
-    @Override
-    public Optional<MyUser> selectByNo(Long no) {
-        List<MyUser> result = jdbcTemplate.query("select * from MY_USER where USER_NO = ?", userRowMapper(), no);
-        return result.stream().findAny();
-    }
-
+    
+    //INSERT
     @Override
     public MyUser insertNew(MyUser newMyUser) {
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         jdbcInsert.withTableName("MY_USER");
         // .usingGeneratedKeyColumns("USER_NO");
         
-        newMyUser.setUserNo(generatedUserNoKey());
-        Map<String, Object> parameters = toMap(newMyUser);
-        jdbcInsert.execute(new MapSqlParameterSource(parameters));
+        newMyUser.setUserNo(generateUserNoKey());
+        // Map<String, Object> parameters = toMap(newMyUser);
+        jdbcInsert.execute(new MapSqlParameterSource(toMap(newMyUser)));
         // Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
         // newMyUser.setUserNo(key.longValue());
         return newMyUser;
     }
-    
+    // SELECT 
     @Override
-    public Optional<MyUser> updateUser(MyUser user) {
-        String query = """
-            UPDATE MY_USER 
-               SET USER_NAME = ?, 
-                   USER_PW = ?, 
-                   TEL_NO = ?, 
-                   POST_NO = ?, 
-                   ADDRESS_MAIN =?, 
-                   ADDRESS_DETAIL = ?,
-                   PROFILE_IMG_PATH = ?,
-                   PROFILE_IMG_NAME = ? 
-                   WHERE USER_NO = ?
-            """;
-        jdbcTemplate.update(query, 
-                            user.getUserName(), 
-                            user.getUserPw(), 
-                            user.getTelNo(), 
-                            user.getPostNo(), 
-                            user.getAddressMain(), 
-                            user.getAddressDetail(),
-                            user.getProfileImgPath(),
-                            user.getProfileImgName(), 
-                            user.getUserNo());
-                            
-        return Optional.ofNullable(user);
+    public Optional<MyUser> selectById(String id) {
+        List<MyUser> result = jdbcTemplate.query("select * from MY_USER where USER_ID = ?", userRowMapper(), id);
+        return result.stream().findAny();
     }
-    
+    @Override
+    public Optional<MyUser> selectByIdPw(String id, String pw) {
+        List<MyUser> result = jdbcTemplate.query("select * from MY_USER where USER_ID = ? AND USER_PW = ?", userRowMapper(), id, pw );
+        return result.stream().findAny();
+    }
+    @Override
+    public Optional<MyUser> selectByNo(Long no) {
+        List<MyUser> result = jdbcTemplate.query("select * from MY_USER where USER_NO = ?", userRowMapper(), no);
+        return result.stream().findAny();
+    }
+    @Override
+    public List<MyUser> selectAll() {
+        return jdbcTemplate.query("select * from MY_USER", userRowMapper());
+    }
     @Override
     public Optional<MyUser> selectByIdEmail(String id, String email) {
         List<MyUser> result = jdbcTemplate.query("select * from MY_USER where USER_ID = ? AND USER_EMAIL = ?", userRowMapper(), id, email);
         return result.stream().findAny();
     }
+    // DELETE 
+    @Override
+    public Optional<Long> deleteByNo(Long no) {
+        int deletedRow = jdbcTemplate.update("delete from MY_User WHERE USER_NO = ?", no);
+        if (deletedRow == 0) {
+            throw new InvalidUserNoException("User with no " + no + " not found.");
+        }
+        return Optional.of(no);
+    }
+    // UPDATE
+    @Override
+    public Optional<MyUser> updateUser(MyUser user) {
+        String query = """
+                        UPDATE MY_USER 
+                        SET USER_NAME = ?, 
+                            USER_PW = ?, 
+                            TEL_NO = ?, 
+                            POST_NO = ?, 
+                            ADDRESS_MAIN =?, 
+                            ADDRESS_DETAIL = ?,
+                            PROFILE_IMG_PATH = ?,
+                            PROFILE_IMG_NAME = ? 
+                            WHERE USER_NO = ?
+                        """;
+        int updatedRow =  jdbcTemplate.update(query, 
+                                            user.getUserName(), 
+                                            user.getUserPw(), 
+                                            user.getTelNo(), 
+                                            user.getPostNo(), 
+                                            user.getAddressMain(), 
+                                            user.getAddressDetail(),
+                                            user.getProfileImgPath(),
+                                            user.getProfileImgName(), 
+                                            user.getUserNo());
+        if (updatedRow == 0){
+            throw new InvalidUserNoException("User not found.");
+        }                    
+        return Optional.of(user);
+    }
 
-    
-    private Long generatedUserNoKey() {
+    // private 
+    private Long generateUserNoKey() {
         String sequenceQuery = "SELECT MY_USER_SEQ.NEXTVAL FROM DUAL";
         return jdbcTemplate.queryForObject(sequenceQuery, Long.class);        
     }
@@ -126,10 +127,12 @@ public class JdbcTemplateUserRepository implements UserRepository{
 
         return map;
     }
+
     private RowMapper<MyUser> userRowMapper(){
         return new RowMapper<MyUser> (){
             @Override
-            public MyUser mapRow(ResultSet rs, int rowNum) throws SQLException {
+            public MyUser mapRow(@NonNull ResultSet rs, 
+                                 int rowNum) throws SQLException {
                 MyUser user = new MyUser();
                 user.setUserNo(rs.getLong("USER_NO"));
                 user.setUserName(rs.getString("USER_NAME"));

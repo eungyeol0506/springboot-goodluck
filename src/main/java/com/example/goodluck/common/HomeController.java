@@ -1,4 +1,4 @@
-package com.example.goodluck;
+package com.example.goodluck.common;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
