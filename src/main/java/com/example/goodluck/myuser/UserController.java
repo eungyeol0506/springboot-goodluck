@@ -1,22 +1,13 @@
 package com.example.goodluck.myuser;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
+import java.util.Objects;
 
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -32,7 +23,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @Controller
@@ -43,8 +33,6 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    // 사용자 이미지 프로필 파일 경로
-    private static final String PROFILE_DIR = "src/main/resources/files";
 
     // @GetMapping(value = "/user/list", produces = MediaType.APPLICATION_JSON_VALUE)
     // @ResponseBody
@@ -94,29 +82,29 @@ public class UserController {
     public String postRegister(
             @ModelAttribute(name="userRegistRequest") @Valid RegistUserRequestDto userRegistRequest,
             @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile,
-            Model model,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
         ){
+        if(bindingResult.hasErrors()){
+            System.out.println(userRegistRequest.getUserEmail());
+        }
         // dto -> domain
-        MyUser user = userRegistRequest.toDomain();
+        MyUser user = userRegistRequest.toDomain(); 
         
         // save file
-        String saveFileName =  user.getUserId();
-        
-        MyFileHandler fileHandler = new MyFileHandler();
-        if (multipartFile != null){
-            String fileName = fileHandler.saveSingleFileFromMultipartFile(multipartFile, MyFileHandler.PROFILE_DIR, saveFileName).get();
+        if ( !multipartFile.isEmpty() ){
+            MyFileHandler fileHandler = new MyFileHandler();
+
+            String fileName = fileHandler.uploadMyUserProfileImage(multipartFile, user).
+                                        orElseThrow(() -> new UserProfileImageUploadException("저장된 파일을 찾을 수 없습니다."));
             user.setProfileImgName(fileName);
             if(!fileName.isEmpty()){
-                user.setProfileImgPath(MyFileHandler.PROFILE_DIR);
+                user.setProfileImgPath(MyFileHandler.PROFILE_DIR.toString());
             }
         }
-        
         // save DB data
         userService.registUser(user);
         
-        // model.addAttribute("user", user);
         redirectAttributes.addFlashAttribute("message", "회원가입에 성공하였습니다.");
         return "redirect:/login";   
     }
@@ -131,57 +119,44 @@ public class UserController {
     }
 
     //회원 정보 수정
-    @GetMapping("/user/edit")
-    public String getUserEditView(HttpServletRequest request,
-                                  Model model) { 
-        try{
-            HttpSession session = request.getSession();
-            Long userNo = (Long) session.getAttribute("userNo");
+    @GetMapping("/mypage/edit")
+    public String getUserEditView(@SessionAttribute("userNo") Long userNo, Model model) { 
+        MyUser resultUser = userService.getUserInfo(userNo);
 
-            MyUser resultUser = userService.getUserInfo(userNo);   
-            model.addAttribute("user", resultUser);    
-        }catch(Exception e){
-            model.addAttribute("message", e.getMessage());
-        }
+        model.addAttribute("user", resultUser);
         return "myuser/mypage_form" ;
     }
 
-    @PostMapping("/user/edit")
-    public String postUserEdit( @ModelAttribute(name="userEditRequest") @Valid EditUserRequestDto userEditRequest,
-                                @RequestParam("fileImage") MultipartFile multipartFile,
-                                Model model,
-                                BindingResult bindingResult,
-                                HttpSession httpSession,
-                                RedirectAttributes redirectAttributes) throws Exception{
-                       
-        try {
-            // dto -> domain 
-            MyUser user = userEditRequest.toDomain();
-            String extension = "png";
-            String savefileName = String.valueOf(user.getUserNo()) + "_" + user.getUserId() + "." + extension ;
-            Path uploadPath = Paths.get(PROFILE_DIR);
-            // create new dir
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            
-            InputStream inputStream = multipartFile.getInputStream();
-            Path filePath = uploadPath.resolve(savefileName);
-            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+    @PostMapping("/mypage/edit")
+    public String postUserEdit( 
+            @ModelAttribute(name="userEditRequest") @Valid EditUserRequestDto userEditRequest,
+            @RequestParam(value="fileImage", required=false) MultipartFile multipartFile,
+            RedirectAttributes redirectAttributes,
+            BindingResult bindingResult) {
 
-            // set DB user profile
-            user.setProfileImgName(savefileName);
-            user.setProfileImgPath(PROFILE_DIR);
-            // MyUser updatedMyUser = userService.updateUser(user).get();
-            userService.updateUser(user);
-            
-            return "redirect:/mypage";
-        } catch (Exception exception) {
-            model.addAttribute("user", userEditRequest.toDomain());
-            model.addAttribute("message", exception.getMessage());
-            return "myuser/mypage";
+        if(bindingResult.hasErrors()){
+            System.out.println(userEditRequest.getUserId());
         }
+        // dto -> domain
+        MyUser user = userEditRequest.toDomain();
         
+        // save file
+        String saveFileName =  user.getUserId();
+        
+        MyFileHandler fileHandler = new MyFileHandler();
+        // if (multipartFile != null){
+        //     String fileName = fileHandler.saveSingleFileFromMultipartFile(multipartFile, MyFileHandler.PROFILE_DIR, saveFileName).get();
+        //     user.setProfileImgName(fileName);
+        //     if(!fileName.isEmpty()){
+        //         user.setProfileImgPath(MyFileHandler.PROFILE_DIR);
+        //     }
+        // }
+        
+        // save DB data
+        userService.updateUser(user);
+        
+        redirectAttributes.addFlashAttribute("message", "회원정보를 수정하였습니다.");
+        return "redirect:/mypage";   
     }
     
 }

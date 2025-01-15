@@ -178,7 +178,7 @@ public class UserControllerTest {
                 FlashMap flashMap = mvcResult.getFlashMap();
                 Assertions.assertThat(flashMap.get("message")).isEqualTo("회원가입에 성공하였습니다.");
                 Mockito.verify(userService).registUser(any(MyUser.class));                              
-            }
+             }
             @Test
             @DisplayName("회원가입을 성공하는 경우 - 이미지있음")
             void successRegistUserWithProfile() throws Exception{
@@ -254,16 +254,17 @@ public class UserControllerTest {
         
         @Nested
         class SuccessCase{
-            @DisplayName("회원 정보 수정에 성공한 경우")
+            @DisplayName("회원 정보 수정에 성공한 경우 - 이미지 있음")
             @Test
             void successPostUserEdit(){
                 // given
                 MultiValueMap<String, String> editedForms = creaetEditForm(myUser);
 
+                Mockito.when(userService.getUserInfo(any(Long.class))).thenReturn(myUser);
                 Mockito.when(userService.updateUser(any(MyUser.class))).thenReturn(myUser);
                 // when // then
                 try {
-                    mockMvc.perform(MockMvcRequestBuilders.multipart("/user/edit")
+                    mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
                                                         .file(multipartFile)
                                                         .params(editedForms)
                                                         .contentType(MediaType.MULTIPART_FORM_DATA))

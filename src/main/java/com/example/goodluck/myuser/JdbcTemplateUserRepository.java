@@ -118,7 +118,7 @@ public class JdbcTemplateUserRepository implements UserRepository{
         map.put("USER_ID",  user.getUserId());
         map.put("USER_PW",  user.getUserPw());
         map.put("TEL_NO",   user.getTelNo());
-        map.put("USER_MAIL",user.getUserEmail());
+        map.put("USER_EMAIL",user.getUserEmail());
         map.put("POST_NO",  user.getPostNo());
         map.put("ADDRESS_MAIN",user.getAddressMain());
         map.put("ADDRESS_DETAIL",user.getAddressDetail());

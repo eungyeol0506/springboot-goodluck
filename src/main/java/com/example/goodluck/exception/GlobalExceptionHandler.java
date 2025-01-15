@@ -8,18 +8,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    // @ExceptionHandler(UserNotFoundException.class)
-    // public String handelUserNotFoundException(UserNotFoundException ex, RedirectAttributes redirectAttributes){
-    //     redirectAttributes.addFlashAttribute("message", ex.getMessage());
-    //     // model.addAttribute("message", ex.getMessage());
-    //     return "redirect:/login";
-    // }
+    @ExceptionHandler(UserNotFoundException.class)
+    public String handelUserNotFoundException(UserNotFoundException exception, RedirectAttributes redirectAttributes){
+        redirectAttributes.addFlashAttribute("message", exception.getMessage());
+        // model.addAttribute("message", ex.getMessage());
+        return "redirect:/";
+    }
     @ExceptionHandler(UserNotFoundLoginException.class)
-    public String handelUserNotFoundLoginException(UserNotFoundLoginException ex, RedirectAttributes redirectAttributes){
-        redirectAttributes.addFlashAttribute("message", ex.getMessage());
+    public String handelUserNotFoundLoginException(UserNotFoundLoginException exception, RedirectAttributes redirectAttributes){
+        redirectAttributes.addFlashAttribute("message", exception.getMessage());
         return "redirect:/login";
     }
-    
     @ExceptionHandler(UserProfileImageUploadException.class)
     public String handleUserProfileImageUploadException(
             UserProfileImageUploadException exception,
@@ -30,8 +29,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidUserNoException.class)
-    public String handleInvalidUserNoException(InvalidUserNoException ex, Model model) {
-        model.addAttribute("message", ex.getMessage());
+    public String handleInvalidUserNoException(InvalidUserNoException exception, Model model) {
+        model.addAttribute("message", exception.getMessage());
         return "error";
     }
 }

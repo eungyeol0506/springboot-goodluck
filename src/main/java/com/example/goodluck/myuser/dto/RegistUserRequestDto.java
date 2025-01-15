@@ -23,8 +23,6 @@ public class RegistUserRequestDto implements MyDto<MyUser>{
     private String addressMain;
     private String addressDetail;
     private String telNo;
-    private String profileImgPath;
-    private String profileImgName;
 
     @Override
     public MyUser toDomain() {
@@ -37,8 +35,6 @@ public class RegistUserRequestDto implements MyDto<MyUser>{
         domain.setTelNo(this.telNo);
         domain.setAddressMain(this.addressMain);
         domain.setAddressDetail(this.addressDetail);
-        domain.setProfileImgPath(this.profileImgPath);
-        domain.setProfileImgName(this.profileImgName); 
 
         return domain;
     }

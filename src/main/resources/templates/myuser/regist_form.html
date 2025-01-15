@@ -19,24 +19,25 @@
         <div class="card mt-4 mb-3"  style="width: 100%; max-width: 800px;">
             <h3 class="card-header">회원가입</h3>
             <form th:action="@{/regist}" th:object="${userRegistRequest}" method="post" enctype="multipart/form-data">
+            <fieldset>
             <div class="card-body">
-                <img th:src="@{https://img.icons8.com/?size=250&id=ABBSjQJK83zf&format=png&color=000000}" alt="프로필 이미지">
+                <img th:src="@{https://img.icons8.com/?size=250&id=ABBSjQJK83zf&format=png&color=000000}" alt="프로필 이미지" id="userThumbnail">
                 <div>
                     <label for="fileImage" class="form-label mt-4">프로필 이미지 업로드</label>
-                    <input class="form-control" type="file" id="fileImage" accept="image/png, image/jpeg, image/jpg">
+                    <input class="form-control" type="file" id="fileImage" name="fileImage" accept="image/png, image/jpeg, image/jpg">
                 </div>
                 <div>
                     <label for="userName" class="form-label mt-4">
                         이름<span class="text-danger">*</span>
                     </label>
-                    <input type="text" class="form-control" id="userName" placeholder="이름을 입력해주세요">
+                    <input type="text" class="form-control" id="userName" name="userName" placeholder="이름을 입력해주세요">
                 </div>
                 <div>
                     <label for="userId-group" class="form-label mt-4">
                         아이디<span class="text-danger">*</span>
                     </label>
                     <div class="input-group" id="userId-group">
-                        <input type="text" class="form-control" id="userId"  aria-describedby="userIdHelp" placeholder="아이디를 입력해주세요">
+                        <input type="text" class="form-control" id="userId" name="userId" aria-describedby="userIdHelp" placeholder="아이디를 입력해주세요">
                         <button type="button" class="btn btn-primary" id="userIdHelp">중복확인</button>
                     </div>
                 </div>
@@ -44,33 +45,34 @@
                     <label for="userPw" class="form-label mt-4">
                         비밀번호<span class="text-danger">*</span>
                     </label>
-                    <input type="password" class="form-control" id="userPw">
+                    <input type="password" class="form-control" id="userPw" name="userPw">
                 </div>
                 <div>
                     <label for="userEmail" class="form-label mt-4">
                         이메일<span class="text-danger">*</span>
                     </label>
-                    <input type="email" class="form-control" id="userEmail"  aria-describedby="userEmailHelp" placeholder="이메일을 입력해주세요">    
+                    <input type="text" class="form-control" id="userEmail" name="userEmail"  aria-describedby="userEmailHelp" placeholder="이메일을 입력해주세요">    
                     <small id="userEmailHelp" class="form-text text-muted">Ex. your-address@example.com</small>
                 </div>
                 <div>
                     <label for="postNo" class="form-label mt-4">우편번호</label>
-                    <input type="text" class="form-control" id="postNo">    
+                    <input type="text" class="form-control" id="postNo" name="postNo">    
                 </div>
                 <div>
                     <label for="addressMain" class="form-label mt-4">주소</label>
-                    <input type="text" class="form-control" id="addressMain">    
+                    <input type="text" class="form-control" id="addressMain" name="addressMain">    
                 </div>
                 <div>
                     <label for="addressDetail" class="form-label mt-4">상세주소</label>
-                    <input type="text" class="form-control" id="addressDetail">    
+                    <input type="text" class="form-control" id="addressDetail" name="addressDetail">    
                 </div>
                 <div>
                     <label for="telNo" class="form-label mt-4">전화번호</label>
-                    <input type="text" class="form-control" id="telNo">    
+                    <input type="text" class="form-control" id="telNo" name="telNo">    
                 </div>
 
             </div>
+            </fieldset>
             <div class="card-footer d-flex justify-content-end mt-3">
                 <!-- <button type="button" class="btn btn-primary" onclick="postSubmit();">등록하기</button> -->
                 <button type="submit" class="btn btn-primary" >등록하기</button>
