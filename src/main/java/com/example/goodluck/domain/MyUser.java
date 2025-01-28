@@ -1,5 +1,9 @@
 package com.example.goodluck.domain;
 
+import java.beans.Transient;
+
+import org.springframework.data.annotation.AccessType;
+
 import lombok.Data;
 
 @Data
@@ -16,5 +20,12 @@ public class MyUser {
     private String telNo;
     private String profileImgPath;
     private String profileImgName;
+
     
+    public String getProfile(){
+        if (profileImgPath != null){
+            return "/files/" + profileImgName;
+        }
+        return null;
+    }
 }

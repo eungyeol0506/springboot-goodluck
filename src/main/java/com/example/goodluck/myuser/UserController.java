@@ -1,10 +1,10 @@
 package com.example.goodluck.myuser;
 
-import java.util.Objects;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.goodluck.common.MyFileHandler;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.UserProfileImageUploadException;
+import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
 import com.example.goodluck.myuser.dto.EditUserRequestDto;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;
 
@@ -84,22 +84,19 @@ public class UserController {
             @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
-        ){
-        if(bindingResult.hasErrors()){
-            System.out.println(userRegistRequest.getUserEmail());
-        }
+        ) throws MethodArgumentNotValidException{
         // dto -> domain
         MyUser user = userRegistRequest.toDomain(); 
         
         // save file
-        if ( !multipartFile.isEmpty() ){
+        if ( multipartFile != null ){
             MyFileHandler fileHandler = new MyFileHandler();
 
             String fileName = fileHandler.uploadMyUserProfileImage(multipartFile, user).
                                         orElseThrow(() -> new UserProfileImageUploadException("저장된 파일을 찾을 수 없습니다."));
             user.setProfileImgName(fileName);
             if(!fileName.isEmpty()){
-                user.setProfileImgPath(MyFileHandler.PROFILE_DIR.toString());
+                user.setProfileImgPath(MyFileHandler.PROFILE_DIR_STRING);
             }
         }
         // save DB data
@@ -114,7 +111,10 @@ public class UserController {
     public String getUserInfo(@SessionAttribute("userNo") Long userNo, Model model ){
         MyUser resultUser = userService.getUserInfo(userNo);
 
-        model.addAttribute("user", resultUser);     
+        if (resultUser.getProfileImgName() != null){
+            model.addAttribute("profileUrl", resultUser.getProfile());
+        }
+        model.addAttribute("user", resultUser);
         return "myuser/mypage" ;
     }
 

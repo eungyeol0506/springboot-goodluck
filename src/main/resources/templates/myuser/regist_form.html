@@ -20,7 +20,7 @@
             <h3 class="card-header">회원가입</h3>
             <form th:action="@{/regist}" th:object="${userRegistRequest}" method="post" enctype="multipart/form-data">
             <fieldset>
-            <div class="card-body">
+            <div class="card-body mb-2">
                 <img th:src="@{https://img.icons8.com/?size=250&id=ABBSjQJK83zf&format=png&color=000000}" alt="프로필 이미지" id="userThumbnail">
                 <div>
                     <label for="fileImage" class="form-label mt-4">프로필 이미지 업로드</label>
@@ -72,11 +72,21 @@
                 </div>
 
             </div>
-            </fieldset>
-            <div class="card-footer d-flex justify-content-end mt-3">
-                <!-- <button type="button" class="btn btn-primary" onclick="postSubmit();">등록하기</button> -->
+
+            <th:block th:if="${notice != null}">
+                <div class="d-grid gap-2 me-3 ms-3">
+                    <div class="alert alert-dismissible alert-secondary">
+                        <!-- <button type="button" class="btn-close" data-bs-dismiss="alert"></button> -->
+                        <strong th:text="${notice}"></strong> 
+                    </div>
+                </div>
+            </th:block>
+
+            <div class="d-grid gap-2 mb-4 me-3 ms-3">
                 <button type="submit" class="btn btn-primary" >등록하기</button>
             </div>
+            </fieldset>
+            <!-- <button type="button" class="btn btn-primary" onclick="postSubmit();">등록하기</button> -->
             </form>
         </div>
     </div>

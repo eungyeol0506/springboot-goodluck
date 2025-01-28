@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.UserNotFoundException;
 import com.example.goodluck.exception.UserNotFoundLoginException;
+import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 
 public class UserService {
@@ -24,7 +25,7 @@ public class UserService {
     private void validateDuplicateUserId(MyUser newMyUser) {
         userRepository.selectById(newMyUser.getUserId())
                     .ifPresent(u -> { 
-                        throw new IllegalStateException("이미 존재하는 아이디입니다.");
+                        throw new UserRegistFaildException("이미 존재하는 아이디입니다.");
                     });
     }
     // 회원 로그인

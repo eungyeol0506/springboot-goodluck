@@ -25,10 +25,13 @@
           </h6>
         </div>
         <div style="text-align: center;">
-          <img th:if="${user.profileImgName == null}" th:src="@{/noimage.png}" alt="프로필 이미지" style="max-width: 600px; max-height: 600px;"/>
-          <img th:if="${user.profileImgName != null}" th:src="${user.profileImgPath + user.profileImgName}" alt="프로필 이미지" style="max-width: 600px; max-height: 600px;"/>
+          <th:bolck th:if="${user.profileImgName == null}">
+            <img th:src="@{/noimage.png}" alt="기본 프로필이미지" style="max-width: 600px; max-height: 600px;"/>
+          </th:bolck>
+          <th:block th:if="${user.profileImgName != null}">
+            <img th:src="@{${profileUrl}}" alt="사용자 프로필이미지" style="max-width: 600px; max-height: 600px;"/>
+          </th:block>
         </div>
-        <!-- <img th:src="@{${user.profileImgPath} + ${user.profileImgName}}" alt="프로필 이미지"> -->
         
         <div class="card-body">
             <form>

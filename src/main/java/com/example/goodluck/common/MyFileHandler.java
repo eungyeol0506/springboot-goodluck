@@ -13,11 +13,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.UserProfileImageUploadException;
+import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
 
 public class MyFileHandler{
     // 사용자 이미지 프로필 파일 경로
-    public static final Path PROFILE_DIR = Paths.get("src/main/resources/static/files");
+    public static final String PROFILE_DIR_STRING = "src/main/resources/static/files";
+    public static final Path PROFILE_DIR = Paths.get(PROFILE_DIR_STRING);
 
     public Optional<String> uploadMyUserProfileImage(
             @NonNull

@@ -143,8 +143,8 @@ public class JdbcTemplateUserRepository implements UserRepository{
                 user.setAddressMain(rs.getString("ADDRESS_MAIN"));
                 user.setAddressDetail(rs.getString("ADDRESS_DETAIL"));
                 user.setTelNo(rs.getString("TEL_NO"));
-                user.setProfileImgPath("PROFILE_IMG_PATH");
-                user.setProfileImgName("PROFILE_IMG_NAME");
+                user.setProfileImgPath(rs.getString("PROFILE_IMG_PATH"));
+                user.setProfileImgName(rs.getString("PROFILE_IMG_NAME"));
                 
                 return user;
             }

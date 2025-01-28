@@ -29,4 +29,5 @@ public class SpringBeanConfing {
     public UserRepository userRepository(){
         return new JdbcTemplateUserRepository(dataSource);
     }
+
 }

@@ -1,13 +1,36 @@
 package com.example.goodluck.exception;
 
 import org.springframework.ui.Model;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
+import com.example.goodluck.exception.myuser.UserRegistFaildException;
+
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(UserRegistFaildException.class)
+    public String handleUserRegistFaildException(UserRegistFaildException exception, RedirectAttributes redirectAttributes)
+    {
+        // model.addAttribute("notice", exception.getMessage());
+        redirectAttributes.addFlashAttribute("notice", exception.getMessage());
+        return "redirect:/regist";
+        // return "regist";
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public String handleMethodArgumentNotValidException(MethodArgumentNotValidException exception, RedirectAttributes redirectAttributes )
+    {
+        String noticeMessage = "";
+        for( ObjectError e : exception.getBindingResult().getAllErrors()){
+            noticeMessage += e.getDefaultMessage() + "\n";
+        }
+        redirectAttributes.addFlashAttribute("notice", noticeMessage);
+        return "regist";
+    }
     @ExceptionHandler(UserNotFoundException.class)
     public String handelUserNotFoundException(UserNotFoundException exception, RedirectAttributes redirectAttributes){
         redirectAttributes.addFlashAttribute("message", exception.getMessage());
@@ -24,8 +47,9 @@ public class GlobalExceptionHandler {
             UserProfileImageUploadException exception,
             RedirectAttributes redirectAttributes
         ){
-        redirectAttributes.addFlashAttribute("message", exception.getMessage());
+        redirectAttributes.addFlashAttribute("notice", exception.getMessage());
         return "redirect:/regist";
+        // return null;
     }
 
     @ExceptionHandler(InvalidUserNoException.class)
