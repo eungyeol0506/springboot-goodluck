@@ -1,10 +1,8 @@
 package com.example.goodluck.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class MyAttach {
     private long attachNo;
     private String fileName;

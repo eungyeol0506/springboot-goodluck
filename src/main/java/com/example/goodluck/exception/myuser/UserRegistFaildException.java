@@ -1,21 +1,33 @@
 package com.example.goodluck.exception.myuser;
 
-import org.springframework.validation.BindingResult;
+import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.myuser.dto.RegistUserRequestDto;
+
 
 public class UserRegistFaildException extends RuntimeException {
-    BindingResult bindingResult;
+    RegistUserRequestDto registUserRequestDto;
 
     public UserRegistFaildException(String message) {
         super(message);
     }
-    
-    public UserRegistFaildException(BindingResult bindingResult){
-        this.bindingResult = bindingResult;
+    public UserRegistFaildException(String message, MyUser myUser){
+        super(message);
+        registUserRequestDto = new RegistUserRequestDto();
+        registUserRequestDto.setUserId(myUser.getUserId());
+        registUserRequestDto.setUserName(myUser.getUserName());
+        registUserRequestDto.setUserPw(myUser.getUserPw());
+        registUserRequestDto.setUserEmail(myUser.getUserEmail());
+        registUserRequestDto.setPostNo(myUser.getPostNo());
+        registUserRequestDto.setAddressMain(myUser.getAddressMain());
+        registUserRequestDto.setAddressDetail(myUser.getAddressDetail());
+        registUserRequestDto.setTelNo(myUser.getTelNo());
     }
     @Override
     public String getMessage() {
-        // TODO Auto-generated method stub
         return super.getMessage();
+    }
+    public RegistUserRequestDto getRegistUserRequestDto() {
+        return registUserRequestDto;
     }
     
 }

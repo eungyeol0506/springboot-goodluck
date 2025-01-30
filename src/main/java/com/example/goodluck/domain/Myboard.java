@@ -3,13 +3,11 @@ package com.example.goodluck.domain;
 import java.sql.Date;
 // import java.util.List;
 
+import lombok.Data;
+
 // import org.springframework.web.multipart.MultipartFile;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+@Data
 public class Myboard {
     private long boardNo;
     private String boardTitle;

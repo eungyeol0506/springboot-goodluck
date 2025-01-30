@@ -21,7 +21,6 @@ import com.example.goodluck.exception.InvalidUserNoException;
 public class JdbcTemplateUserRepository implements UserRepository{
 
     private final JdbcTemplate jdbcTemplate;
-    // private JdbcTemplate jdbcTemplate;
 
     public JdbcTemplateUserRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);

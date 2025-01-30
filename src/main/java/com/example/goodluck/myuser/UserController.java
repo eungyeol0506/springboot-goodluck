@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.goodluck.common.MyFileHandler;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
+import com.example.goodluck.exception.myuser.UserRegistFaildException;
 import com.example.goodluck.myuser.dto.EditUserRequestDto;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;
 
@@ -74,7 +75,8 @@ public class UserController {
     
     // 회원가입
     @GetMapping("/regist")
-    public String getRegisterView(){
+    public String getRegisterView(Model model){
+        model.addAttribute("preValue", new RegistUserRequestDto());
         return "myuser/regist_form";
     }
     
@@ -84,16 +86,15 @@ public class UserController {
             @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
-        ) throws MethodArgumentNotValidException{
+        ){
         // dto -> domain
         MyUser user = userRegistRequest.toDomain(); 
         
         // save file
         if ( multipartFile != null ){
             MyFileHandler fileHandler = new MyFileHandler();
-
             String fileName = fileHandler.uploadMyUserProfileImage(multipartFile, user).
-                                        orElseThrow(() -> new UserProfileImageUploadException("저장된 파일을 찾을 수 없습니다."));
+                                        orElseThrow(() -> new UserRegistFaildException("이미지 업로드에 실패하였습니다."));
             user.setProfileImgName(fileName);
             if(!fileName.isEmpty()){
                 user.setProfileImgPath(MyFileHandler.PROFILE_DIR_STRING);

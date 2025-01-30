@@ -6,6 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Map;
+import java.util.Optional;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import org.assertj.core.api.Assertions;
@@ -16,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.mockito.BDDMockito;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -33,8 +38,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.FlashMap;
 
+import com.example.goodluck.common.MyFileHandler;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.UserNotFoundLoginException;
 import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
@@ -50,7 +57,8 @@ public class UserControllerTest {
 
     @MockBean                                                                                                                                                                                                                                                                                                                                    
     private UserService userService;
-
+    @Mock
+    private MyFileHandler testFileHandler;
     // @Mock
     // private JdbcTemplateUserRepository mockUserRepository;
 
@@ -214,19 +222,20 @@ public class UserControllerTest {
             void failDuplicatedUserId() throws Exception{
                 // given
                 MultiValueMap<String, String> registForms = createRegistForm(myUser);
-                BDDMockito.given(userService.registUser(any(MyUser.class))).willThrow(new UserRegistFaildException("중복 아이디"));
+                BDDMockito.given(userService.registUser(any(MyUser.class))).willThrow(new UserRegistFaildException("중복 아이디", myUser));
 
                 // when then
-                MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
-                // mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
+                // MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
                                                 .params(registForms)
                                                 .contentType(MediaType.MULTIPART_FORM_DATA))
-                                        .andExpect(status().is3xxRedirection())
-                                        .andExpect(redirectedUrl("/regist"))
+                                        .andExpect(status().isOk())
+                                        .andExpect(view().name("myuser/regist_form"))
+                                        .andExpect(model().attributeExists("preValue"))
+                                        .andExpect(model().attribute("notice", "중복 아이디"))
                                         .andDo(print())
-                                        .andReturn()
                                         ;
-                Assertions.assertThat(mvcResult.getFlashMap().get("notice")).isEqualTo("중복 아이디");
+                // Assertions.assertThat(mvcResult.getFlashMap().get("notice")).isEqualTo("중복 아이디");
                 Mockito.verify(userService).registUser(any(MyUser.class));
             }
 
@@ -244,51 +253,57 @@ public class UserControllerTest {
                 // mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
                                                 .params(registForms)
                                                 .contentType(MediaType.MULTIPART_FORM_DATA))
-                                        .andExpect(status().is3xxRedirection())
-                                        .andExpect(redirectedUrl("/regist"))
+                                        .andExpect(status().isOk())
+                                        .andExpect(view().name("myuser/regist_form"))
+                                        .andExpect(model().attributeExists("notice"))
+                                        .andExpect(model().attributeExists("preValue"))
                                         .andDo(print())
                                         .andReturn()
                                         ;
+                // Map<String, Object> modelAndView = mvcResult.getModelAndView().getModel();            
+                // Assertions.assertThat(modelAndView.get("notice")).isNotNull();
                 
-                // Assertions.assertThat(mvcResult.getFlashMap().get("notice")).isEqualTo("e");
-                Assertions.assertThat(mvcResult.getFlashMap().get("notice")).isNotNull();
                 Mockito.verify(userService, Mockito.never()).registUser(any(MyUser.class));
             }
             @Test
             @DisplayName("컨트롤러 외 예외가 발생하는 경우")
+            // 어캐 처리하지
             void failDataAccessException() throws Exception{
                 // given
                 MultiValueMap<String, String> registForms = createRegistForm(myUser);
                 BDDMockito.given(userService.registUser(any(MyUser.class))).willThrow(new RuntimeException("새로운 예외 발생"));
 
                 // when then
-                MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
-                                                        .params(registForms)
-                                                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                                            .andExpect(status().is3xxRedirection())
-                                            .andExpect(view().name("error"))
-                                            .andDo(print())
-                                            .andReturn();
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
+                                    .params(registForms)
+                                    .contentType(MediaType.MULTIPART_FORM_DATA))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("error"))
+                        .andDo(print())
+                        .andReturn();
             }
+
             @Test
             @DisplayName("잘못된 파일 데이터를 받은 경우")
             void failInvalidMultipartFile() throws Exception{
                 // given
-                MockMultipartFile multipartFile = new MockMultipartFile("fileImage", "new_profile.img", "image/png", "test-image-content".getBytes());
+                MockMultipartFile multipartFile = new MockMultipartFile("fileImage", "faild_file.img", "image/png", "test-image-content".getBytes());
                 MultiValueMap<String,String> registForms = createRegistForm(myUser);
 
-                BDDMockito.given(userService.registUser(any(MyUser.class))).willThrow(new UserProfileImageUploadException(""));
+                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MultipartFile.class), any(MyUser.class))).willReturn(Optional.empty());
+                BDDMockito.given(userService.registUser(any(MyUser.class))).willReturn(myUser);
                 // when then
-                MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
                                                         .file(multipartFile)
                                                         .params(registForms)
                                                         .contentType(MediaType.MULTIPART_FORM_DATA))
-                                            .andExpect(status().is3xxRedirection())
-                                            .andExpect(redirectedUrl("/regist"))
-                                            .andDo(print())
-                                            .andReturn();
+                                            .andExpect(status().isOk())
+                                            .andExpect(view().name("myuser/regist_form"))
+                                            .andExpect(model().attribute("notice", "잘못된 파일 어쩌구"))
+                                            .andExpect(model().attributeExists("preValue"))
+                                            .andDo(print());
 
-                Assertions.assertThat(mvcResult.getFlashMap().get("notice")).isNotNull();
+                Mockito.verify(userService, Mockito.never()).registUser(any(MyUser.class));
             }
         }
     }

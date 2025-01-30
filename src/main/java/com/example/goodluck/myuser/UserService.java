@@ -25,7 +25,7 @@ public class UserService {
     private void validateDuplicateUserId(MyUser newMyUser) {
         userRepository.selectById(newMyUser.getUserId())
                     .ifPresent(u -> { 
-                        throw new UserRegistFaildException("이미 존재하는 아이디입니다.");
+                        throw new UserRegistFaildException("이미 존재하는 아이디입니다.", newMyUser);
                     });
     }
     // 회원 로그인

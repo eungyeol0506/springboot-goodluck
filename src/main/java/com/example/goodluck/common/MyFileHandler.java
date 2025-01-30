@@ -13,7 +13,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
 
 public class MyFileHandler{
     // 사용자 이미지 프로필 파일 경로
@@ -43,7 +42,8 @@ public class MyFileHandler{
 
         } catch(IOException exception){
             exception.printStackTrace();
-            throw new UserProfileImageUploadException("이미지 업로드 실패!");          
+            return Optional.empty();
+            // throw new UserRegistFaildException("이미지 업로드에 실패하였습니다.");          
         }
 
         return Optional.ofNullable(fileName);
