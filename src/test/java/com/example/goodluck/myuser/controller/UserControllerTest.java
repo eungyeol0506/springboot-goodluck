@@ -54,8 +54,8 @@ public class UserControllerTest {
     @MockBean                                                                                                                                                                                                                                                                                                                                    
     private UserService userService;
     // testFileHandler given이 동작하지 않는 이유?
-    // @Mock
-    // private MyFileHandler testFileHandler;
+    @MockBean
+    private MyFileHandler testFileHandler;
 
     @Autowired
     private MockMvc mockMvc;
@@ -188,6 +188,8 @@ public class UserControllerTest {
                 // given
                 MockMultipartFile multipartFile = new MockMultipartFile("fileImage", "new_profile.img", "image/png", "test-image-content".getBytes());
                 MultiValueMap<String,String> registForms = createRegistForm(myUser);
+                
+                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(multipartFile, myUser)).willReturn("success_profile.png");
                 BDDMockito.given(userService.registUser(any(MyUser.class))).willReturn(myUser);
                 // when //then
                 MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
@@ -281,7 +283,7 @@ public class UserControllerTest {
                 MockMultipartFile multipartFile = new MockMultipartFile("fileImage", "faild_file.img", "image/png", "test-image-content".getBytes());
                 MultiValueMap<String,String> registForms = createRegistForm(myUser);
 
-                // BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MultipartFile.class), any(MyUser.class))).willReturn(Optional.empty());
+                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MultipartFile.class), any(MyUser.class))).willThrow(new UserRegistFaildException("이미지 업로드에 실패하였습니다."));
                 BDDMockito.given(userService.registUser(any(MyUser.class))).willReturn(myUser);
                 // when then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
@@ -290,7 +292,7 @@ public class UserControllerTest {
                                                         .contentType(MediaType.MULTIPART_FORM_DATA))
                                             .andExpect(status().isOk())
                                             .andExpect(view().name("myuser/regist_form"))
-                                            .andExpect(model().attribute("notice", "잘못된 파일 어쩌구"))
+                                            .andExpect(model().attribute("notice", "이미지 업로드에 실패하였습니다."))
                                             .andExpect(model().attributeExists("preValue"))
                                             .andDo(print());
 

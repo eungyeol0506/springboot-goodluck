@@ -1,6 +1,7 @@
 package com.example.goodluck.myuser;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,6 +36,8 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Autowired
+    private MyFileHandler fileHandler;
     // @GetMapping(value = "/user/list", produces = MediaType.APPLICATION_JSON_VALUE)
     // @ResponseBody
     // public List<MyUser> getAllUsers(){
@@ -92,13 +95,11 @@ public class UserController {
         
         // save file
         if ( multipartFile != null ){
-            MyFileHandler fileHandler = new MyFileHandler();
-            String fileName = fileHandler.uploadMyUserProfileImage(multipartFile, user).
-                                        orElseThrow(() -> new UserRegistFaildException("이미지 업로드에 실패하였습니다."));
+            // MyFileHandler fileHandler = new MyFileHandler();
+            String fileName = fileHandler.uploadMyUserProfileImage(multipartFile, user);
+                                        
             user.setProfileImgName(fileName);
-            if(!fileName.isEmpty()){
-                user.setProfileImgPath(MyFileHandler.PROFILE_DIR_STRING);
-            }
+            user.setProfileImgPath(MyFileHandler.PROFILE_DIR_STRING);
         }
         // save DB data
         userService.registUser(user);
