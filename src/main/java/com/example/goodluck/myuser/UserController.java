@@ -58,7 +58,7 @@ public class UserController {
                             HttpServletRequest request ) {
 
         MyUser loginUser = userService.loginUser(id, pw);
-        
+        // set session
         HttpSession session = request.getSession();
         session.setAttribute("userNo", loginUser.getUserNo());
         

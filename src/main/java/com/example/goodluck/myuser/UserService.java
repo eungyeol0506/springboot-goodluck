@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.UserNotFoundException;
-import com.example.goodluck.exception.UserNotFoundLoginException;
+import com.example.goodluck.exception.myuser.UserLoginFaildException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 
@@ -31,7 +31,7 @@ public class UserService {
     // 회원 로그인
     public MyUser loginUser(String id, String pw){
         return userRepository.selectByIdPw(id, pw)
-                             .orElseThrow(() -> new UserNotFoundLoginException("로그인 정보를 다시 확인해주세요."));
+                             .orElseThrow(() -> new UserLoginFaildException("로그인 정보를 다시 확인해주세요."));
     }
     // 회원정보 수정
     public MyUser updateUser (MyUser editUser) {

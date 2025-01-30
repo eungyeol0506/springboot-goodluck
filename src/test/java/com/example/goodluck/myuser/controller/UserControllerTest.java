@@ -30,12 +30,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.assertj.MockMvcTester.MockMvcRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,8 +40,7 @@ import org.springframework.web.servlet.FlashMap;
 
 import com.example.goodluck.common.MyFileHandler;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.UserNotFoundLoginException;
-import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
+import com.example.goodluck.exception.myuser.UserLoginFaildException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 import com.example.goodluck.myuser.UserController;
 import com.example.goodluck.myuser.UserService;
@@ -57,10 +53,9 @@ public class UserControllerTest {
 
     @MockBean                                                                                                                                                                                                                                                                                                                                    
     private UserService userService;
-    @Mock
-    private MyFileHandler testFileHandler;
+    // testFileHandler given이 동작하지 않는 이유?
     // @Mock
-    // private JdbcTemplateUserRepository mockUserRepository;
+    // private MyFileHandler testFileHandler;
 
     @Autowired
     private MockMvc mockMvc;
@@ -115,20 +110,17 @@ public class UserControllerTest {
             // given 
             String userId = myUser.getUserId();
             String userPw = myUser.getUserPw();
-            BDDMockito.given(userService.loginUser(userId, userPw)).willThrow(new UserNotFoundLoginException("로그인 실패"));
+            BDDMockito.given(userService.loginUser(userId, userPw)).willThrow(new UserLoginFaildException("로그인 실패"));
             // when // then
-            MvcResult mvcResult = mockMvc.perform(post("/login")
-                                        .param("userId", userId)
-                                        .param("userPw", userPw))
-                                    .andExpect(status().is3xxRedirection())
-                                    .andExpect(redirectedUrl("/login"))
-                                    // .andExpect(model().attribute("message", "로그인 실패"))
-                                    // .andDo(print());
-                                    .andReturn();
-                                    
-            FlashMap flashMap = mvcResult.getFlashMap();
-            Assertions.assertThat(flashMap.get("message")).isEqualTo("로그인 실패");        
+            mockMvc.perform(post("/login")
+                            .param("userId", userId)
+                            .param("userPw", userPw))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("myuser/login"))
+                        .andExpect(model().attribute("notice", "로그인 실패"))
+                        .andDo(print());
 
+            Mockito.verify(userService).loginUser(userId, userPw);
         }
     }
     @Nested
@@ -147,7 +139,6 @@ public class UserControllerTest {
                     .andExpect(redirectedUrl("/"))
                     .andExpect(request().sessionAttributeDoesNotExist("userNo"))
                     .andDo(print());
-        // 로그아웃에 실패하는 경우???
         }
     }
 
@@ -290,7 +281,7 @@ public class UserControllerTest {
                 MockMultipartFile multipartFile = new MockMultipartFile("fileImage", "faild_file.img", "image/png", "test-image-content".getBytes());
                 MultiValueMap<String,String> registForms = createRegistForm(myUser);
 
-                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MultipartFile.class), any(MyUser.class))).willReturn(Optional.empty());
+                // BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MultipartFile.class), any(MyUser.class))).willReturn(Optional.empty());
                 BDDMockito.given(userService.registUser(any(MyUser.class))).willReturn(myUser);
                 // when then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")

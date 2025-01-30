@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.goodluck.exception.myuser.UserLoginFaildException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;
 
@@ -32,16 +33,16 @@ public class GlobalExceptionHandler {
         model.addAttribute("notice", exception.getMessage());
         return "myuser/regist_form";
     }
+    @ExceptionHandler(UserLoginFaildException.class)
+    public String handldeUserLoginFaildException(UserLoginFaildException exception, Model model){
+        model.addAttribute("notice", exception.getMessage());
+        return "myuser/login";
+    }
     @ExceptionHandler(UserNotFoundException.class)
     public String handelUserNotFoundException(UserNotFoundException exception, RedirectAttributes redirectAttributes){
         redirectAttributes.addFlashAttribute("message", exception.getMessage());
         // model.addAttribute("message", ex.getMessage());
         return "redirect:/";
-    }
-    @ExceptionHandler(UserNotFoundLoginException.class)
-    public String handelUserNotFoundLoginException(UserNotFoundLoginException exception, RedirectAttributes redirectAttributes){
-        redirectAttributes.addFlashAttribute("message", exception.getMessage());
-        return "redirect:/login";
     }
         
     @ExceptionHandler(InvalidUserNoException.class)
