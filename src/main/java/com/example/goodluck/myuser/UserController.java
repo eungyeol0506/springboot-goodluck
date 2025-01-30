@@ -94,7 +94,7 @@ public class UserController {
         MyUser user = userRegistRequest.toDomain(); 
         
         // save file
-        if ( multipartFile != null ){
+        if ( multipartFile != null && !multipartFile.getOriginalFilename().isBlank()){
             // MyFileHandler fileHandler = new MyFileHandler();
             String fileName = fileHandler.uploadMyUserProfileImage(multipartFile, user);
                                         
