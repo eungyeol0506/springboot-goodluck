@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.UserNotFoundException;
-import com.example.goodluck.exception.myuser.UserLoginFaildException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 
@@ -29,34 +27,29 @@ public class UserService {
                     });
     }
     // 회원 로그인
-    public MyUser loginUser(String id, String pw){
-        return userRepository.selectByIdPw(id, pw)
-                             .orElseThrow(() -> new UserLoginFaildException("로그인 정보를 다시 확인해주세요."));
-    }
-    // 회원정보 수정
-    public MyUser updateUser (MyUser editUser) {
-        getUserInfo(editUser.getUserNo());
-        return userRepository.updateUser(editUser)
-                            .orElseThrow(() -> new IllegalStateException("회원 정보를 수정할 수 없습니다."));
+    public Optional<MyUser> loginUser(String id, String pw){
+        return userRepository.selectByIdPw(id, pw);
     }
     // 회원정보 상세 보기
-    public MyUser getUserInfo(Long no){
-        return userRepository.selectByNo(no)
-                             .orElseThrow(() -> new UserNotFoundException("정보를 찾을 수 없습니다."));
+    public Optional<MyUser> getUserInfo(Long no){
+        return userRepository.selectByNo(no);                            
     }
     // 회원정보 전체 보기
     public List<MyUser> getAllUserInfo(){
         return userRepository.selectAll();
     } 
-    // * ------------
+    // 회원정보 수정
+    public Optional<MyUser> updateUser (MyUser editUser) {
+        return userRepository.updateUser(editUser);
+    }
+    
+    //----
     // 유저 정보를 찾는 경우
     public Optional<Long> findUserPw(String id, String email){
         return Optional.ofNullable(userRepository.selectByIdEmail(id, email)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 사용자 정보입니다."))
                 .getUserNo());
     }
-
-
     // 비밀번호만 변경하는 경우
     public MyUser updateUserPw(String userId, String newPw) throws RuntimeException{
         

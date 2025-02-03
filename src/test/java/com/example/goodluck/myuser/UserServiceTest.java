@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.UserNotFoundException;
+import com.example.goodluck.exception.myuser.UserNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -52,7 +52,7 @@ public class UserServiceTest {
             String pw = myUser.getUserPw();
             Mockito.when(mockUserRepository.selectByIdPw(id, pw)).thenReturn(Optional.of(myUser));
             // when 
-            MyUser resultUser = userService.loginUser(id, pw);
+            MyUser resultUser = userService.loginUser(id, pw).get();
             // then
             Assertions.assertThat(myUser.getUserNo()).isEqualTo(resultUser.getUserNo());
             Assertions.assertThat(id).isEqualTo(resultUser.getUserId());
@@ -185,7 +185,7 @@ public class UserServiceTest {
                 Mockito.when(mockUserRepository.selectByNo(no)).thenReturn(Optional.of(myUser));
                 Mockito.when(mockUserRepository.updateUser(myUser)).thenReturn(Optional.of(myUser));
                 //when
-                MyUser resultUser = userService.updateUser(myUser);
+                MyUser resultUser = userService.updateUser(myUser).get();
                 //then
                 Mockito.verify(mockUserRepository).updateUser(myUser);
 
@@ -273,7 +273,7 @@ public class UserServiceTest {
             Long no = myUser.getUserNo();
             Mockito.when(mockUserRepository.selectByNo(no)).thenReturn(Optional.of(myUser));
             // when
-            MyUser resultUser = userService.getUserInfo(no);
+            MyUser resultUser = userService.getUserInfo(no).get();
             // then
             Assertions.assertThat(myUser).isEqualTo(resultUser);
             Mockito.verify(mockUserRepository).selectByNo(no);

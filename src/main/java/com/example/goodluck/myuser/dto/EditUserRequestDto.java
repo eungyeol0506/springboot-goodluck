@@ -28,6 +28,8 @@ public class EditUserRequestDto implements MyDto<MyUser>{
     private String telNo;
     private String addressMain;
     private String addressDetail;
+    private String profileImgPath;
+    private String profileImgName;
 
     // 도메인 별 특정 request가 존재하기 때문에 해당 변환 함수를 DTO 내 구현함
     public MyUser toDomain(){
@@ -41,6 +43,8 @@ public class EditUserRequestDto implements MyDto<MyUser>{
         domain.setAddressDetail(this.addressDetail);
         domain.setPostNo(this.postNo);
         domain.setTelNo(this.telNo);
+        domain.setProfileImgPath(profileImgPath);
+        domain.setProfileImgName(profileImgName);
         
         return domain;
     }

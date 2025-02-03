@@ -41,6 +41,7 @@ import org.springframework.web.servlet.FlashMap;
 import com.example.goodluck.common.MyFileHandler;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserLoginFaildException;
+import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 import com.example.goodluck.myuser.UserController;
 import com.example.goodluck.myuser.UserService;
@@ -67,11 +68,9 @@ public class UserControllerTest {
         myUser.setUserNo(Long.valueOf(123456));
         myUser.setUserId("test");
         myUser.setUserPw("testtest");
-        myUser.setUserName("테스터");
+        myUser.setUserName("name");
         myUser.setUserEmail("test@test.com");
         myUser.setPostNo("12345");
-        myUser.setProfileImgName("controller_test.png");
-        myUser.setProfileImgPath("controller_test_path");
     }
 
     @Nested
@@ -91,7 +90,7 @@ public class UserControllerTest {
             //given
             String userId = myUser.getUserId();
             String userPw = myUser.getUserPw();
-            BDDMockito.given(userService.loginUser(userId, userPw)).willReturn(myUser);
+            BDDMockito.given(userService.loginUser(userId, userPw)).willReturn(Optional.of(myUser));
             //when // then
             mockMvc.perform(post("/login")
                         .param("userId", userId)
@@ -283,7 +282,8 @@ public class UserControllerTest {
                 MockMultipartFile multipartFile = new MockMultipartFile("fileImage", "faild_file.img", "image/png", "test-image-content".getBytes());
                 MultiValueMap<String,String> registForms = createRegistForm(myUser);
 
-                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MultipartFile.class), any(MyUser.class))).willThrow(new UserRegistFaildException("이미지 업로드에 실패하였습니다."));
+                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MultipartFile.class), any(MyUser.class)))
+                          .willThrow(new UserRegistFaildException("이미지 업로드에 실패하였습니다."));
                 BDDMockito.given(userService.registUser(any(MyUser.class))).willReturn(myUser);
                 // when then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
@@ -304,8 +304,6 @@ public class UserControllerTest {
     @Nested
     @DisplayName("회원정보 수정")
     class EditUser{
-        // given 공통
-        MockMultipartFile multipartFile = new MockMultipartFile("fileImage", "profile.img", "image/png", "test-image-content".getBytes());
         // MyUser myUser = getTestNewUser();
         private MultiValueMap<String, String> creaetEditForm(MyUser user){
             MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
@@ -318,53 +316,149 @@ public class UserControllerTest {
             formParams.add("postNo", user.getPostNo());
             formParams.add("addressMain", user.getAddressMain());
             formParams.add("addresDetail", user.getAddressDetail());
+            formParams.add("profileImgName",user.getProfileImgName());
+            formParams.add("profileImgPath",user.getProfileImgPath());
+
             return formParams;
         }
         
         @Nested
         class SuccessCase{
-            @DisplayName("회원 정보 수정에 성공한 경우 - 이미지 있음")
+            @DisplayName("회원정보 수정에 성공한 경우")
             @Test
-            void successPostUserEdit(){
+            void successPostUserEdit() throws Exception{
                 // given
+                // MockMultipartFile file = new MockMultipartFile("fileImage", "name", 
+                //                                     "image/png", "test-image-content".getBytes());
+                MockMultipartFile file = new MockMultipartFile("fileImage", null, 
+                                                    null, "test-image-content".getBytes());
+                // myUser.setProfileImgName("name.png");
+                // myUser.setProfileImgPath("/files/");
                 MultiValueMap<String, String> editedForms = creaetEditForm(myUser);
 
-                Mockito.when(userService.getUserInfo(any(Long.class))).thenReturn(myUser);
-                Mockito.when(userService.updateUser(any(MyUser.class))).thenReturn(myUser);
+                MockHttpSession session = new MockHttpSession();
+                session.setAttribute("userNo", myUser.getUserNo());
+
+                BDDMockito.given(userService.updateUser(any(MyUser.class))).willReturn(Optional.of(myUser));
+                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(file, myUser)).willReturn("name");
                 // when // then
-                try {
-                    mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
-                                                        .file(multipartFile)
+                // .file(multipartFile)
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
+                                                        .file(file)
+                                                        .session(session)
                                                         .params(editedForms)
                                                         .contentType(MediaType.MULTIPART_FORM_DATA))
-                                    // .andDo(print())
-                                    .andExpect(status().is3xxRedirection())
-                                    .andExpect(redirectedUrl("/mypage"));
+                        .andExpect(status().is3xxRedirection())
+                        .andExpect(redirectedUrl("/mypage"))
+                        .andExpect(request().sessionAttribute("userNo", myUser.getUserNo()))
+                        .andDo(print());
 
-                    Mockito.verify(userService).updateUser(any(MyUser.class));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    fail("테스트 중 예외 발생: " + e.getMessage());
-                }
-                                
+                Mockito.verify(userService).updateUser(any(MyUser.class));
+                // Mockito.verify(testFileHandler, Mockito.never()).uploadMyUserProfileImage(file, myUser);
             }
         }
         @Nested
         @DisplayName("회원정보 수정 실패 케이스")
         class FailCase{
-            @DisplayName("입력값이 옳지 않은 경우")
+            @DisplayName("필수값이 입력되지 않은 경우")
             @Test
-            void invalidRequestData(){
+            void failInvalidRequestData() throws Exception{
+                // given
+                MockMultipartFile file = new MockMultipartFile("fileImage", "name", 
+                                                    "image/png", "test-image-content".getBytes());
 
-            }
-            @DisplayName("올바르지 않은 파일데이터인 경우")
-            @Test
-            void invalidFileData(){
+                myUser.setProfileImgName("name.png");
+                myUser.setProfileImgPath("/files/");
+                
+                myUser.setUserId(null);
+                MultiValueMap<String, String> editedForms = creaetEditForm(myUser);
 
+                MockHttpSession session = new MockHttpSession();
+                session.setAttribute("userNo", myUser.getUserNo());
+
+                BDDMockito.given(userService.updateUser(any(MyUser.class))).willReturn(Optional.of(myUser));
+                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(file, myUser)).willReturn("name");
+                // when // then
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
+                                                        .file(file)
+                                                        .session(session)
+                                                        .params(editedForms)
+                                                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                            .andExpect(status().isOk())
+                            .andExpect(view().name("myuser/mypage_form"))
+                            .andExpect(model().attributeExists("preValue"))
+                            .andExpect(model().attributeExists("notice"))
+                            .andExpect(request().sessionAttribute("userNo", myUser.getUserNo()))
+                            .andDo(print());
+
+                Mockito.verify(userService, Mockito.never()).updateUser(any(MyUser.class));
+                Mockito.verify(testFileHandler, Mockito.never()).uploadMyUserProfileImage(file, myUser);
             }
-            @DisplayName("서비스객체에서 오류가 난 경우")
+            @DisplayName("IO Exception이 발생한 경우")
             @Test
-            void occuredException(){}
+            void failInvalidFileData() throws Exception{
+                // given
+                MockMultipartFile file = new MockMultipartFile("fileImage", "name", 
+                "image/png", "test-image-content".getBytes());
+
+                myUser.setProfileImgName("name.png");
+                myUser.setProfileImgPath("/files/");
+                MultiValueMap<String, String> editedForms = creaetEditForm(myUser);
+
+                MockHttpSession session = new MockHttpSession();
+                session.setAttribute("userNo", myUser.getUserNo());
+
+                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(file, myUser))
+                          .willThrow(new UserProfileImageUploadException("테스트", myUser));
+                BDDMockito.given(userService.updateUser(any(MyUser.class))).willReturn(Optional.of(myUser));
+                // when // then
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
+                                                    .file(file)
+                                                    .session(session)
+                                                    .params(editedForms)
+                                                    .contentType(MediaType.MULTIPART_FORM_DATA))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("myuser/mypage_form"))
+                        .andExpect(model().attributeExists("preValue"))
+                        .andExpect(model().attribute("notice", "테스트"))
+                        .andExpect(request().sessionAttribute("userNo", myUser.getUserNo()))
+                        .andDo(print());
+
+                    Mockito.verify(testFileHandler).uploadMyUserProfileImage(file, myUser);
+                    Mockito.verify(userService, Mockito.never()).updateUser(any(MyUser.class));
+            }
+
+            @DisplayName("원인 모를 예외가 발생하는 경우")
+            @Test
+            void failElseException() throws Exception{
+                // given
+                MockMultipartFile file = new MockMultipartFile("fileImage", "name", 
+                "image/png", "test-image-content".getBytes());
+
+                myUser.setProfileImgName("name.png");
+                myUser.setProfileImgPath("/files/");
+                MultiValueMap<String, String> editedForms = creaetEditForm(myUser);
+
+                MockHttpSession session = new MockHttpSession();
+                session.setAttribute("userNo", myUser.getUserNo());
+
+                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MockMultipartFile.class), any(MyUser.class)))
+                            .willReturn("name");
+                BDDMockito.given(userService.updateUser(any(MyUser.class))).willThrow(new RuntimeException("테스트"));
+                // when // then
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
+                                                    .file(file)
+                                                    .session(session)
+                                                    .params(editedForms)
+                                                    .contentType(MediaType.MULTIPART_FORM_DATA))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("error"))
+                        // .andExpect(model().attribute("notice", "테스트"))
+                        .andDo(print());
+
+                Mockito.verify(userService).updateUser(any(MyUser.class));
+                Mockito.verify(testFileHandler).uploadMyUserProfileImage(any(MockMultipartFile.class), any(MyUser.class));
+            }
 
         }
     }
@@ -373,6 +467,7 @@ public class UserControllerTest {
     @DisplayName("회원 정보 보기")
     class GetUserInfo{
         @Nested
+        @DisplayName("성공 케이스")
         class SuccessCase{
             @Test
             @DisplayName("회원정보 불러오기에 성공한 경우")
@@ -380,7 +475,8 @@ public class UserControllerTest {
                 // given
                 MockHttpSession session = new MockHttpSession();
                 session.setAttribute("userNo", myUser.getUserNo());
-                BDDMockito.given(userService.getUserInfo(myUser.getUserNo())).willReturn(myUser);
+
+                BDDMockito.given(userService.getUserInfo(myUser.getUserNo())).willReturn(Optional.of(myUser));
                 // when & then
                 mockMvc.perform(get("/mypage")
                             .session(session))
@@ -395,7 +491,60 @@ public class UserControllerTest {
         }
         @Nested
         class FailCase{
+            @Test
+            @DisplayName("런타임 익셉션 터진 경우... 원인모름")
+            public void failElseException() throws Exception {
+                // given
+                MockHttpSession session = new MockHttpSession();
+                session.setAttribute("userNo", myUser.getUserNo());
+                
+                BDDMockito.given(userService.getUserInfo(myUser.getUserNo())).willThrow(new RuntimeException("테스트"));
+                // when then
+                mockMvc.perform(get("/mypage").session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("error"))
+                .andDo(print());
+                
+                Assertions.assertThat(session.isInvalid());
+                Mockito.verify(userService).getUserInfo(myUser.getUserNo());
+            }
+            @Test
+            @DisplayName("회원정보가 없는 경우")
+            public void failUserNotFound() throws Exception {
+                // given
+                MockHttpSession session = new MockHttpSession();
+                session.setAttribute("userNo", myUser.getUserNo());
+                
+                BDDMockito.given(userService.getUserInfo(myUser.getUserNo())).willReturn(Optional.empty());
+                // when then
+                mockMvc.perform(get("/mypage").session(session))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("home"))
+                        .andExpect(model().attribute("notice", "사용자 정보를 찾을 수 없습니다."))
+                        .andDo(print());
+                
+                Assertions.assertThat(session.isInvalid());
+                Mockito.verify(userService).getUserInfo(myUser.getUserNo());
+            }
+            
+            @Test
+            @DisplayName("세션정보가 없는 경우")
+            public void failSessionNotFound() throws Exception{
+                //given
+                MockHttpSession session = new MockHttpSession();
+                session.setAttribute("none", 0L);
 
+                BDDMockito.given(userService.getUserInfo(myUser.getUserNo())).willReturn(Optional.of(myUser));
+                //when then
+                mockMvc.perform(get("/mypage").session(session))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("home"))
+                        .andExpect(model().attribute("notice", "사용자 정보를 찾을 수 없습니다."))
+                        .andDo(print());
+
+                Assertions.assertThat(session.isInvalid());
+                Mockito.verify(userService, Mockito.never()).getUserInfo(myUser.getUserNo());
+            }
         }
     }
 }

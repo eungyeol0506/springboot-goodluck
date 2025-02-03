@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 @Component
@@ -43,15 +44,16 @@ public class MyFileHandler{
 
         } catch(IOException exception){
             exception.printStackTrace();
-            throw new UserRegistFaildException("잘못된 파일 접근입니다.");          
+            throw new UserProfileImageUploadException("잘못된 파일 접근입니다.", myUser);          
         }
-
+        
         if(fileName.isBlank()){
-            throw new UserRegistFaildException("이미지 업로드에 실패하였습니다.");
+            throw new UserProfileImageUploadException("이미지 업로드에 실패하였습니다.", myUser);
         }
         return fileName;
     }
 
+    @SuppressWarnings("null")
     private String getFileExtension(@NonNull MultipartFile multipartFile){
         String originalFileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
         String extension = originalFileName.substring(originalFileName.lastIndexOf('.') + 1);

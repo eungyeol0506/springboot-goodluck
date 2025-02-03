@@ -7,9 +7,10 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.goodluck.exception.myuser.UserLoginFaildException;
+import com.example.goodluck.exception.myuser.UserNotFoundException;
+import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;
 
@@ -38,18 +39,38 @@ public class GlobalExceptionHandler {
         model.addAttribute("notice", exception.getMessage());
         return "myuser/login";
     }
-    @ExceptionHandler(UserNotFoundException.class)
-    public String handelUserNotFoundException(UserNotFoundException exception, RedirectAttributes redirectAttributes){
-        redirectAttributes.addFlashAttribute("message", exception.getMessage());
-        // model.addAttribute("message", ex.getMessage());
-        return "redirect:/";
+    @ExceptionHandler(UserProfileImageUploadException.class)
+    public String handleUserProfileImageUploadException(
+        UserProfileImageUploadException exception, 
+        HttpServletRequest request,
+        Model model){
+
+        String requestUri = request.getRequestURI();
+        if(requestUri.contains("regist")){
+            model.addAttribute("preValue", exception.getRegistUserReqeustDto());
+            model.addAttribute("notice", exception.getMessage());
+            return "myuser/regist_form";
+        }else if(requestUri.contains("edit")){
+            model.addAttribute("preValue", exception.getEditUserRequestDto());
+            model.addAttribute("notice", exception.getMessage());
+            return "myuser/mypage_form";
+        }
+
+        return "error";
     }
+    @ExceptionHandler(UserNotFoundException.class)
+    public String handelUserNotFoundException(UserNotFoundException exception, HttpServletRequest request, Model model){
+        request.getSession().invalidate();
+        model.addAttribute("notice", exception.getMessage());
         
+        return "home";
+    }
     @ExceptionHandler(InvalidUserNoException.class)
     public String handleInvalidUserNoException(InvalidUserNoException exception, Model model) {
         model.addAttribute("message", exception.getMessage());
         return "error";
     }
+    
     // dto 검증 시 발생 예외
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public String handleMethodArgumentNotValidException(
@@ -77,7 +98,10 @@ public class GlobalExceptionHandler {
             return "myuser/regist_form";
         }else if(requestUri != null && requestUri.contains("login")){
             return "myuser/login";
+        }else if(requestUri != null && requestUri.contains("edit")){
+            return "myuser/mypage_form";
         }
+
         return "error";
     }
     // 정의 외 에러 발생 
