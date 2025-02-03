@@ -65,12 +65,7 @@ public class GlobalExceptionHandler {
         
         return "home";
     }
-    @ExceptionHandler(InvalidUserNoException.class)
-    public String handleInvalidUserNoException(InvalidUserNoException exception, Model model) {
-        model.addAttribute("message", exception.getMessage());
-        return "error";
-    }
-    
+
     // dto 검증 시 발생 예외
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public String handleMethodArgumentNotValidException(

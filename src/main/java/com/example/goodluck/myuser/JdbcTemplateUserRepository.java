@@ -16,7 +16,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.lang.NonNull;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.InvalidUserNoException;
 
 public class JdbcTemplateUserRepository implements UserRepository{
 
@@ -69,9 +68,9 @@ public class JdbcTemplateUserRepository implements UserRepository{
     @Override
     public Optional<Long> deleteByNo(Long no) {
         int deletedRow = jdbcTemplate.update("delete from MY_User WHERE USER_NO = ?", no);
-        if (deletedRow == 0) {
-            throw new InvalidUserNoException("User with no " + no + " not found.");
-        }
+        // if (deletedRow == 0) {
+        //     throw new InvalidUserNoException("User with no " + no + " not found.");
+        // }
         return Optional.of(no);
     }
     // UPDATE
@@ -99,9 +98,9 @@ public class JdbcTemplateUserRepository implements UserRepository{
                                             user.getProfileImgPath(),
                                             user.getProfileImgName(), 
                                             user.getUserNo());
-        if (updatedRow == 0){
-            throw new InvalidUserNoException("User not found.");
-        }                    
+        // if (updatedRow == 0){
+        //     throw new InvalidUserNoException("User not found.");
+        // }                    
         return Optional.of(user);
     }
 
