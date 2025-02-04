@@ -1,4 +1,4 @@
-package com.example.goodluck.myuser;
+package com.example.goodluck.myuser.repository;
 
 import javax.sql.DataSource;
 
@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.myuser.JdbcTemplateUserRepository;
 
 // @JdbcTest
 @SpringBootTest

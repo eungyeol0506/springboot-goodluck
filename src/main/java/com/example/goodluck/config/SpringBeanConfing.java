@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.example.goodluck.myboard.BoardRepository;
+import com.example.goodluck.myboard.BoardService;
+import com.example.goodluck.myboard.JdbcTemplateBoardRepository;
 import com.example.goodluck.myuser.JdbcTemplateUserRepository;
 import com.example.goodluck.myuser.UserRepository;
 import com.example.goodluck.myuser.UserService;
@@ -29,5 +32,13 @@ public class SpringBeanConfing {
     public UserRepository userRepository(){
         return new JdbcTemplateUserRepository(dataSource);
     }
-
+    
+    @Bean
+    public BoardService boardService(){
+        return new BoardService(boardRepository());
+    }
+    @Bean
+    public BoardRepository boardRepository(){
+        return new JdbcTemplateBoardRepository(dataSource);
+    }
 }
