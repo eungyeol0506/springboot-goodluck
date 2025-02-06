@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.domain.Myboard;
+import com.example.goodluck.domain.MyBoard;
 
 @SpringBootTest
 @Transactional
@@ -36,9 +36,9 @@ public class JdbcTemplateBoardRepositoryTest {
             // given 
             MyUser user = new MyUser();
             user.setUserNo(1L);
-            Myboard board = new Myboard(0L, "TEST 20250205", "테스트코드에서 작성한 글", 0, LocalDate.now(), LocalDate.now(), user);
+            MyBoard board = new MyBoard(0L, "TEST 20250205", "테스트코드에서 작성한 글", 0, LocalDate.now(), LocalDate.now(), user);
             // when
-            Myboard result = boardRepository.insertNew(board);
+            MyBoard result = boardRepository.insertNew(board);
             // then
             Assertions.assertThat(board).isEqualTo(result);
         }
@@ -47,20 +47,21 @@ public class JdbcTemplateBoardRepositoryTest {
     @Nested
     class testSelectQuery{
         @Test
-        @DisplayName("성공하는 경우")
+        @DisplayName("조회에 성공하는 경우")
         void successCase(){
             // given 
             Long selectNo = 5L;
-            int start = 1; int end = 5;
-            int listSize = end-(start-1);
+            long start = 1; long end = 5;
 
             // when
-            Myboard result1 = boardRepository.selectBoard(selectNo).get();
-            List<Myboard> result2 = boardRepository.selectBoardList(start, end);
+            MyBoard result1 = boardRepository.selectBoard(selectNo).get();
+            List<MyBoard> result2 = boardRepository.selectBoardList(start, end);
+            Long totalCnt = boardRepository.selectBoardCnt();
 
             // then
             Assertions.assertThat(result1.getBoardNo()).isEqualTo(selectNo);
-            Assertions.assertThat(result2.size()).isEqualTo(listSize);
+            Assertions.assertThat(result2.size()).isEqualTo(5);
+            Assertions.assertThat(totalCnt>0);
         }
     }
 
@@ -73,13 +74,13 @@ public class JdbcTemplateBoardRepositoryTest {
             String title = "new Title";
             String contents = "new contents";
 
-            Myboard board = boardRepository.selectBoard(5L).get();
+            MyBoard board = boardRepository.selectBoard(5L).get();
             board.setBoardTitle(title);
             board.setContents(contents);
             board.setUpdateDate(LocalDate.now());
             //when
             boardRepository.updateBoard(board);
-            Myboard result = boardRepository.selectBoard(5L).get();
+            MyBoard result = boardRepository.selectBoard(5L).get();
             //then
             Assertions.assertThat(result.getBoardTitle()).isEqualTo(title);
             Assertions.assertThat(result.getContents()).isEqualTo(contents);
@@ -91,10 +92,10 @@ public class JdbcTemplateBoardRepositoryTest {
         void successCase2(){
             // given
             Long boardNo = 1L;
-            Myboard board = boardRepository.selectBoard(boardNo).get();
+            MyBoard board = boardRepository.selectBoard(boardNo).get();
             // when
-            boardRepository.updateBoardViewCnt(boardNo);
-            Myboard result = boardRepository.selectBoard(boardNo).get();
+            boardRepository.updateBoardViewCnt(boardNo, 1);
+            MyBoard result = boardRepository.selectBoard(boardNo).get();
             // then
             Assertions.assertThat(result.getViewCnt()).isNotEqualTo(board.getViewCnt());
         }
@@ -106,10 +107,10 @@ public class JdbcTemplateBoardRepositoryTest {
         @DisplayName("게시글 삭제에 성공한 경우")
         void successCase(){
             // given
-            // Myboard board = boardRepository.selectBoard(2L).get();
+            // MyBoard board = boardRepository.selectBoard(2L).get();
             // when
             boardRepository.deleteBoard(2L);
-            Myboard board = boardRepository.selectBoard(2L).orElse(null);
+            MyBoard board = boardRepository.selectBoard(2L).orElse(null);
             // then
             Assertions.assertThat(board).isEqualTo(null);
         }

@@ -15,7 +15,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.domain.Myboard;
+import com.example.goodluck.domain.MyBoard;
 
 public class JdbcTemplateBoardRepository implements BoardRepository{
     
@@ -26,7 +26,7 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
     }
     
     @Override
-    public Optional<Myboard> selectBoard(Long boardNo) {
+    public Optional<MyBoard> selectBoard(Long boardNo) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("select MY_BOARD.*, MY_USER.*");
         queryBuilder.append(" from MY_BOARD");
@@ -34,12 +34,12 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
         queryBuilder.append(" on MY_BOARD.USER_NO = MY_USER.USER_NO");
         queryBuilder.append(" where MY_BOARD.BOARD_NO = " + boardNo);
 
-        List<Myboard> result = jdbcTemplate.query(queryBuilder.toString(), boardRowMapper());
+        List<MyBoard> result = jdbcTemplate.query(queryBuilder.toString(), boardRowMapper());
         return result.stream().findAny();
     }
     
     @Override
-    public List<Myboard> selectBoardList(int start, int end) {
+    public List<MyBoard> selectBoardList(Long start, Long end) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("select *");
         queryBuilder.append(" from (");
@@ -54,7 +54,7 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
     }
     
     @Override
-    public Myboard insertNew(Myboard newBoard) {
+    public MyBoard insertNew(MyBoard newBoard) {
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         
         Long boardNo = generateKey();
@@ -76,7 +76,7 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
     }
 
     @Override
-    public int updateBoard(Myboard board) {
+    public int updateBoard(MyBoard board) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("update MY_BOARD");
         queryBuilder.append(" set BOARD_TITLE = '" + board.getBoardTitle() + "'");
@@ -94,23 +94,28 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
         return deletedRow;
     }
     @Override
-    public int updateBoardViewCnt(Long boardNo) {
+    public int updateBoardViewCnt(Long boardNo, int viewCnt) {
         String query ="";
         query += "update MY_BOARD ";
-        query += "set view_cnt =";
-        query += " (select VIEW_CNT + 1 from MY_BOARD where BOARD_NO = " + boardNo + ")";
+        query += "set view_cnt = " + String.valueOf(viewCnt);
         query += "where BOARD_NO =" + boardNo;
 
         return jdbcTemplate.update(query);
     }
+    @Override
+    public Long selectBoardCnt() {
+        String query = "select count(*) from MY_BOARD";
+        return jdbcTemplate.queryForObject(query, Long.class);
+        
+    }
     private Long generateKey() {
         return jdbcTemplate.queryForObject("select MY_BOARD_SEQ.NEXTVAL from DUAL", Long.class);        
     }
-    private RowMapper<Myboard> boardRowMapper(){
-        return new RowMapper<Myboard>(){
+    private RowMapper<MyBoard> boardRowMapper(){
+        return new RowMapper<MyBoard>(){
             @Override
-            public Myboard mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Myboard board = new Myboard();
+            public MyBoard mapRow(ResultSet rs, int rowNum) throws SQLException {
+                MyBoard board = new MyBoard();
                 board.setBoardNo(rs.getLong("BOARD_NO"));
                 board.setViewCnt(rs.getInt("VIEW_CNT"));
                 board.setBoardTitle(rs.getString("BOARD_TITLE"));

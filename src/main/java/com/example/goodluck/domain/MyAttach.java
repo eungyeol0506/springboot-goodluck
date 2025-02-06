@@ -8,5 +8,5 @@ public class MyAttach {
     private String fileName;
     private String filePath;
     private int fileSize;
-    private Myboard board;
+    private MyBoard board;
 }

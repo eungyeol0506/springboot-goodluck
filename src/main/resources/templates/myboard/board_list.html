@@ -13,17 +13,17 @@
     <!-- 공통 헤더 삽입 -->
     <div th:replace="~{common/header :: header}"></div>
     
-    <div class="container" style="width: 100%; max-width: 1200px;">
+    <div class="container d-flex flex-column justify-content-center align-items-center" style="width: 100%;">
         <div class="mt-4 mb-3">
-            <h2>작성된 행운 목록</h2>
+            <h2>행운 목록</h2>
             <p class="text-primary">다른 사람들과 오늘의 기분좋은 일을 공유해보세요</p>
         </div>
-        <div class="mt-4 mb-4">
+        <div class="mt-4 mb-4" style="width:80%;">
         <table class="table table-hover">
-            <thead>
+            <thead style="text-align: center;">
                 <tr>
-                <th scope="col">행운번호</th>
-                <th scope="col">제목</th>
+                <th scope="col">행운 번호</th>
+                <th scope="col" style="text-overflow: hidden;">제목</th>
                 <th scope="col">작성자</th>
                 <th scope="col">최근수정일</th>
                 <th scope="col">조회수</th>
@@ -31,11 +31,24 @@
             </thead>
             <tbody>
                 <tr class="table" th:each="board : ${boards}">
-                    <th scope="row" th:text="${board.boardNo}"></th>
-                    <td><a th:href="@{/board/${boardid}(boardid=${board.boardNo})}" th:text="${board.boardTitle}"></a></td>
-                    <td th:text="${board.user.userName}"></td>
-                    <td th:text="${board.createDate}">Column content</td>
-                    <td th:text="${board.viewCnt}"></td>
+                    <th scope="row" 
+                        th:text="${board.boardNo}"
+                        style="text-align: center;">
+                    </th>
+                    <td><a th:href="@{/board/{no}(no=${board.boardNo})}" 
+                           th:text="${board.boardTitle}"
+                           style="text-decoration-line: none;">
+                        </a>
+                    </td>
+                    <td th:text="${board.user.userName}"
+                        style="text-align: center;">
+                    </td>
+                    <td th:text="${board.createDate}"
+                        style="text-align: center;">
+                    </td>
+                    <td th:text="${board.viewCnt}"
+                        style="text-align: center;">
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -47,10 +60,10 @@
                     <a class="page-link" href="#">&laquo;</a>
                   </li>
                   <li class="page-item active">
-                    <a class="page-link" href="#">1</a>
+                    <a class="page-link" th:href="@{/list?page=1}">1</a>
                   </li>
                   <li class="page-item">
-                    <a class="page-link" href="#">2</a>
+                    <a class="page-link" th:href="@{/list?page=2}">2</a>
                   </li>
                   <li class="page-item">
                     <a class="page-link" href="#">3</a>

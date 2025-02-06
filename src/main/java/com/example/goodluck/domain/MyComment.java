@@ -12,5 +12,5 @@ public class MyComment {
     private String reply;
     private Date createDate;
     private MyUser user;
-    private Myboard board;
+    private MyBoard board;
 }

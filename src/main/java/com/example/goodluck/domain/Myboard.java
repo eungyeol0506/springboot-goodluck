@@ -1,16 +1,14 @@
 package com.example.goodluck.domain;
 
-import java.sql.Date;
-// import java.util.List;
+import java.beans.Transient;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import lombok.Data;
 
 // import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class Myboard {
+public class MyBoard {
     private long boardNo;
     private String boardTitle;
     private String contents;
@@ -22,8 +20,8 @@ public class Myboard {
     // private List<MultipartFile> attachFiles;
     // private List<MyAttach> attaches;
     
-    public Myboard() {};
-    public Myboard(long boardNo, String boardTitle, String contents, int viewCnt, LocalDate updateDate, LocalDate createDate,
+    public MyBoard() {};
+    public MyBoard(Long boardNo, String boardTitle, String contents, int viewCnt, LocalDate updateDate, LocalDate createDate,
             MyUser user) {
         this.boardNo = boardNo;
         this.boardTitle = boardTitle;
@@ -32,6 +30,14 @@ public class Myboard {
         this.updateDate = updateDate;
         this.createDate = createDate;
         this.user = user;
+    }
+    @Transient
+    public void increaseViewCnt(){
+        this.viewCnt += 1;
+    }
+    @Transient
+    public static MyBoard createDummy(Long boardNo, String boardTitle, String contens, Long userNo){
+        return new MyBoard(boardNo, boardTitle, contens, 0, null, LocalDate.now(), MyUser.creatDummy(userNo));
     }
     
 }

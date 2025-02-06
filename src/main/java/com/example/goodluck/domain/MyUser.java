@@ -34,6 +34,11 @@ public class MyUser {
         this.profileImgPath = profileImgPath;
         this.profileImgName = profileImgName;
     }
+
+    @Transient
+    public static MyUser creatDummy(Long userNo){
+        return new MyUser(userNo, "Dummy", "this.is.for.testcode", "test", "testtest", null, null, null, null, null, null);
+    }
     
     @Transient
     public String getProfile(){

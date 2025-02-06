@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
-import com.example.goodluck.domain.Myboard;
+import com.example.goodluck.domain.MyBoard;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -21,10 +22,24 @@ public class BoardContorller {
         this.boardService = boardService;
     }
     
-    @GetMapping("list")
-    public String getBoardList(Model model){
-        List<Myboard> result = boardService.getBoardList(1);
+    @GetMapping("/list")
+    public String getBoardList(@RequestParam("page") Long page, Model model){
+        List<MyBoard> result = boardService.getBoardList(page);
+        List<Integer> pages = boardService.getPageNumbers();
+
         model.addAttribute("boards", result);
+        model.addAttribute("pages", pages);
         return "myboard/board_list";
     }
+
+    @GetMapping("/board/{boardNo}")
+    public String getBoardDetail(@PathVariable("boardNo") Long boardNo, Model model){
+        MyBoard result = boardService.getBoardDetail(boardNo);
+        model.addAttribute("board", result);
+
+        return "myboard/board";
+    }
+
+    // 글작성 폼
+    // 작성한 글 등록
 }
