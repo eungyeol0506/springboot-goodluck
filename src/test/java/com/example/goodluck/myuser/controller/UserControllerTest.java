@@ -52,7 +52,6 @@ public class UserControllerTest {
 
     @MockBean                                                                                                                                                                                                                                                                                                                                    
     private UserService userService;
-    // testFileHandler given이 동작하지 않는 이유?
     @MockBean
     private MyFileHandler testFileHandler;
 

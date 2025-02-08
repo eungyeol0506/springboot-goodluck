@@ -31,6 +31,11 @@ public class MyBoard {
         this.createDate = createDate;
         this.user = user;
     }
+    
+    public void setWriterInfo(MyUser writer){
+        this.user = writer;
+    }
+
     @Transient
     public void increaseViewCnt(){
         this.viewCnt += 1;
