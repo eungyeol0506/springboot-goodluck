@@ -15,9 +15,9 @@ public class BoardService {
         this.boardRepository = boardRepository;
     }
     
-    public void writeBoard(MyBoard newBoard){
+    public MyBoard writeBoard(MyBoard newBoard){
         newBoard.setCreateDate(LocalDate.now());
-        boardRepository.insertNew(newBoard);
+        return boardRepository.insertNew(newBoard);
     }
     
     public MyBoard getBoardDetail(Long boardNo){
@@ -35,17 +35,23 @@ public class BoardService {
 
     public void eidtBoard(MyBoard board){
         board.setUpdateDate(LocalDate.now());
-        boardRepository.updateBoard(board);
+        int updateRow = boardRepository.updateBoard(board);
+        if (updateRow <= 0){
+            throw new IllegalStateException("수정에 실패하였습니다.");
+        }
     }
     public void deleteBoard(Long boardNo){
-        boardRepository.deleteBoard(boardNo);
+        int deleteRow = boardRepository.deleteBoard(boardNo);
+        if (deleteRow <= 0){
+            throw new IllegalStateException("삭제에 실패하였습니다.");
+        }
     }
 
     public List<Integer> getPageNumbers(){
         Long totalCnt = boardRepository.selectBoardCnt();
 
         List<Integer> pageList = new ArrayList<>();
-        int idx = 1;
+        // int idx = 1;
         long cnt = totalCnt;
         for(int i=1; i<10; i++){
             if(cnt > LIST_SIZE){
