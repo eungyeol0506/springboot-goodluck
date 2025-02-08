@@ -113,6 +113,7 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
     }
     private RowMapper<MyBoard> boardRowMapper(){
         return new RowMapper<MyBoard>(){
+            @SuppressWarnings("null")
             @Override
             public MyBoard mapRow(ResultSet rs, int rowNum) throws SQLException {
                 MyBoard board = new MyBoard();
