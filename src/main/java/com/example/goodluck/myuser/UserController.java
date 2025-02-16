@@ -7,7 +7,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -108,24 +107,17 @@ public class UserController {
         return "redirect:/login";   
     }
 
-    //회원 정보 보기
-    // @GetMapping("/mypage")
-    // public String getUserInfo(HttpSession session, Model model ){
-    //     Long userNo = (Long) session.getAttribute("userNo");
-    //     MyUser resultUser = userService.getUserInfo(userNo).orElseThrow(
-    //         () -> new UserNotFoundException("사용자 정보를 찾을 수 없습니다.")
-    //     );
+    // 회원 정보 보기
+    @GetMapping("/mypage")
+    public String getUserInfo(HttpSession session, Model model ){
+        Long userNo = (Long) session.getAttribute("userNo");
+        MyUser resultUser = userService.getUserInfo(userNo).orElseThrow(
+            () -> new UserNotFoundException("사용자 정보를 찾을 수 없습니다.")
+        );
 
-    //     model.addAttribute("user", resultUser);
-    //     return "myuser/mypage" ;
-    // }
-    @GetMapping("/mypage/{userNo}")
-    public String getMethodName(@PathVariable("userNo") Long userNo, Model model) {
-        MyUser result = userService.getUserInfo(userNo).orElseThrow(()->new IllegalStateException("사용자 정보를 찾을 수 없음"));
-        model.addAttribute("user", result);
+        model.addAttribute("user", resultUser);
         return "myuser/mypage" ;
     }
-    
 
     //회원 정보 수정
     @GetMapping("/mypage/edit")
