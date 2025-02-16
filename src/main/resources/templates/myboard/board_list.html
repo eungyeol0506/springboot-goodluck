@@ -79,7 +79,9 @@
                   </li>
                 </ul>
             </div>
-            <button type="button" class="btn btn-primary">글쓰기</button>
+            <button th:attr="onclick=|location.href='/board/write' |" class="btn btn-primary">
+                글쓰기
+            </button>
         </div>
     </div>
 </body>
