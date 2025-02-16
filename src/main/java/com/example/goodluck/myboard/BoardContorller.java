@@ -61,6 +61,7 @@ public class BoardContorller {
             model.addAttribute("notice", "로그인 세션 정보가 없습니다.");
             return "home";
         }
+        
         model.addAttribute("preValue", new MyBoard());
         return "myboard/newboard_form";
     }
