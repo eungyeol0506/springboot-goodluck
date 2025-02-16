@@ -35,7 +35,6 @@
                     th:text="${board.contents}">
                 </p>
 
-                <!-- <textarea class="form-control mb-4" id="contents" name="contents" readonly="" rows="15"></textarea> -->
                 <div class="d-flex justify-content-end gap-3">
                     <button type="button" class="btn btn-primary btn-sm" onclick="history.back()">목록으로</button>
                         <th:block th:if="${ session.userNo != null && session.userNo == board.user.userNo}">
