@@ -20,7 +20,7 @@ import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
     @InjectMocks
     UserService userService;

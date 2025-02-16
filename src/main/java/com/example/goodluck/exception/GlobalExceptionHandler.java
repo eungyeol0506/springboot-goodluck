@@ -95,6 +95,8 @@ public class GlobalExceptionHandler {
             return "myuser/login";
         }else if(requestUri != null && requestUri.contains("edit")){
             return "myuser/mypage_form";
+        }else if(requestUri != null && requestUri.contains("write")){
+            return "myboard/newboard_form";
         }
 
         return "error";

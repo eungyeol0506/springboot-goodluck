@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -54,7 +55,7 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
     }
     
     @Override
-    public MyBoard insertNew(MyBoard newBoard) {
+    public MyBoard insertNew(MyBoard newBoard) throws DataAccessException{
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         
         Long boardNo = generateKey();

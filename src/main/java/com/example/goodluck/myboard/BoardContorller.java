@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.exception.myuser.UserNotFoundException;
 import com.example.goodluck.myboard.dto.BoardWriteRequestDto;
 import com.example.goodluck.myuser.UserService;
 
@@ -71,7 +72,10 @@ public class BoardContorller {
         @ModelAttribute(name="boardWriteDto") @Valid BoardWriteRequestDto boardWriteRequest) {
         // 사용자 정보 찾기    
         Long userNo = (Long) session.getAttribute("userNo");
-        MyUser writer = userService.getUserInfo(userNo).orElseThrow(() -> new IllegalStateException("사용자 정보를 찾을 수 없음"));
+        if (userNo == null){
+            throw new UserNotFoundException("세션정보를 찾을 수 없습니다.");
+        }
+        MyUser writer = userService.getUserInfo(userNo).orElseThrow(() -> new UserNotFoundException("사용자 정보를 찾을 수 없음"));
         // 게시글 정보 
         MyBoard newBoard = boardWriteRequest.toDomain();
         newBoard.setWriterInfo(writer);

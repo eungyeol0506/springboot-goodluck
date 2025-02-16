@@ -1,6 +1,5 @@
 package com.example.goodluck.myuser.controller;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -45,10 +44,9 @@ import com.example.goodluck.myuser.UserController;
 import com.example.goodluck.myuser.UserService;
 
 
-
 @WebMvcTest(UserController.class)
 @ExtendWith(MockitoExtension.class)
-public class UserControllerTest {
+class UserControllerTest {
 
     @MockBean                                                                                                                                                                                                                                                                                                                                    
     private UserService userService;
@@ -119,6 +117,7 @@ public class UserControllerTest {
             Mockito.verify(userService).loginUser(userId, userPw);
         }
     }
+
     @Nested
     @DisplayName("로그아웃")
     class LogoutUser{
@@ -490,7 +489,7 @@ public class UserControllerTest {
         class FailCase{
             @Test
             @DisplayName("런타임 익셉션 터진 경우... 원인모름")
-            public void failElseException() throws Exception {
+            void failElseException() throws Exception {
                 // given
                 MockHttpSession session = new MockHttpSession();
                 session.setAttribute("userNo", myUser.getUserNo());
@@ -505,9 +504,10 @@ public class UserControllerTest {
                 Assertions.assertThat(session.isInvalid());
                 Mockito.verify(userService).getUserInfo(myUser.getUserNo());
             }
+
             @Test
             @DisplayName("회원정보가 없는 경우")
-            public void failUserNotFound() throws Exception {
+            void failUserNotFound() throws Exception {
                 // given
                 MockHttpSession session = new MockHttpSession();
                 session.setAttribute("userNo", myUser.getUserNo());
@@ -523,10 +523,10 @@ public class UserControllerTest {
                 Assertions.assertThat(session.isInvalid());
                 Mockito.verify(userService).getUserInfo(myUser.getUserNo());
             }
-            
+
             @Test
             @DisplayName("세션정보가 없는 경우")
-            public void failSessionNotFound() throws Exception{
+            void failSessionNotFound() throws Exception{
                 //given
                 MockHttpSession session = new MockHttpSession();
                 session.setAttribute("none", 0L);

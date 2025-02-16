@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.4.1'
+	id 'org.springframework.boot' version '3.4.2'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -35,7 +35,8 @@ dependencies {
 	runtimeOnly name: 'ojdbc8'
 	implementation name: 'oraclepki'
 	implementation name: 'osdt_core'
-	implementation name: 'osdt_cert'
+	implementation "org.mockito:mockito-junit-jupiter:5.15.2"
+    implementation name: 'osdt_cert'
 
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

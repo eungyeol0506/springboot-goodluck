@@ -105,7 +105,7 @@ public class BoardServiceTest {
         @DisplayName("성공 케이스")
         class SuccessCase{
             @Test
-            void successWriteBoard(){
+            void successWriteBoard() throws Exception{
                 // given
                 MyBoard newBoard = MyBoard.createDummy(1L, "test dummy", "---", 1L);
                 BDDMockito.given(mockBoardRepository.insertNew(newBoard)).willReturn(newBoard);

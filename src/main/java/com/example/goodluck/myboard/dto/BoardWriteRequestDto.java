@@ -5,8 +5,10 @@ import com.example.goodluck.domain.MyBoard;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class BoardWriteRequestDto implements MyDto<MyBoard> {
     @NotBlank(message = "제목은 필수값입니다.")
     private String boardTitle;
