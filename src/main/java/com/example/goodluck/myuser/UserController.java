@@ -30,23 +30,14 @@ public class UserController {
     
     private UserService userService;
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @Autowired
     private MyFileHandler fileHandler;
-    // @GetMapping(value = "/user/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    // @ResponseBody
-    // public List<MyUser> getAllUsers(){
-    //     return userService.getAllUserInfo();
-    // }
-    // @GetMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
-    // @ResponseBody
-    // public MyUser getUsers(@RequestParam(value="no") Long no) {
-    //     return userService.getUserInfo(no);
-    // }
-    
+
     // 로그인
     @GetMapping("/login")
     public String getLoginView(Model model) {
@@ -58,7 +49,7 @@ public class UserController {
                             @RequestParam(value="userPw") String pw, 
                             HttpServletRequest request ) {
 
-        MyUser loginUser = userService.loginUser(id, pw).orElseThrow(()->new UserLoginFaildException("올바르지 않은 로그인 정보입니다."));
+        MyUser loginUser = userService.loginUser(id, pw);
         // set session
         HttpSession session = request.getSession();
         session.setAttribute("userNo", loginUser.getUserNo());
@@ -86,7 +77,6 @@ public class UserController {
     public String postRegister(
             @ModelAttribute(name="userRegistRequest") @Valid RegistUserRequestDto userRegistRequest,
             @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile,
-            BindingResult bindingResult,
             RedirectAttributes redirectAttributes
         ){
         // dto -> domain

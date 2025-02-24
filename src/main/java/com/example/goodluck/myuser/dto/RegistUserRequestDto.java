@@ -40,6 +40,4 @@ public class RegistUserRequestDto implements MyDto<MyUser>{
 
         return domain;
     }
-
-    
 }

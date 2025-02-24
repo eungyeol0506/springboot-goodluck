@@ -1,4 +1,4 @@
-package com.example.goodluck.myuser.repository;
+package com.example.goodluck.myuser;
 
 import javax.sql.DataSource;
 
@@ -14,7 +14,7 @@ import com.example.goodluck.myuser.JdbcTemplateUserRepository;
 
 // @JdbcTest
 @SpringBootTest
-@Transactional
+// @Transactional
 public class JdbcTemplateUserRepositoryTest {
 
     private final JdbcTemplateUserRepository userRepository;
@@ -28,7 +28,7 @@ public class JdbcTemplateUserRepositoryTest {
     @DisplayName("회원이 잘 저장되는지 확인")
     void saveUser(){
         // given
-        MyUser newUser = getTestNewUser();
+        MyUser newUser = MyUser.creatDummy(0L);
         // when
         MyUser saveUser = userRepository.insertNew(newUser);
         // then

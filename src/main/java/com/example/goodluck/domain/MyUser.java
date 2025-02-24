@@ -37,7 +37,7 @@ public class MyUser {
 
     @Transient
     public static MyUser creatDummy(Long userNo){
-        return new MyUser(userNo, "Dummy", "this.is.for.testcode", "test", "testtest", null, null, null, null, null, null);
+        return new MyUser(userNo, "Dummy", "test@test.com", "test", "testtest", null, null, null, null, null, null);
     }
     
     @Transient

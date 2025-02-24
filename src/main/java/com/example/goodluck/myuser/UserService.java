@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.exception.myuser.UserLoginFaildException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 
@@ -27,8 +28,9 @@ public class UserService {
                     });
     }
     // 회원 로그인
-    public Optional<MyUser> loginUser(String id, String pw){
-        return userRepository.selectByIdPw(id, pw);
+    public MyUser loginUser(String id, String pw){
+        return userRepository.selectByIdPw(id, pw)
+                             .orElseThrow(()->new UserLoginFaildException("올바르지 않은 로그인 정보입니다."));
     }
     // 회원정보 상세 보기
     public Optional<MyUser> getUserInfo(Long no){

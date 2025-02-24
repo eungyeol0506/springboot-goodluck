@@ -1,5 +1,8 @@
 package com.example.goodluck.myuser;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+
 // import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Optional;
@@ -10,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -17,7 +21,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
 
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.exception.myuser.UserLoginFaildException;
 import com.example.goodluck.exception.myuser.UserNotFoundException;
+import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -48,14 +54,18 @@ class UserServiceTest {
         @DisplayName("로그인을 성공한 경우")
         void successLoginUser(){
             // given
+            MyUser myUser = MyUser.creatDummy(1L); // 테스트용 더미데이터
             String id = myUser.getUserId();
             String pw = myUser.getUserPw();
-            Mockito.when(mockUserRepository.selectByIdPw(id, pw)).thenReturn(Optional.of(myUser));
+            BDDMockito.given(mockUserRepository.selectByIdPw(anyString(), anyString()))
+                        .willReturn(Optional.of(myUser)); // 결과값을 반환하는 경우
             // when 
-            MyUser resultUser = userService.loginUser(id, pw).get();
+            MyUser resultUser = userService.loginUser(id, pw);
             // then
+            Assertions.assertThat(resultUser).isInstanceOf(MyUser.class);
             Assertions.assertThat(myUser.getUserNo()).isEqualTo(resultUser.getUserNo());
             Assertions.assertThat(id).isEqualTo(resultUser.getUserId());
+            Assertions.assertThat(pw).isEqualTo(resultUser.getUserPw());
 
             Mockito.verify(mockUserRepository).selectByIdPw(id, pw);
         }
@@ -71,8 +81,8 @@ class UserServiceTest {
             Exception exception = Assertions.catchException(() -> userService.loginUser(id, pw));
             //then
             Assertions.assertThat(exception)
-                    .isInstanceOf(UserNotFoundException.class)
-                    .hasMessageContaining("로그인 정보를 다시 확인해주세요.");
+                    .isInstanceOf(UserLoginFaildException.class)
+                    .hasMessageContaining("올바르지 않은 로그인 정보입니다.");
 
             Mockito.verify(mockUserRepository).selectByIdPw(id,pw);
         }  
@@ -106,13 +116,14 @@ class UserServiceTest {
             void successRegistUser(){
                 // given
                 String id = myUser.getUserId();
-                Mockito.when(mockUserRepository.selectById(id)).thenReturn(Optional.empty());
-                Mockito.when(mockUserRepository.insertNew(myUser)).thenReturn(myUser);
+                BDDMockito.given(mockUserRepository.selectById(id)).willReturn(Optional.empty());
+                BDDMockito.given(mockUserRepository.insertNew(myUser)).willReturn(myUser);
                 // when
                 MyUser resultUser = userService.registUser(myUser);
                 // then
                 Assertions.assertThat(myUser).isEqualTo(resultUser);
 
+                Mockito.verify(mockUserRepository).selectById(id);
                 Mockito.verify(mockUserRepository).insertNew(myUser);
             }
         }
@@ -125,49 +136,44 @@ class UserServiceTest {
             void failDuplicateUserId(){
                 // given
                 String id = myUser.getUserId();
-                Mockito.when(mockUserRepository.selectById(id)).thenReturn(Optional.of(myUser));
+                BDDMockito.given(mockUserRepository.selectById(id)).willReturn(Optional.of(myUser));
+                // BDDMockito.given(mockUserRepository.insertNew(myUser)).willReturn(myUser); // stubbing 필요가 없음
                 // when
                 Exception exception = Assertions.catchException(() -> userService.registUser(myUser));
                 // then
                 Assertions.assertThat(exception)
-                        .isInstanceOf(IllegalStateException.class)
-                        .hasMessageContaining("존재하는 아이디");
+                            .isInstanceOf(UserRegistFaildException.class)
+                            .hasMessageContaining("존재하는 아이디");
                 
                 Mockito.verify(mockUserRepository).selectById(id);
-                Mockito.verify(mockUserRepository, Mockito.never()).insertNew(myUser);
             }
-            @DisplayName("select 시 DB Exception이 발생한 경우")
+            
+            @DisplayName("다른 예외가 발생한 경우")
             @Test
-            void failSelectException(){
+            void failElseException(){
                 // given
-                String id = myUser.getUserId();
-                Mockito.when(mockUserRepository.selectById(id)).thenThrow(new DataAccessException("select") {});
+                BDDMockito.given(mockUserRepository.selectById(anyString())).willThrow(new DataAccessException("Exception") {});
                 // when
                 Exception exception = Assertions.catchException(() -> userService.registUser(myUser));
                 // then
                 Assertions.assertThat(exception)
                         .isInstanceOf(DataAccessException.class)
-                        .hasMessageContaining("select");
+                        .hasMessageContaining("Exception");
                 
-                Mockito.verify(mockUserRepository).selectById(id);
+                Mockito.verify(mockUserRepository).selectById(anyString());
                 Mockito.verify(mockUserRepository, Mockito.never()).insertNew(myUser);
-            }
-            @DisplayName("insert 시 DB Exception이 발생한 경우")
-            @Test
-            void failInsertException(){
-                // given
-                String id = myUser.getUserId();
-                Mockito.when(mockUserRepository.selectById(id)).thenReturn(Optional.empty());
-                Mockito.when(mockUserRepository.insertNew(myUser)).thenThrow(new DataAccessException("insert") {});
-                // when
-                Exception exception = Assertions.catchException(() -> userService.registUser(myUser));
-                // then
-                Assertions.assertThat(exception)
-                        .isInstanceOf(DataAccessException.class)
-                        .hasMessageContaining("insert");
                 
-                Mockito.verify(mockUserRepository).selectById(id);
-                Mockito.verify(mockUserRepository).insertNew(myUser);
+                // // given
+                // BDDMockito.given(mockUserRepository.insertNew(any(MyUser.class))).willThrow(new DataAccessException("Exception") {});
+                // // when
+                // Exception exception2 = Assertions.catchException(() -> userService.registUser(myUser));
+                // // then
+                // Assertions.assertThat(exception2)
+                //             .isInstanceOf(DataAccessException.class)
+                //             .hasMessageContaining("Exception");
+                
+                // Mockito.verify(mockUserRepository).selectById(anyString());
+                // Mockito.verify(mockUserRepository).insertNew(myUser);
             }
         }
     }

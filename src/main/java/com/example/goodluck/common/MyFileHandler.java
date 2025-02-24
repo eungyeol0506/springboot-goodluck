@@ -14,19 +14,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
-import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 @Component
 public class MyFileHandler{
     // 사용자 이미지 프로필 파일 경로
     public static final String PROFILE_DIR_STRING = "src/main/resources/static/files";
-    public static final Path PROFILE_DIR = Paths.get(PROFILE_DIR_STRING);
+    private Path PROFILE_DIR = Paths.get(PROFILE_DIR_STRING);
 
     public String uploadMyUserProfileImage(
             @NonNull
             MultipartFile multipartFile, 
-            MyUser myUser
-    ){
+            MyUser myUser)
+    {
 
         String fileExtension = getFileExtension(multipartFile);
         String fileName = myUser.getUserId() + "." + fileExtension;

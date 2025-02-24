@@ -30,13 +30,23 @@ public class JdbcTemplateUserRepository implements UserRepository{
     public MyUser insertNew(MyUser newMyUser) {
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         jdbcInsert.withTableName("MY_USER");
-        // .usingGeneratedKeyColumns("USER_NO");
         
         newMyUser.setUserNo(generateUserNoKey());
-        // Map<String, Object> parameters = toMap(newMyUser);
-        jdbcInsert.execute(new MapSqlParameterSource(toMap(newMyUser)));
-        // Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
-        // newMyUser.setUserNo(key.longValue());
+        
+        Map<String,Object> map = new HashMap<>();
+        map.put("USER_NO",  newMyUser.getUserNo());
+        map.put("USER_NAME",newMyUser.getUserName());
+        map.put("USER_ID",  newMyUser.getUserId());
+        map.put("USER_PW",  newMyUser.getUserPw());
+        map.put("TEL_NO",   newMyUser.getTelNo());
+        map.put("USER_EMAIL",newMyUser.getUserEmail());
+        map.put("POST_NO",  newMyUser.getPostNo());
+        map.put("ADDRESS_MAIN",newMyUser.getAddressMain());
+        map.put("ADDRESS_DETAIL",newMyUser.getAddressDetail());
+        map.put("PROFILE_IMG_PATH", newMyUser.getProfileImgPath());
+        map.put("PROFILE_IMG_NAME", newMyUser.getProfileImgName());
+        
+        jdbcInsert.execute(new MapSqlParameterSource(map));
         return newMyUser;
     }
     // SELECT 
@@ -108,22 +118,6 @@ public class JdbcTemplateUserRepository implements UserRepository{
     private Long generateUserNoKey() {
         String sequenceQuery = "SELECT MY_USER_SEQ.NEXTVAL FROM DUAL";
         return jdbcTemplate.queryForObject(sequenceQuery, Long.class);        
-    }
-    private Map<String,Object> toMap(MyUser user){
-        Map<String,Object> map = new HashMap<>();
-        map.put("USER_NO",  user.getUserNo());
-        map.put("USER_NAME",user.getUserName());
-        map.put("USER_ID",  user.getUserId());
-        map.put("USER_PW",  user.getUserPw());
-        map.put("TEL_NO",   user.getTelNo());
-        map.put("USER_EMAIL",user.getUserEmail());
-        map.put("POST_NO",  user.getPostNo());
-        map.put("ADDRESS_MAIN",user.getAddressMain());
-        map.put("ADDRESS_DETAIL",user.getAddressDetail());
-        map.put("PROFILE_IMG_PATH", user.getProfileImgPath());
-        map.put("PROFILE_IMG_NAME", user.getProfileImgName());
-
-        return map;
     }
 
     private RowMapper<MyUser> userRowMapper(){
