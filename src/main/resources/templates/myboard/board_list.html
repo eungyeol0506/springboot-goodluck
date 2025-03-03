@@ -53,6 +53,11 @@
             </tbody>
         </table>
         </div>
+
+        <div th:if="${notice != null}" id="alert-box" class="alert alert-success" role="alert">
+          [[${notice}]]
+        </div>
+      
         <div>
             <div>
                 <ul class="pagination">
@@ -84,5 +89,14 @@
             </button>
         </div>
     </div>
+    
+  <script>
+    setTimeout(function() {
+        var alertBox = document.getElementById("alert-box");
+        if (alertBox) {
+            alertBox.style.display = "none"; // 3초 후 alert 숨김
+        }
+    }, 3000);
+  </script>
 </body>
 </html>

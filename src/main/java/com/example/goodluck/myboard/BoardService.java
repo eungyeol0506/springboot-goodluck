@@ -4,28 +4,36 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.goodluck.domain.MyBoard;
+import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
 
 public class BoardService {
     // 한 페이지당 리스트 수
     private final int LIST_SIZE = 15;
     private BoardRepository boardRepository;
 
+    @Autowired
     public BoardService(BoardRepository boardRepository){
         this.boardRepository = boardRepository;
     }
     
     public MyBoard writeBoard(MyBoard newBoard){
+        // set create date
         newBoard.setCreateDate(LocalDate.now());
         return boardRepository.insertNew(newBoard);
     }
     
     public MyBoard getBoardDetail(Long boardNo){
         MyBoard myBoard = boardRepository.selectBoard(boardNo)
-                                         .orElseThrow(() -> new IllegalStateException());
+                                         .orElseThrow(
+                                            () -> new ForbiddenBoardAccessException("게시글이 없습니다.", null)
+                                          );
+        // increase view count                                   
         myBoard.increaseViewCnt();
         boardRepository.updateBoardViewCnt(boardNo, myBoard.getViewCnt());
+
         return myBoard;
     }
     public List<MyBoard> getBoardList(Long page){
@@ -35,6 +43,7 @@ public class BoardService {
     }
 
     public void eidtBoard(MyBoard board){
+        // set update date
         board.setUpdateDate(LocalDate.now());
         int updateRow = boardRepository.updateBoard(board);
         if (updateRow <= 0){

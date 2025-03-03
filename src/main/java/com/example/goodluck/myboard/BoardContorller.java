@@ -8,7 +8,9 @@ import org.springframework.ui.Model;
 
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
 import com.example.goodluck.exception.myuser.UserNotFoundException;
+import com.example.goodluck.myboard.dto.BoardModifyRequestDto;
 import com.example.goodluck.myboard.dto.BoardWriteRequestDto;
 import com.example.goodluck.myuser.UserService;
 
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -36,6 +40,7 @@ public class BoardContorller {
         this.userService = userService;
     }
     
+    // 게시글 목록
     @GetMapping("/list")
     public String getBoardList(@RequestParam("page") Long page, Model model){
         List<MyBoard> result = boardService.getBoardList(page);
@@ -46,6 +51,7 @@ public class BoardContorller {
         return "myboard/board_list";
     }
 
+    // 게시글 상세보기
     @GetMapping("/board/{boardNo}")
     public String getBoardDetail(@PathVariable("boardNo") Long boardNo, Model model){
         MyBoard result = boardService.getBoardDetail(boardNo);
@@ -66,7 +72,7 @@ public class BoardContorller {
         return "myboard/newboard_form";
     }
     
-    // 게시글 등록
+    // 게시글 등록 요청
     @PostMapping("/board/write")
     public String postMethodName(
         HttpSession session,
@@ -87,19 +93,52 @@ public class BoardContorller {
     }
     
     // 게시글 수정 폼
-    @GetMapping("/board/edit/{boardNo}")
-    public String getMethodName(@PathVariable("boardNo") Long boardNo, Model model) {
+    @PostMapping("/board/form")
+    public String getMethodName(
+        Model model,
+        @ModelAttribute(name="boardNo") Long boardNo,
+        HttpSession session) {
+        // get user No
+        Long userNo = (Long) session.getAttribute("userNo");
+        // MyUser user = userService.getUserInfo(userNo).get();
+        // get board No
+        MyBoard board = boardService.getBoardDetail(boardNo);
 
+        if (! userNo.equals(board.getUser().getUserNo())){
+            throw new ForbiddenBoardAccessException("수정 권한이 없는 사용자입니다.", board);
+        }
+
+        model.addAttribute("preValue", board);
         return "myboard/board_form";
     }
     
-    // 게시글 수정하기
-    @PostMapping("/board/edit/{boardNo}")
-    public String postMethodName()
-        // @ModelAttribute(name="boardEditRequest") BoardEditRequest boardEditRequest) 
+    // 게시글 수정 요청
+    @PostMapping("/board/form/{boardNo}")
+    public String postMethodName(
+        @ModelAttribute(name="boardEditRequest") BoardModifyRequestDto boardModifyRequest) 
     {
+        MyBoard board = boardModifyRequest.toDomain();
         
+        boardService.eidtBoard(board);
         return "redirect:/board/" + 1L;
+    }
+    
+    @PostMapping("/board/delete/{boardNo}")
+    public String postMethodName(
+        @PathVariable("boardNo") Long boardNo, 
+        HttpSession session) {
+            
+        Long userNo = (Long) session.getAttribute("userNo");
+        // MyUser user = userService.getUserInfo(userNo).get();
+        // get board No
+        MyBoard board = boardService.getBoardDetail(boardNo);
+
+        if (! userNo.equals(board.getUser().getUserNo())){
+            throw new ForbiddenBoardAccessException("삭제 권한이 없는 사용자입니다.", board);
+        }
+        boardService.deleteBoard(boardNo);
+
+        return "redirect:/list";
     }
     
 }
