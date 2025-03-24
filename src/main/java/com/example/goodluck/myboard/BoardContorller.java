@@ -97,18 +97,16 @@ public class BoardContorller {
     public String getMethodName(
         Model model,
         @ModelAttribute(name="boardNo") Long boardNo,
-        HttpSession session) {
-        // get user No
+        HttpSession session) 
+    {
         Long userNo = (Long) session.getAttribute("userNo");
-        // MyUser user = userService.getUserInfo(userNo).get();
-        // get board No
         MyBoard board = boardService.getBoardDetail(boardNo);
-
         if (! userNo.equals(board.getUser().getUserNo())){
             throw new ForbiddenBoardAccessException("수정 권한이 없는 사용자입니다.", board);
         }
-
+        
         model.addAttribute("preValue", board);
+
         return "myboard/board_form";
     }
     
@@ -138,7 +136,7 @@ public class BoardContorller {
         }
         boardService.deleteBoard(boardNo);
 
-        return "redirect:/list";
+        return "redirect:/list?page=1";
     }
     
 }
