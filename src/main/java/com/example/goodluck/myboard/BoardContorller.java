@@ -74,7 +74,7 @@ public class BoardContorller {
     
     // 게시글 등록 요청
     @PostMapping("/board/write")
-    public String postMethodName(
+    public String postBoardWrite(
         HttpSession session,
         @ModelAttribute(name="boardWriteDto") @Valid BoardWriteRequestDto boardWriteRequest) {
         // 사용자 정보 찾기    
@@ -94,7 +94,7 @@ public class BoardContorller {
     
     // 게시글 수정 폼
     @PostMapping("/board/form")
-    public String getMethodName(
+    public String postBoardEditForm(
         Model model,
         @ModelAttribute(name="boardNo") Long boardNo,
         HttpSession session) 
@@ -112,7 +112,7 @@ public class BoardContorller {
     
     // 게시글 수정 요청
     @PostMapping("/board/form/{boardNo}")
-    public String postMethodName(
+    public String postBoardEdit(
         @ModelAttribute(name="boardEditRequest") BoardModifyRequestDto boardModifyRequest) 
     {
         MyBoard board = boardModifyRequest.toDomain();
@@ -122,7 +122,7 @@ public class BoardContorller {
     }
     
     @PostMapping("/board/delete/{boardNo}")
-    public String postMethodName(
+    public String postBoardDelete(
         @PathVariable("boardNo") Long boardNo, 
         HttpSession session) {
             
