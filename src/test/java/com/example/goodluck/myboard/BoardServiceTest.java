@@ -188,11 +188,12 @@ public class BoardServiceTest {
             @DisplayName("삭제 성공한 경우")
             void successDeleteBoard(){
                 // given
+                Long boardNo = 1L;
                 BDDMockito.given(mockBoardRepository.deleteBoard(anyLong())).willReturn(1);
                 // when
-                boardService.deleteBoard(1L);
+                boardService.deleteBoard(boardNo);
                 // then
-                Mockito.verify(mockBoardRepository).deleteBoard(1L);
+                Mockito.verify(mockBoardRepository).deleteBoard(boardNo);
             }
         }
         @Nested
