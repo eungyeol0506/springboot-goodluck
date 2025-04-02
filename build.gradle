@@ -35,7 +35,6 @@ dependencies {
 	runtimeOnly name: 'ojdbc8'
 	implementation name: 'oraclepki'
 	implementation name: 'osdt_core'
-	implementation "org.mockito:mockito-junit-jupiter:5.15.2"
     implementation name: 'osdt_cert'
 
 	compileOnly 'org.projectlombok:lombok'
