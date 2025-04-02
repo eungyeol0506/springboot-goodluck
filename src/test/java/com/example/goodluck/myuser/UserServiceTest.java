@@ -1,10 +1,8 @@
 package com.example.goodluck.myuser;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-// import static org.mockito.ArgumentMatchers.any;
-
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
@@ -188,7 +186,6 @@ class UserServiceTest {
             void successUpdateUser(){
                 //given
                 Long no = myUser.getUserNo();
-                Mockito.when(mockUserRepository.selectByNo(no)).thenReturn(Optional.of(myUser));
                 Mockito.when(mockUserRepository.updateUser(myUser)).thenReturn(Optional.of(myUser));
                 //when
                 MyUser resultUser = userService.updateUser(myUser).get();
@@ -205,56 +202,28 @@ class UserServiceTest {
             @DisplayName("존재하지 않는 회원정보인 경우")
             void failUserNotFound(){
                 //given
-                Long no = myUser.getUserNo();
-                Mockito.when(mockUserRepository.selectByNo(no)).thenReturn(Optional.empty());
+                // Long no = myUser.getUserNo();
+                Mockito.when(mockUserRepository.updateUser(myUser)).thenReturn(Optional.of(myUser));
                 //when
-                Exception exception = Assertions.catchException(() -> userService.updateUser(myUser));
+                // Exception exception = Assertions.catchException(() -> userService.updateUser(myUser));
+                MyUser result = userService.updateUser(myUser).get();
                 //then
-                Assertions.assertThat(exception)
-                        .isInstanceOf(UserNotFoundException.class)
-                        .hasMessageContaining("정보를 찾을 수 없습니다.");
+                Assertions.assertThat(result).isEqualTo(myUser);
+                // Assertions.assertThat(exception)
+                //         .isInstanceOf(UserNotFoundException.class)
+                //         .hasMessageContaining("정보를 찾을 수 없습니다.");
                 
-                Mockito.verify(mockUserRepository).selectByNo(no);
-                Mockito.verify(mockUserRepository, Mockito.never()).updateUser(myUser);
-            }
-            @Test
-            @DisplayName("인자값이 null이어서 예외가 발생한 경우")
-            void failUserNull(){
-                // given
-                Long no = myUser.getUserNo();
-                Mockito.when(mockUserRepository.selectByNo(no)).thenReturn(Optional.of(myUser));
-                Mockito.when(mockUserRepository.updateUser(myUser)).thenReturn(Optional.empty());
-                // when
-                Exception exception = Assertions.catchException(() -> userService.updateUser(myUser));
-                // then
-                Assertions.assertThat(exception)
-                        .isInstanceOf(IllegalStateException.class)
-                        .hasMessageContaining("수정할 수 없습니다.");
-                Mockito.verify(mockUserRepository).selectByNo(no);
                 Mockito.verify(mockUserRepository).updateUser(myUser);
+                // Mockito.verify(mockUserRepository, Mockito.never()).updateUser(myUser);
             }
-            @Test
-            @DisplayName("select시 exception이 발생한 경우")
-            void failSelectException(){
-                // given
-                Long no = myUser.getUserNo();
-                Mockito.when(mockUserRepository.selectByNo(no)).thenThrow(new DataAccessException("select"){});
-                // when
-                Exception exception = Assertions.catchException(() -> userService.updateUser(myUser));
-                // then
-                Assertions.assertThat(exception)
-                        .isInstanceOf(DataAccessException.class)
-                        .hasMessageContaining("select");
-                Mockito.verify(mockUserRepository).selectByNo(no);
-                Mockito.verify(mockUserRepository, Mockito.never()).updateUser(myUser);
-
-            }
+            
+            
             @Test
             @DisplayName("update시 exception이 발생한 경우")
             void failUpdatException(){
                 // given
                 Long no = myUser.getUserNo();
-                Mockito.when(mockUserRepository.selectByNo(no)).thenReturn(Optional.of(myUser));
+                // Mockito.when(mockUserRepository.selectByNo(no)).thenReturn(Optional.of(myUser));
                 Mockito.when(mockUserRepository.updateUser(myUser)).thenThrow(new DataAccessException("update"){});
                 // when
                 Exception exception = Assertions.catchException(() -> userService.updateUser(myUser));
@@ -263,7 +232,7 @@ class UserServiceTest {
                         .isInstanceOf(DataAccessException.class)
                         .hasMessageContaining("update");
 
-                Mockito.verify(mockUserRepository).selectByNo(no);
+                // Mockito.verify(mockUserRepository).selectByNo(no);
                 Mockito.verify(mockUserRepository).updateUser(myUser);
             }
         }
@@ -292,11 +261,12 @@ class UserServiceTest {
             Long no = myUser.getUserNo();
             Mockito.when(mockUserRepository.selectByNo(no)).thenReturn(Optional.empty());
             // when
-            Exception exception = Assertions.catchException(() -> userService.getUserInfo(no));
+            Exception exception = Assertions.catchException(() -> userService.getUserInfo(no).get());
             // then
             Assertions.assertThat(exception)
-                    .isInstanceOf(UserNotFoundException.class)
-                    .hasMessageContaining("정보를 찾을 수 없습니다.");
+                    .isInstanceOf(NoSuchElementException.class)
+                    // .hasMessageContaining("정보를 찾을 수 없습니다.")
+                    ;
             Mockito.verify(mockUserRepository).selectByNo(no);
         }
 

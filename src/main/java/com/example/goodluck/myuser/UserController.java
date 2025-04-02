@@ -12,7 +12,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.goodluck.common.MyFileHandler;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myuser.UserLoginFaildException;
 import com.example.goodluck.exception.myuser.UserNotFoundException;
 import com.example.goodluck.myuser.dto.EditUserRequestDto;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;

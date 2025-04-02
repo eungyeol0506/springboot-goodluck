@@ -14,7 +14,7 @@ import com.example.goodluck.myuser.JdbcTemplateUserRepository;
 
 // @JdbcTest
 @SpringBootTest
-// @Transactional
+@Transactional
 public class JdbcTemplateUserRepositoryTest {
 
     private final JdbcTemplateUserRepository userRepository;

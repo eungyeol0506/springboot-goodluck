@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserLoginFaildException;
+import com.example.goodluck.exception.myuser.UserNotFoundException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 
@@ -42,6 +43,9 @@ public class UserService {
     } 
     // 회원정보 수정
     public Optional<MyUser> updateUser (MyUser editUser) {
+        if(editUser == null){
+            throw new UserNotFoundException("존재하지 않는 수정정보입니다.");
+        }
         return userRepository.updateUser(editUser);
     }
     
