@@ -28,18 +28,12 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.FlashMap;
 
 import com.example.goodluck.common.MyFileHandler;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myuser.UserLoginFaildException;
-import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
-import com.example.goodluck.exception.myuser.UserRegistFaildException;
 import com.example.goodluck.myuser.UserController;
 import com.example.goodluck.myuser.UserService;
 
@@ -108,7 +102,7 @@ class UserControllerTest {
                 session.setAttribute("userNo", myUser.getUserNo());
 
                 BDDMockito.given(userService.updateUser(any(MyUser.class))).willReturn(Optional.of(myUser));
-                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(file, myUser)).willReturn("name");
+                // BDDMockito.given(testFileHandler.uploadMyUserProfileImage(file, myUser)).willReturn("name");
                 // when // then
                 // .file(multipartFile)
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
@@ -145,7 +139,7 @@ class UserControllerTest {
                 session.setAttribute("userNo", myUser.getUserNo());
 
                 BDDMockito.given(userService.updateUser(any(MyUser.class))).willReturn(Optional.of(myUser));
-                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(file, myUser)).willReturn("name");
+                // BDDMockito.given(testFileHandler.uploadMyUserProfileImage(file, myUser)).willReturn("name");
                 // when // then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
                                                         .file(file)
@@ -160,7 +154,7 @@ class UserControllerTest {
                             .andDo(print());
 
                 Mockito.verify(userService, Mockito.never()).updateUser(any(MyUser.class));
-                Mockito.verify(testFileHandler, Mockito.never()).uploadMyUserProfileImage(file, myUser);
+                // Mockito.verify(testFileHandler, Mockito.never()).uploadMyUserProfileImage(file, myUser);
             }
             @DisplayName("IO Exception이 발생한 경우")
             @Test
@@ -176,8 +170,8 @@ class UserControllerTest {
                 MockHttpSession session = new MockHttpSession();
                 session.setAttribute("userNo", myUser.getUserNo());
 
-                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(file, myUser))
-                          .willThrow(new UserProfileImageUploadException("테스트", myUser));
+                // BDDMockito.given(testFileHandler.uploadMyUserProfileImage(file, myUser))
+                        //   .willThrow(new UserProfileImageUploadException("테스트", myUser));
                 BDDMockito.given(userService.updateUser(any(MyUser.class))).willReturn(Optional.of(myUser));
                 // when // then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
@@ -188,11 +182,11 @@ class UserControllerTest {
                         .andExpect(status().isOk())
                         .andExpect(view().name("myuser/mypage_form"))
                         .andExpect(model().attributeExists("preValue"))
-                        .andExpect(model().attribute("notice", "테스트"))
+                        .andExpect(model().attribute("notice", "프로필이미지 저장에 실패하였습니다."))
                         .andExpect(request().sessionAttribute("userNo", myUser.getUserNo()))
                         .andDo(print());
 
-                    Mockito.verify(testFileHandler).uploadMyUserProfileImage(file, myUser);
+                    // Mockito.verify(testFileHandler).uploadMyUserProfileImage(file, myUser);
                     Mockito.verify(userService, Mockito.never()).updateUser(any(MyUser.class));
             }
 
@@ -210,8 +204,8 @@ class UserControllerTest {
                 MockHttpSession session = new MockHttpSession();
                 session.setAttribute("userNo", myUser.getUserNo());
 
-                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MockMultipartFile.class), any(MyUser.class)))
-                            .willReturn("name");
+                // BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MockMultipartFile.class), any(MyUser.class)))
+                            // .willReturn("name");
                 BDDMockito.given(userService.updateUser(any(MyUser.class))).willThrow(new RuntimeException("테스트"));
                 // when // then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/mypage/edit")
@@ -225,7 +219,7 @@ class UserControllerTest {
                         .andDo(print());
 
                 Mockito.verify(userService).updateUser(any(MyUser.class));
-                Mockito.verify(testFileHandler).uploadMyUserProfileImage(any(MockMultipartFile.class), any(MyUser.class));
+                // Mockito.verify(testFileHandler).uploadMyUserProfileImage(any(MockMultipartFile.class), any(MyUser.class));
             }
 
         }

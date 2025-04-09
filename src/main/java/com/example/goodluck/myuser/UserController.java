@@ -1,6 +1,8 @@
 package com.example.goodluck.myuser;
 
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,8 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.goodluck.common.MyFileHandler;
+import com.example.goodluck.common.MyUserProfileImageHandler;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserNotFoundException;
+import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
 import com.example.goodluck.myuser.dto.EditUserRequestDto;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;
 
@@ -33,8 +37,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @Autowired
-    private MyFileHandler fileHandler;
+    // private MyFileHandler fileHandler;
 
     // 로그인
     @GetMapping("/login")
@@ -81,18 +84,31 @@ public class UserController {
         MyUser user = userRegistRequest.toDomain(); 
         
         // save file
-        if ( multipartFile != null && !multipartFile.getOriginalFilename().isBlank()){
-            // MyFileHandler fileHandler = new MyFileHandler();
-            String fileName = fileHandler.uploadMyUserProfileImage(multipartFile, user);
-                                        
-            user.setProfileImgName(fileName);
-            user.setProfileImgPath(MyFileHandler.PROFILE_DIR_STRING);
-        }
+        saveProfileImage(multipartFile, user);
+        
         // save DB data
         userService.registUser(user);
         
         redirectAttributes.addFlashAttribute("message", "회원가입에 성공하였습니다.");
         return "redirect:/login";   
+    }
+
+    private void saveProfileImage(MultipartFile multipartFile, MyUser user) {
+        if ( multipartFile != null && !multipartFile.getOriginalFilename().isBlank()){
+            MyUserProfileImageHandler fileHandler = MyUserProfileImageHandler.builder()
+                                                                            .user(user)
+                                                                            .build();
+            try{
+                // fileHandler.saveFile(multipartFile);
+                // Test code
+                fileHandler.saveFileTest(multipartFile);
+            }catch(IOException exception){
+                throw new UserProfileImageUploadException("프로필이미지 저장에 실패하였습니다.", user);
+            }
+                                        
+            user.setProfileImgName(fileHandler.getFileName());
+            user.setProfileImgPath(fileHandler.getDirName());
+        }
     }
 
     // 회원 정보 보기
@@ -134,12 +150,8 @@ public class UserController {
         // 이미지 삭제를 원하면 name, path, blank 해야함
         
         // save file
-        if ( multipartFile != null && !multipartFile.getOriginalFilename().isBlank()){
-            String fileName = fileHandler.uploadMyUserProfileImage(multipartFile, user);
-                                        
-            user.setProfileImgName(fileName);
-            user.setProfileImgPath(MyFileHandler.PROFILE_DIR_STRING);
-        }        
+        saveProfileImage(multipartFile, user);       
+        
         // save DB data
         userService.updateUser(user);
         

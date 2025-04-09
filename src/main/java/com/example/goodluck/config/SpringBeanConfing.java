@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.example.goodluck.myboard.AttachRepository;
+import com.example.goodluck.myboard.AttachService;
 import com.example.goodluck.myboard.BoardRepository;
 import com.example.goodluck.myboard.BoardService;
+import com.example.goodluck.myboard.JdbcTemplateAttackRepository;
 import com.example.goodluck.myboard.JdbcTemplateBoardRepository;
 import com.example.goodluck.myuser.JdbcTemplateUserRepository;
 import com.example.goodluck.myuser.UserRepository;
@@ -40,5 +43,14 @@ public class SpringBeanConfing {
     @Bean
     public BoardRepository boardRepository(){
         return new JdbcTemplateBoardRepository(dataSource);
+    }
+
+    @Bean
+    public AttachService attachService(){
+        return new AttachService(attachRepository());
+    }
+    @Bean
+    public AttachRepository attachRepository(){
+        return new JdbcTemplateAttackRepository(dataSource);
     }
 }

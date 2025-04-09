@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
 
 @ExtendWith(MockitoExtension.class)
 public class BoardServiceTest {
@@ -40,7 +41,7 @@ public class BoardServiceTest {
                 // given
                 MyBoard board = new MyBoard(0L, "test", "test", 0, null, LocalDate.now(), 
                                             new MyUser(1L, "testUser", null, null, null, null, null, null, null, null, null));
-                BDDMockito.given(mockBoardRepository.selectBoard(0L)).willReturn(Optional.of(board));
+                BDDMockito.given(mockBoardRepository.selectBoard(anyLong())).willReturn(Optional.of(board));
                 // when
                 MyBoard result = boardService.getBoardDetail(0L);
                 // then
@@ -76,7 +77,7 @@ public class BoardServiceTest {
                 // when
                 Exception exception = Assertions.catchException( () -> boardService.getBoardDetail(0L));  
                 // then
-                Assertions.assertThat(exception).isInstanceOf(IllegalStateException.class);
+                Assertions.assertThat(exception).isInstanceOf(ForbiddenBoardAccessException.class);
 
                 Mockito.verify(mockBoardRepository).selectBoard(0L);
                 Mockito.verify(mockBoardRepository, Mockito.never()).updateBoardViewCnt(0L, 1); 

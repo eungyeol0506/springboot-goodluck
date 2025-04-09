@@ -2,6 +2,7 @@ package com.example.goodluck.domain;
 
 import java.beans.Transient;
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.Data;
 
@@ -17,8 +18,7 @@ public class MyBoard {
     private LocalDate createDate;
     
     private MyUser user;
-    // private List<MultipartFile> attachFiles;
-    // private List<MyAttach> attaches;
+    private List<MyAttach> attachList;
     
     public MyBoard() {};
     public MyBoard(Long boardNo, String boardTitle, String contents, int viewCnt, LocalDate updateDate, LocalDate createDate,

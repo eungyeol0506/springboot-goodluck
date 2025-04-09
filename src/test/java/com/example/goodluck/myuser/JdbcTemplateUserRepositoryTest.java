@@ -10,9 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.myuser.JdbcTemplateUserRepository;
 
-// @JdbcTest
 @SpringBootTest
 @Transactional
 public class JdbcTemplateUserRepositoryTest {
@@ -45,13 +43,10 @@ public class JdbcTemplateUserRepositoryTest {
         MyUser result1 = userRepository.selectByNo(testUser.getUserNo()).get();
         MyUser result2 = userRepository.selectById(testUser.getUserId()).get();
         MyUser result3 = userRepository.selectByIdPw(testUser.getUserId(), testUser.getUserPw()).get();
-        // 왜 오류남?? 검색 
-        // MyUser result4 = userRepository.selectByIdEmail(testUser.getUserId(), testUser.getUserEmail()).orElse(null);
         //then 데이터를 갖고와야 함함
         Assertions.assertThat(testUser.getUserNo()).isEqualTo(result1.getUserNo());
         Assertions.assertThat(testUser.getUserNo()).isEqualTo(result2.getUserNo());
         Assertions.assertThat(testUser.getUserNo()).isEqualTo(result3.getUserNo());
-        // Assertions.assertThat(testUser.getUserNo()).isEqualTo(result4.getUserNo());
     }
 
     

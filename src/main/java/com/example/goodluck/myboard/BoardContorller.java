@@ -1,5 +1,6 @@
 package com.example.goodluck.myboard;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.ui.Model;
 
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.exception.myboard.BoardAttachUploadException;
 import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
 import com.example.goodluck.exception.myuser.UserNotFoundException;
 import com.example.goodluck.myboard.dto.BoardModifyRequestDto;
@@ -17,10 +19,12 @@ import com.example.goodluck.myuser.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -33,11 +37,13 @@ public class BoardContorller {
     
     private BoardService boardService;
     private UserService userService;
+    private AttachService attachService;
 
     @Autowired
-    public BoardContorller(BoardService boardService, UserService userService){
+    public BoardContorller(BoardService boardService, UserService userService, AttachService attachService){
         this.boardService = boardService;
         this.userService = userService;
+        this.attachService = attachService;
     }
     
     // 게시글 목록
@@ -76,7 +82,8 @@ public class BoardContorller {
     @PostMapping("/board/write")
     public String postBoardWrite(
         HttpSession session,
-        @ModelAttribute(name="boardWriteDto") @Valid BoardWriteRequestDto boardWriteRequest) {
+        @ModelAttribute(name="boardWriteDto") @Valid BoardWriteRequestDto boardWriteRequest,
+        @RequestParam(value = "fileImage",required = false) List<MultipartFile> multipartFiles) {
         // 사용자 정보 찾기    
         Long userNo = (Long) session.getAttribute("userNo");
         if (userNo == null){
@@ -86,6 +93,15 @@ public class BoardContorller {
         // 게시글 정보 
         MyBoard newBoard = boardWriteRequest.toDomain();
         newBoard.setWriterInfo(writer);
+
+        if(! multipartFiles.isEmpty()){
+            // 첨부파일 저장
+            try{
+                attachService.uploadAttachList(newBoard, multipartFiles);
+            }catch(IOException exception){
+                throw new BoardAttachUploadException();
+            }
+        }
 
         MyBoard result = boardService.writeBoard(newBoard);
 

@@ -20,7 +20,6 @@ import org.springframework.dao.DataAccessException;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserLoginFaildException;
-import com.example.goodluck.exception.myuser.UserNotFoundException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 @ExtendWith(MockitoExtension.class)

@@ -18,6 +18,8 @@ public class BoardService {
     public BoardService(BoardRepository boardRepository){
         this.boardRepository = boardRepository;
     }
+    // @Autowired
+    // private AttachService attachService;
     
     public MyBoard writeBoard(MyBoard newBoard){
         // set create date
@@ -34,6 +36,9 @@ public class BoardService {
         myBoard.increaseViewCnt();
         boardRepository.updateBoardViewCnt(boardNo, myBoard.getViewCnt());
 
+        // select attach list
+        // myBoard.setAttachList(attachService.getAttachList(boardNo));
+        
         return myBoard;
     }
     public List<MyBoard> getBoardList(Long page){

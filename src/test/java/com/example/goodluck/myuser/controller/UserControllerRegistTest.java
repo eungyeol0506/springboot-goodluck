@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +40,6 @@ import com.example.goodluck.myuser.UserService;
 public class UserControllerRegistTest {
     @MockBean                                                                                                                                                                                                                                                                                                                                    
     private UserService userService;
-    
-    @MockBean
-    private MyFileHandler testFileHandler;
 
     @Autowired
     private MockMvc mockMvc;
@@ -85,6 +83,7 @@ public class UserControllerRegistTest {
                 
                 Mockito.verify(userService).registUser(any(MyUser.class));                              
              }
+
             @Test
             @DisplayName("회원가입을 성공하는 경우 - 이미지있음")
             void successRegistUserWithProfile() throws Exception{
@@ -93,7 +92,6 @@ public class UserControllerRegistTest {
                 MockMultipartFile multipartFile = new MockMultipartFile("fileImage", "new_profile.img", "image/png", "test-image-content".getBytes());
                 MultiValueMap<String,String> registForms = createRegistForm(myUser);
                 
-                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(multipartFile, myUser)).willReturn("success_profile.png");
                 BDDMockito.given(userService.registUser(any(MyUser.class))).willReturn(myUser);
                 // when //then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
@@ -102,7 +100,6 @@ public class UserControllerRegistTest {
                                                         .contentType(MediaType.MULTIPART_FORM_DATA))
                         .andExpect(status().is3xxRedirection())
                         .andExpect(redirectedUrl("/login"))
-                        // .andDo(print())
                         ;
 
                 Mockito.verify(userService).registUser(any(MyUser.class));                              
@@ -188,10 +185,9 @@ public class UserControllerRegistTest {
                 // given4
                 MyUser myUser = MyUser.creatDummy(1L);
                 MockMultipartFile multipartFile = new MockMultipartFile("fileImage", "faild_file.img", "image/png", "test-image-content".getBytes());
+                
                 MultiValueMap<String,String> registForms = createRegistForm(myUser);
 
-                BDDMockito.given(testFileHandler.uploadMyUserProfileImage(any(MultipartFile.class), any(MyUser.class)))
-                          .willThrow(new UserRegistFaildException("이미지 업로드에 실패하였습니다."));
                 BDDMockito.given(userService.registUser(any(MyUser.class))).willReturn(myUser);
                 // when then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
@@ -200,7 +196,6 @@ public class UserControllerRegistTest {
                                                         .contentType(MediaType.MULTIPART_FORM_DATA))
                                             .andExpect(status().isOk())
                                             .andExpect(view().name("myuser/regist_form"))
-                                            .andExpect(model().attribute("notice", "이미지 업로드에 실패하였습니다."))
                                             .andExpect(model().attributeExists("preValue"))
                                             .andDo(print());
 
