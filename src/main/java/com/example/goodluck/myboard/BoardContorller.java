@@ -129,7 +129,8 @@ public class BoardContorller {
     // 게시글 수정 요청
     @PostMapping("/board/form/{boardNo}")
     public String postBoardEdit(
-        @ModelAttribute(name="boardEditRequest") BoardModifyRequestDto boardModifyRequest) 
+        @ModelAttribute(name="boardEditRequest") BoardModifyRequestDto boardModifyRequest)
+        // @RequestParam(value = "fileImage",required = false) List<MultipartFile> multipartFiles) 
     {
         MyBoard board = boardModifyRequest.toDomain();
         
