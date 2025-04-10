@@ -44,6 +44,6 @@ public class MyUserProfileImageHandler extends MyFileHandler {
         return this.userProfileFileName;
     }
     public String getDirName(){
-        return this.FILE_DIR;
+        return this.profileDirName;
     }
 }

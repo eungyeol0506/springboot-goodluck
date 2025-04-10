@@ -25,6 +25,7 @@
                 <div>
                     <label for="fileImage" class="form-label mt-4">프로필 이미지 업로드</label>
                     <input class="form-control" type="file" id="fileImage" name="fileImage" accept="image/png, image/jpeg, image/jpg">
+                    <button class="btn btn-primary mt-2" type="button "id="resetImageBtn">기본 이미지로 변경</button>
                 </div>
                 <div>
                     <label for="userName" class="form-label mt-4">
@@ -94,23 +95,23 @@
             </form>
         </div>
     </div>
-    <script type="text/javascript">
-        // 이미지 업로드 시 display 하는 JS 
-        $(document).ready(function() {
-            $('#fileImage').change(function(){
-                showImageThumbnail(this);
+   <script type="module">
+        import { initImageThumbnailUpload } from "/js/imageThumbnail.js";
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            const imageUploader = initImageThumbnailUpload({
+            inputSelector: '#fileImage',
+            imgSelector: '#userThumbnail',
+            defaultImage: 'https://img.icons8.com/?size=250&id=ABBSjQJK83zf&format=png&color=000000'
+        });
+
+        // "기본 이미지로 변경" 버튼 클릭 시 썸네일만 초기화
+        document.querySelector('#resetImageBtn').addEventListener('click', (e) => {
+            e.preventDefault(); // 혹시 모르니 안전하게 form 전송 방지
+            imageUploader.resetImage(); // 썸네일 리셋
             });
         });
-        function showImageThumbnail(fileInput){
-            file = fileInput.files[0];
-            reader = new FileReader();
-
-            reader.onload = function(e){
-                $('#userThumbnail').attr('src', e.target.result);
-            };
-
-            reader.readAsDataURL(file);
-        }
-    </script>
+    </script> 
+    
 </body>
 </html>

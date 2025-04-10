@@ -40,11 +40,11 @@ public class MyUser {
         return new MyUser(userNo, "Dummy", "test@test.com", "test", "testtest", null, null, null, null, null, null);
     }
     
-    @Transient
-    public String getProfile(){
-        if (profileImgPath != null){
-            return "/files/" + profileImgName;
-        }
-        return null;
-    }
+    // @Transient
+    // public String getProfileStaticResourcePath(){
+    //     if (profileImgPath != null){
+    //         return "/files/profile/" + profileImgName;
+    //     }
+    //     return null;
+    // }
 }

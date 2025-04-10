@@ -99,9 +99,9 @@ public class UserController {
                                                                             .user(user)
                                                                             .build();
             try{
-                // fileHandler.saveFile(multipartFile);
+                fileHandler.saveFile(multipartFile);
                 // Test code
-                fileHandler.saveFileTest(multipartFile);
+                // fileHandler.saveFileTest(multipartFile);
             }catch(IOException exception){
                 throw new UserProfileImageUploadException("프로필이미지 저장에 실패하였습니다.", user);
             }
