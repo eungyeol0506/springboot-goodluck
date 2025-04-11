@@ -12,7 +12,7 @@ branches:
     prefix: hotfix/
   - label: release
     skipBranch: true
-  - label: ❔question
+  - label: ❔Question
     skip: true
   - label: "*"
     prefix: feat/
