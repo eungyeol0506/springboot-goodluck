@@ -28,6 +28,10 @@ public class AttachService {
                                               .board(board).build();
 
         for(MultipartFile file : fileList) {
+            if (file == null || file.isEmpty() || file.getOriginalFilename().trim().isEmpty()) {
+                System.out.println("빈 파일이거나 파일 이름이 없습니다. 스킵합니다.");
+                continue;
+            }
             fileHandler.saveFile(file);
             
             // Test code

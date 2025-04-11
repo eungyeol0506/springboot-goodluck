@@ -15,7 +15,7 @@
 
     <div class="container d-flex justify-content-center align-items-center">
         <div class="card mt-4 mb-3"  style="width: 100%; max-width: 800px;">
-            <form th:action="@{/board/write}" th:object="${boardWriteDto}" method="post">
+            <form th:action="@{/board/write}" th:object="${boardWriteDto}" method="post" enctype="multipart/form-data">
                 
                 <div class="card-body">
                     
@@ -32,10 +32,15 @@
                             th:text="${preValue.contents} ?: ''" >
                 </textarea>
                 <!-- 첨부파일 -->
-                <label for="fileImage" class="form-label mt-4">사진 첨부</label>
-                <input class="form-control" type="file" id="fileImage" name="fileImage" accept="image/png, image/jpeg, image/jpg">
-                <div>
-                    <img th:src="@{/noimage.png}" alt="기본 프로필이미지" id="userThumbnail" style="max-width: 600px; max-height: 600px;"/>
+                <div class = "image-upload-container">
+                    <div class = "image-preview-container">
+                        <div class="container mt-2 mb-2">
+                            <div class="row" id="imageRow"></div>
+                        </div>
+                    </div>
+                    <input class="form-control" type="file" name="fileImage" id="imageInput" multiple accept="image/*" style="display: none;">
+                    <button class="btn btn-primary" type="button" id="addImageButton">사진 추가하기</button>
+                </div>
                 </div>
             </div>
             <th:block th:if="${notice != null}">
@@ -52,5 +57,21 @@
             </form>
         </div>
     </div>
+
+    <script type="module">
+        import { initMultiImageUpload } from "/js/multiImageUpload.js";
+      
+        document.addEventListener('DOMContentLoaded', () => {
+          const uploader = initMultiImageUpload({
+            inputSelector: '#imageInput',
+            previewRowSelector: '#imageRow',
+            addButtonSelector: '#addImageButton',
+            maxCount: 3
+          });
+      
+          // 필요하면 리셋도 가능
+          // uploader.resetImages();
+        });
+      </script>
 </body>
 </html>

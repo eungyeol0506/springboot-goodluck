@@ -83,7 +83,7 @@ public class BoardContorller {
     public String postBoardWrite(
         HttpSession session,
         @ModelAttribute(name="boardWriteDto") @Valid BoardWriteRequestDto boardWriteRequest,
-        @RequestParam(value = "fileImage",required = false) List<MultipartFile> multipartFiles) {
+        @RequestParam(name="fileImage",required = false) List<MultipartFile> multipartFiles) {
         // 사용자 정보 찾기    
         Long userNo = (Long) session.getAttribute("userNo");
         if (userNo == null){
@@ -94,7 +94,9 @@ public class BoardContorller {
         MyBoard newBoard = boardWriteRequest.toDomain();
         newBoard.setWriterInfo(writer);
 
-        if(! multipartFiles.isEmpty()){
+        MyBoard result = boardService.writeBoard(newBoard);
+
+        if(multipartFiles != null){
             // 첨부파일 저장
             try{
                 attachService.uploadAttachList(newBoard, multipartFiles);
@@ -102,8 +104,6 @@ public class BoardContorller {
                 throw new BoardAttachUploadException();
             }
         }
-
-        MyBoard result = boardService.writeBoard(newBoard);
 
         return "redirect:/board/" + result.getBoardNo() ;
     }
