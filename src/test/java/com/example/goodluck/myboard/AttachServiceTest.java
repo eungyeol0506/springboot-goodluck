@@ -3,7 +3,6 @@ package com.example.goodluck.myboard;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -103,5 +102,7 @@ public class AttachServiceTest {
             BDDMockito.then(mockRepository).should().insertAll(anyList());
         }
     }
+
+//  service에서 조회하는 메서드의 경우 repository 값을 그대로 넘기므로, controller에서 테스트
 
 }

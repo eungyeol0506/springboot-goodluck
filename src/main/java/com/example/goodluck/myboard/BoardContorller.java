@@ -19,17 +19,12 @@ import com.example.goodluck.myuser.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-
-
 
 
 @Controller
@@ -61,6 +56,8 @@ public class BoardContorller {
     @GetMapping("/board/{boardNo}")
     public String getBoardDetail(@PathVariable("boardNo") Long boardNo, Model model){
         MyBoard result = boardService.getBoardDetail(boardNo);
+        result.setAttachList(attachService.getAttachList(boardNo));
+
         model.addAttribute("board", result);
 
         return "myboard/board";
