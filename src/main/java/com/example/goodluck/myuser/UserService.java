@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserLoginFaildException;
 import com.example.goodluck.exception.myuser.UserNotFoundException;
+import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 
@@ -56,22 +57,22 @@ public class UserService {
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 사용자 정보입니다."))
                 .getUserNo());
     }
+
     // 비밀번호만 변경하는 경우
-    public MyUser updateUserPw(String userId, String newPw) throws RuntimeException{
-        
-        MyUser findUser = userRepository.selectById(userId)
-                                        .orElseThrow( 
-                                            () -> new IllegalStateException("회원 정보를 찾을 수 없습니다.")
-                                        );
-        if (findUser.getUserPw().equals(newPw)){
-            throw new IllegalStateException("이전 비밀번호는 사용할 수 없습니다."); 
-        }else if(newPw.isBlank()){
-            throw new IllegalStateException("새 비밀번호는 공백일 수 없습니다."); 
+    public MyUser updateUserPw(MyUser user, String oldPw, String newPw) throws RuntimeException{
+        // 이전 비밀번호가 사용자 비밀번호와 동일한지?
+        if( ! user.getUserPw().equals(oldPw)){
+            throw new UserPwNotMatchedException("기존 비밀번호 값이 동일하지 않습니다.");
         }
-        findUser.setUserPw(newPw);
+        // 이전 비밀번호와 새 비밀번호가 동일한지?
+        if( oldPw.equals(newPw)){
+            throw new UserPwNotMatchedException("새 비밀번호가 현재 비밀번호와 동일합니다.");
+        }
+
+        user.setUserPw(newPw);
     
-        return userRepository.updateUser(findUser)
-                                .orElseThrow(() -> new IllegalStateException("비밀번호 변경에 실패했습니다."));
+        return userRepository.updateUser(user)
+                             .orElseThrow(() -> new IllegalStateException("비밀번호 변경에 실패했습니다."));
     }
     
 

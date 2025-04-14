@@ -13,6 +13,7 @@ import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
 import com.example.goodluck.exception.myuser.UserLoginFaildException;
 import com.example.goodluck.exception.myuser.UserNotFoundException;
 import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
+import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;
 
@@ -85,6 +86,13 @@ public class GlobalExceptionHandler {
 
         return "redirect:/board/" + exception.getBoardInfo().getBoardNo();
     }
+
+    @ExceptionHandler(UserPwNotMatchedException.class)
+    public String handleUserPwNotMatchedException(UserPwNotMatchedException exception, Model model){
+        model.addAttribute("notice", exception.getMessage());
+        return "myuser/changePw_form";
+    }
+
     // dto 검증 시 발생 예외
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public String handleMethodArgumentNotValidException(
@@ -109,22 +117,21 @@ public class GlobalExceptionHandler {
         // String referer = request.getHeader("Referer");
         String requestUri = request.getRequestURI();
         if(requestUri != null && requestUri.contains("regist")){
-
-
             return "myuser/regist_form";
-        }else if(requestUri != null && requestUri.contains("login")){
-
-
+        }
+        else if(requestUri != null && requestUri.contains("login")){
             return "myuser/login";
-        }else if(requestUri != null && requestUri.contains("edit")){
-
-
+        }
+        else if(requestUri != null && requestUri.contains("edit")){
             return "myuser/mypage_form";
-        }else if(requestUri != null && requestUri.contains("write")){
-
-
+        }
+        else if(requestUri != null && requestUri.contains("write")){
             return "myboard/newboard_form";
         }
+        else if(requestUri != null && requestUri.contains("change-password")){
+            return "myuser/changePw_form";
+        }
+        
 
 
         return "error";
