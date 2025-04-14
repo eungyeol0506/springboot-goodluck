@@ -52,7 +52,7 @@
                     <div class="input-group" id="userPw-group">
                         <input type="password" class="form-control" id="userPw" name="userPw" 
                             aria-describedby="userPwChange" readonly="" th:attr="value=${preValue.userPw}">
-                        <button class="btn btn-primary" type="button" id="userPwChange">비밀번호 변경</button>
+                        <button class="btn btn-primary" type="button" id="userPwChange" th:onclick="|location.href='@{/mypage/change-password}'|">비밀번호 변경</button>
                     </div>
                     <div>
                         <label for="userEmail" class="form-label mt-4">이메일</label>

@@ -2,6 +2,7 @@ package com.example.goodluck.myuser;
 
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,11 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.goodluck.common.MyFileHandler;
 import com.example.goodluck.common.MyUserProfileImageHandler;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserNotFoundException;
 import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
+import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
+import com.example.goodluck.myuser.dto.ChangePasswordDto;
 import com.example.goodluck.myuser.dto.EditUserRequestDto;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;
 
@@ -25,6 +27,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @Controller
@@ -135,7 +139,6 @@ public class UserController {
         return "myuser/mypage_form" ;
     }
 
-    @SuppressWarnings("null")
     @PostMapping("/mypage/edit")
     public String postUserEdit( 
             @ModelAttribute(name="userEditRequest") @Valid EditUserRequestDto userEditRequest,
@@ -144,10 +147,6 @@ public class UserController {
     {
         // dto -> domain
         MyUser user = userEditRequest.toDomain();
-        
-        // 이미지 업로드 하면 DB 데이터도 업뎃 name이 not blank
-        // 이미지 업로드 안하면 DB 데이터는 있지만 name이 blank
-        // 이미지 삭제를 원하면 name, path, blank 해야함
         
         // save file
         saveProfileImage(multipartFile, user);       
@@ -159,6 +158,42 @@ public class UserController {
         return "redirect:/mypage";   
     }
     
+    @GetMapping("/mypage/change-password")
+    public String getChangePasswordForm( HttpSession session ) {
+        if(session.getAttribute("userNo") == null){
+            return "redirect:/";
+        }
+        return "myuser/changePw_form";
+    }
+    
+    @PostMapping("/mypage/change-password")
+    public String postChangePasswordForm(
+        @ModelAttribute(name="changePasswordDto") @Valid ChangePasswordDto changePasswordDto,
+        HttpSession session) 
+    {
+        Long userNo = (Long) session.getAttribute("userNo");
+        if(userNo == null || userNo == 0){
+            return "redirect:/";
+        }
+        
+        MyUser findUser = userService.getUserInfo(userNo).orElseThrow(
+                                () -> new UserNotFoundException("세션 사용자 정보를 찾을 수 없습니다.")
+                            );
+                            
+        if (! changePasswordDto.isNotConfirmPasswordValue()){
+            throw new UserPwNotMatchedException("비밀번호 확인값이 올바르지 않습니다.");
+        }
+
+        Map<String, String> inputPwValue = changePasswordDto.toDomain();
+        String newPw = inputPwValue.get("newPw");
+        String oldPw = inputPwValue.get("oldPw");
+
+        userService.updateUserPw(findUser, oldPw, newPw);
+
+        return "redirect:/mypage";
+    }
+    
+
 }
 
     

@@ -1,6 +1,8 @@
 package com.example.goodluck.myuser;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -20,6 +22,7 @@ import org.springframework.dao.DataAccessException;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myuser.UserLoginFaildException;
+import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
 import com.example.goodluck.exception.myuser.UserRegistFaildException;
 
 @ExtendWith(MockitoExtension.class)
@@ -286,139 +289,74 @@ class UserServiceTest {
         }
     }
     
-    // *
-    // @Nested
-    // @DisplayName("회원 비밀번호 변경")
-    // class ChangeUserPw{
-    //     // given 공통
-    //     String newPw = "newPassword";
-    //     String oldPw = myUser.getUserPw();
 
-    //     @Nested
-    //     class SuccessCase{
-    //         @Test
-    //         @DisplayName("비밀 번호찾기로 비밀번호만 변경 성공")
-    //         void updateUserPw(){
-    //             // given
-    //             Mockito.when(mockUserRepository.selectById(myUser.getUserId())).thenReturn(Optional.of(myUser));
-    //             Mockito.when(mockUserRepository.updateUser(any(MyUser.class))).thenReturn(Optional.of(myUser));
-    //             // when
-    //             try{
-    //                 MyUser resultUser = userService.updateUserPw(myUser.getUserId(), newPw);
-    //                 // then
-    //                 Assertions.assertThat(myUser.getUserId()).isEqualTo(resultUser.getUserId());
-    //                 Assertions.assertThat(newPw).isEqualTo(resultUser.getUserPw());
-    //                 Assertions.assertThat(oldPw).isNotEqualTo(resultUser.getUserPw());
-    //             } catch(Exception e){
-    //                 // do nothing
-    //             }finally{
-    //                 // verify
-    //                 Mockito.verify(mockUserRepository).updateUser(myUser);
-    //                 Mockito.verify(mockUserRepository).selectById(myUser.getUserId());
-    //             }
-    //         }
-    //     }
-    //     @Nested
-    //     class FailCase{
-    //         @Test
-    //         @DisplayName("비밀번호 변경 - 회원 정보가 없는 경우")
-    //         void userNotFound(){
-    //             // given
-    //             Mockito.when(mockUserRepository.selectById(myUser.getUserId())).thenReturn(Optional.empty());
-    //             // Mockito.when(mockUserRepository.updateUser(user)).thenReturn(Optional.of(user));
-    //             // when
-    //             Throwable exception = Assertions.catchThrowable(() -> userService.updateUserPw(myUser.getUserId(), newPw));
-    //             // then
-    //             Assertions.assertThat(exception)
-    //                       .isInstanceOf(IllegalStateException.class)
-    //                       .hasMessageContaining("회원 정보를 찾을 수 없습니다.");
-    //             //verify
-    //             Mockito.verify(mockUserRepository).selectById(myUser.getUserId());
-    //             Mockito.verify(mockUserRepository, Mockito.never()).updateUser(Mockito.any());
-    //         }
-    //         @DisplayName("비밀번호 변경 - 이전 비밀번호와 동일한 경우")
-    //         @Test
-    //         void pwNotChanged(){
-    //             // given
-    //             Mockito.when(mockUserRepository.selectById(myUser.getUserId())).thenReturn(Optional.of(myUser));
-    //             // Mockito.when(mockUserRepository.updateUser(user)).thenReturn(Optional.of(user));
-    //             // when
-    //             Throwable exception = Assertions.catchThrowable(() -> userService.updateUserPw(myUser.getUserId(), myUser.getUserPw()));
-    //             // then
-    //             Assertions.assertThat(exception)
-    //                       .isInstanceOf(IllegalStateException.class)
-    //                       .hasMessageContaining("이전 비밀번호는 사용할 수 없습니다.");
-    //             // verfiy
-    //             Mockito.verify(mockUserRepository).selectById(myUser.getUserId());
-    //             Mockito.verify(mockUserRepository, Mockito.never()).updateUser(Mockito.any());
-    //         }
+    @Nested
+    @DisplayName("회원 비밀번호 변경 기능 테스트")
+    class ChangeUserPw{
 
-    //         @DisplayName("비밀번호 변경 - 비밀번호를 입력하지 않은 경우")
-    //         @Test
-    //         void blankPw(){
-    //             // given
-    //             Mockito.when(mockUserRepository.selectById(myUser.getUserId())).thenReturn(Optional.of(myUser));
-    //             // Mockito.when(mockUserRepository.updateUser(user)).thenReturn(Optional.of(user));
-    //             // when
-    //             Throwable exception = Assertions.catchThrowable(() -> userService.updateUserPw(myUser.getUserId(), ""));
-    //             // then
-    //             Assertions.assertThat(exception)
-    //                       .isInstanceOf(IllegalStateException.class)
-    //                       .hasMessageContaining("새 비밀번호는 공백일 수 없습니다.");
-    //             // verify
+        @Nested
+        class SuccessCase{
+            @Test
+            @DisplayName("비밀번호 변경에 성공한 경우")
+            void successUpdateUserPw(){
+                // given
+                MyUser testUser = MyUser.creatDummy(0L);
+                String newPassword = "new Password";
 
-    //         }
-    //         @DisplayName("비밀번호 변경 - DB 업데이트가 실패한 경우")
-    //         @Test
-    //         void dbUpdateException(){
-    //             // given
-    //             Mockito.when(mockUserRepository.selectById(myUser.getUserId())).thenReturn(Optional.of(myUser));
-    //             Mockito.when(mockUserRepository.updateUser(myUser)).thenThrow(new RuntimeException("런타임 에러"));
-    //             // when
-    //             Throwable exception = Assertions.catchThrowable(() -> userService.updateUserPw(myUser.getUserId(), newPw));
-    //             // then
-    //             Assertions.assertThat(exception)
-    //                       .isInstanceOf(RuntimeException.class)
-    //                       .hasMessage("런타임 에러");
+                BDDMockito.given(mockUserRepository.updateUser(any(MyUser.class))).willReturn(Optional.of(testUser));
+
+                // when
+                userService.updateUserPw(testUser, testUser.getUserPw(), newPassword);
+
+                // then
+                Assertions.assertThat(newPassword).isEqualTo(testUser.getUserPw());
+                Mockito.verify(mockUserRepository).updateUser(any(MyUser.class));
+
+            }
+        }
+
+        @Nested
+        class failCase{
+            @Test
+            @DisplayName("새 비밀번호가 조건을 통과 못 하는 경우")
+            void failDuplicatedUserPw(){
+                // given
+                MyUser testUser = MyUser.creatDummy(0L);
+                String newPassword = "testtest"; // 동일한 비밀번호
+                String oldPassword = "not same";
+
+                // when
+                Throwable exception1 = Assertions.catchThrowable(() -> userService.updateUserPw(testUser, testUser.getUserPw(), newPassword));
+                Throwable exception2 = Assertions.catchThrowable(() -> userService.updateUserPw(testUser, oldPassword, newPassword));
                 
-    //             Mockito.verify(mockUserRepository).selectById(myUser.getUserId());
-    //             Mockito.verify(mockUserRepository).updateUser(myUser);
-    //         }
-    //         @DisplayName("비밀번호 변경 - update 값이 null인 경우")
-    //         @Test
-    //         void userUpdateFail(){
-    //             // given
-    //             Mockito.when(mockUserRepository.selectById(any(String.class))).thenReturn(Optional.of(myUser));
-    //             Mockito.when(mockUserRepository.updateUser(any(MyUser.class))).thenReturn(Optional.empty());
-    //             // when
-    //             Throwable exception = Assertions.catchThrowable( ()-> userService.updateUserPw(myUser.getUserId(), newPw));
-    //             // then
-    //             Assertions.assertThat(exception)
-    //                       .isInstanceOf(IllegalStateException.class)
-    //                       .hasMessageContaining("비밀번호 변경에 실패했습니다.");
+                // then
+                Assertions.assertThat(exception1).isInstanceOf(UserPwNotMatchedException.class);
+                Assertions.assertThat(exception2).isInstanceOf(UserPwNotMatchedException.class);
+                
+                Assertions.assertThat(exception1).hasMessageContaining("동일합니다.");
+                Assertions.assertThat(exception2).hasMessageContaining("동일하지 않습니다.");
+                
 
-    //             Mockito.verify(mockUserRepository).selectById(myUser.getUserId());
-    //             Mockito.verify(mockUserRepository).updateUser(myUser);
-    //         }
-    //         // Mockito.verifyNoInteractions(mockUserRepository);
-    //     }
-    // }
+                Mockito.verify(mockUserRepository, never()).updateUser(any(MyUser.class));
+            }
 
-    // @Nested
-    // @DisplayName("회원 정보 삭제")
-    // class DeleteUser{
-    //     @Nested
-    //     @DisplayName("성공 케이스")
-    //     class SuccessCase{
-    //         @Test
-    //         @DisplayName("회원 정보 삭제 성공")
-    //         void deleteUser(){
+            @Test
+            @DisplayName("UserRepository에서 예외가 발생한 경우")
+            void failElseException(){
+                // given
+                MyUser testUser = MyUser.creatDummy(0L);
+                String newPassword = "new Password";
 
-    //         }
-    //     }
+                BDDMockito.given(mockUserRepository.updateUser(any(MyUser.class))).willReturn(Optional.of(testUser));
 
-    //     class FailCase{
-            
-    //     }
-    // }
+                // when
+                userService.updateUserPw(testUser, testUser.getUserPw(), newPassword);
+
+                // then
+                Assertions.assertThat(newPassword).isEqualTo(testUser.getUserPw());
+                Mockito.verify(mockUserRepository).updateUser(any(MyUser.class));
+            }
+        }
+    }
+
 }

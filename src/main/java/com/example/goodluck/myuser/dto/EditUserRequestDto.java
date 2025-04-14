@@ -19,7 +19,7 @@ public class EditUserRequestDto implements MyDto<MyUser>{
     private String userName;
     @NotBlank(message = "사용자 아이디는 필수값입니다.")
     private String userId;
-    @Size(min=5, max=16, message = "비밀번호는 6글자 이상, 16글자를 초과할 수 없습니다.")
+    @Size(min=5, max=16, message = "비밀번호는 6글자 미만, 16글자를 초과할 수 없습니다.")
     private String userPw;
     @Email(message = "이메일 형식이 아닙니다.")
     private String userEmail;

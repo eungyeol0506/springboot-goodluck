@@ -1,7 +1,8 @@
 package com.example.goodluck.myuser.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,6 +35,7 @@ import org.springframework.util.MultiValueMap;
 
 import com.example.goodluck.common.MyFileHandler;
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
 import com.example.goodluck.myuser.UserController;
 import com.example.goodluck.myuser.UserService;
 
@@ -308,6 +310,160 @@ class UserControllerTest {
                 Assertions.assertThat(session.isInvalid());
                 Mockito.verify(userService, Mockito.never()).getUserInfo(myUser.getUserNo());
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("회원 비밀번호 변경 : /mypage/change-password")
+    class ChangeUserPw{
+
+        @Nested
+        class SuccessCase{
+            @DisplayName("비밀번호 변경 요청이 성공한 경우")
+            @Test
+            public void successChangeUserPw() throws Exception{
+                // given
+                MyUser testUser = MyUser.creatDummy(1L);
+                MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
+                formParams.add("oldPw", testUser.getUserPw());
+                formParams.add("newPw", "new Password");
+                formParams.add("newPwCfm", "new Password");
+
+                MockHttpSession testSession = new MockHttpSession();
+                testSession.setAttribute("userNo", testUser.getUserNo());
+
+                BDDMockito.given(userService.getUserInfo(anyLong())).willReturn(Optional.of(testUser));
+                BDDMockito.given(userService.updateUserPw(any(MyUser.class),anyString(), anyString())).willReturn(testUser);
+                // when & then
+                mockMvc.perform(post("/mypage/change-password")
+                                .params(formParams)
+                                .session(testSession))
+                        .andExpect(status().is3xxRedirection())
+                        .andExpect(redirectedUrl("/mypage"))
+                        ;
+            }
+        }
+
+        @Nested
+        class FailCase{
+            @DisplayName("세션 값이 없는 경우")
+            @Test
+            public void failSessionNotFound() throws Exception{
+                // given
+                MyUser testUser = MyUser.creatDummy(1L);
+                MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
+                formParams.add("oldPw", testUser.getUserPw());
+                formParams.add("newPw", "new Password");
+                formParams.add("newPwCfm", "new Password");
+
+                // when & then
+                mockMvc.perform(post("/mypage/change-password")
+                                .params(formParams))
+                        .andExpect(status().is3xxRedirection())
+                        .andExpect(redirectedUrl("/"))
+                        ;
+            }
+
+            @DisplayName("사용자 정보를 찾지 못한 경우")
+            @Test
+            public void failUserNotFound() throws Exception{
+                // given
+                MyUser testUser = MyUser.creatDummy(1L);
+                MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
+                formParams.add("oldPw", testUser.getUserPw());
+                formParams.add("newPw", "new Password");
+                formParams.add("newPwCfm", "new Password");
+
+                MockHttpSession testSession = new MockHttpSession();
+                testSession.setAttribute("userNo", testUser.getUserNo());
+
+                BDDMockito.given(userService.getUserInfo(anyLong())).willReturn(Optional.empty());
+                // when & then
+                mockMvc.perform(post("/mypage/change-password")
+                                .params(formParams)
+                                .session(testSession))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("home"))
+                ;
+            }
+
+            @DisplayName("DTO 검증에 실패한 경우")
+            @Test
+            public void failInvalidRequestData() throws Exception{
+                // given
+                MyUser testUser = MyUser.creatDummy(1L);
+                MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
+                formParams.add("oldPw", testUser.getUserPw());
+                formParams.add("newPw", ""); // 새 비밀번호 값이 입력되지 않은 경우
+                formParams.add("newPwCfm", "new Password");
+
+                MockHttpSession testSession = new MockHttpSession();
+                testSession.setAttribute("userNo", testUser.getUserNo());      
+                
+                // when & then
+                mockMvc.perform(post("/mypage/change-password")
+                                .params(formParams)
+                                .session(testSession))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("myuser/changePw_form"))
+                        .andExpect(model().attributeExists("notice"))
+                        .andExpect(model().attribute("notice", "새 비밀번호 값을 입력해주세요."))
+                        ;
+            }
+
+            @DisplayName("UserPwNotMatched Exception Test")
+            @Test
+            public void failUserPwNotMatchedEception() throws Exception{
+                // given
+                MyUser testUser = MyUser.creatDummy(1L);
+                MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
+                formParams.add("oldPw", testUser.getUserPw());
+                formParams.add("newPw", "new Password");
+                formParams.add("newPwCfm", "new Password");
+
+                MockHttpSession testSession = new MockHttpSession();
+                testSession.setAttribute("userNo", testUser.getUserNo());      
+                
+                BDDMockito.given(userService.getUserInfo(anyLong())).willReturn(Optional.of(testUser));
+                BDDMockito.given(userService.updateUserPw(any(MyUser.class), anyString(), anyString()))
+                          .willThrow(new UserPwNotMatchedException("테스트 케이스 강제 예외 실행"));
+                // when & then
+                mockMvc.perform(post("/mypage/change-password")
+                                .params(formParams)
+                                .session(testSession))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("myuser/changePw_form"))
+                        .andExpect(model().attributeExists("notice"))
+                        .andExpect(model().attribute("notice", "테스트 케이스 강제 예외 실행"))
+                        ;
+            }
+
+            @DisplayName("Update 실패로 다른 Exception이 터진 경우(Ex. DataAccessException)")
+            @Test
+            public void failElseException() throws Exception{
+                // given
+                MyUser testUser = MyUser.creatDummy(1L);
+                MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
+                formParams.add("oldPw", testUser.getUserPw());
+                formParams.add("newPw", "new Password");
+                formParams.add("newPwCfm", "new Password");
+
+                MockHttpSession testSession = new MockHttpSession();
+                testSession.setAttribute("userNo", testUser.getUserNo());      
+                
+                BDDMockito.given(userService.getUserInfo(anyLong())).willReturn(Optional.of(testUser));
+                BDDMockito.given(userService.updateUserPw(any(MyUser.class), anyString(), anyString()))
+                          .willThrow(new IllegalStateException("테스트 케이스 강제 예외 실행"));
+
+                // when & then
+                mockMvc.perform(post("/mypage/change-password")
+                                .params(formParams)
+                                .session(testSession))
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("error"))
+                        ;
+            }
+
         }
     }
 }
