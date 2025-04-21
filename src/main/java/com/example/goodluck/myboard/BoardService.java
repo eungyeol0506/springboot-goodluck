@@ -68,15 +68,12 @@ public class BoardService {
         List<Integer> pageList = new ArrayList<>();
         // int idx = 1;
         long cnt = totalCnt;
-        for(int i=1; i<10; i++){
-            if(cnt > LIST_SIZE){
-                pageList.add(i);
-                cnt -= LIST_SIZE;
-            }
+        while(cnt > LIST_SIZE){
+            pageList.add(pageList.size()+1);
+            cnt -= LIST_SIZE;
         }
-
-        if(cnt > 0){
-            pageList.add(totalCnt.intValue()/15);
+        if(cnt >= 1){
+            pageList.add(pageList.size()+1);
         }
 
         return pageList; 

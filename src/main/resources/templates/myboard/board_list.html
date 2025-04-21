@@ -57,33 +57,23 @@
         <div th:if="${notice != null}" id="alert-box" class="alert alert-success" role="alert">
           [[${notice}]]
         </div>
-      
-        <div>
-            <div>
-                <ul class="pagination">
-                  <li class="page-item disabled">
-                    <a class="page-link" href="#">&laquo;</a>
-                  </li>
-                  <li class="page-item active">
-                    <a class="page-link" th:href="@{/list?page=1}">1</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" th:href="@{/list?page=2}">2</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">3</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">4</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">5</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">&raquo;</a>
-                  </li>
-                </ul>
-            </div>
+        
+        <!-- 페이지네이션 추가 -->
+        <div class="pagenation">
+          <ul class="pagination">
+              <!-- <li class="page-item">
+                <a class="page-link" href="/list?page=1">&laquo;</a>
+              </li> -->
+              <th:block th:each="i : ${#numbers.sequence(startPage,endPage)}">
+                <li th:classappend="${i == currentPage} ? 'page-item active' : 'page-item'">
+                  <a class="page-link" th:href="@{/list?(page=${i})}">
+                     [[${i}]]
+                  </a>
+                </li>
+              </th:block>
+              <!-- <a class="page-link" th:href="@{/list(page=${totalPage})}">&raquo;</a> -->
+            </ul>
+
             <button th:attr="onclick=|location.href='/board/write' |" class="btn btn-primary">
                 글쓰기
             </button>
