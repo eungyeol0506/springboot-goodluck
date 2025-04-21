@@ -43,12 +43,17 @@ public class BoardContorller {
     
     // 게시글 목록
     @GetMapping("/list")
-    public String getBoardList(@RequestParam("page") Long page, Model model){
+    public String getBoardList(@RequestParam(name="page", defaultValue="1") Long page, Model model){
         List<MyBoard> result = boardService.getBoardList(page);
         List<Integer> pages = boardService.getPageNumbers();
 
         model.addAttribute("boards", result);
-        model.addAttribute("pages", pages);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPage", pages.size());
+        model.addAttribute("startPage", pages.get(0));
+        model.addAttribute("endPage", pages.get(pages.size() - 1));
+
+        // model.addAttribute("pages", pages);
         return "myboard/board_list";
     }
 
