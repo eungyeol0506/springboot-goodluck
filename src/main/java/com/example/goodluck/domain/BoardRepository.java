@@ -1,9 +1,7 @@
-package com.example.goodluck.myboard;
+package com.example.goodluck.domain;
 
 import java.util.List;
 import java.util.Optional;
-
-import com.example.goodluck.domain.MyBoard;
 
 public interface BoardRepository {
     Optional<MyBoard> selectBoard(Long boardNo);

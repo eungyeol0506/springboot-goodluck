@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.goodluck.domain.JdbcTemplateBoardRepository;
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;

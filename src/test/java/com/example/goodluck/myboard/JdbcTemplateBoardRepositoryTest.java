@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.domain.JdbcTemplateBoardRepository;
 import com.example.goodluck.domain.MyBoard;
 
 @SpringBootTest

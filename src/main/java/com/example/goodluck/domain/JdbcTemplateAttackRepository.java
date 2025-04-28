@@ -1,4 +1,4 @@
-package com.example.goodluck.myboard;
+package com.example.goodluck.domain;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,8 +14,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-import com.example.goodluck.domain.MyAttach;
 public class JdbcTemplateAttackRepository implements AttachRepository{
 
     private final JdbcTemplate jdbcTemplate;
