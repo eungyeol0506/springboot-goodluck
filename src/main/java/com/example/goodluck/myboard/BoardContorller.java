@@ -30,15 +30,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class BoardContorller {
     
-    private BoardService boardService;
-    private UserService userService;
-    private AttachService attachService;
+    private final BoardService boardService;
+    private final UserService userService;
+    private final AttachService attachService;
+    private final CommentService commentService;
 
-    @Autowired
-    public BoardContorller(BoardService boardService, UserService userService, AttachService attachService){
+    public BoardContorller(BoardService boardService, UserService userService, AttachService attachService, CommentService commentService){
         this.boardService = boardService;
         this.userService = userService;
         this.attachService = attachService;
+        this.commentService = commentService;
     }
     
     // 게시글 목록
@@ -61,8 +62,10 @@ public class BoardContorller {
     @GetMapping("/board/{boardNo}")
     public String getBoardDetail(@PathVariable("boardNo") Long boardNo, Model model){
         MyBoard result = boardService.getBoardDetail(boardNo);
-        result.setAttachList(attachService.getAttachList(boardNo));
 
+        result.setAttachList(attachService.getAttachList(boardNo));
+        result.setComments(commentService.findByBoardNo(boardNo));
+        
         model.addAttribute("board", result);
 
         return "myboard/board";
