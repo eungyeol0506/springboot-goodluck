@@ -19,7 +19,8 @@ public class MyBoard {
     
     private MyUser user;
     private List<MyAttach> attachList;
-    
+    private List<MyComment> comments;
+
     public MyBoard() {};
     public MyBoard(Long boardNo, String boardTitle, String contents, int viewCnt, LocalDate updateDate, LocalDate createDate,
             MyUser user) {
