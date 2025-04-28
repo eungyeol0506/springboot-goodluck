@@ -1,4 +1,4 @@
-package com.example.goodluck.myboard;
+package com.example.goodluck.domain;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,9 +14,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-
-import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.domain.MyBoard;
 
 public class JdbcTemplateBoardRepository implements BoardRepository{
     

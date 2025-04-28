@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.goodluck.domain.AttachRepository;
 import com.example.goodluck.domain.MyBoard;
 
 @ExtendWith(MockitoExtension.class)

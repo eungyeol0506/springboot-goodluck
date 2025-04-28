@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.example.goodluck.domain.BoardRepository;
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
 

@@ -1,8 +1,6 @@
-package com.example.goodluck.myboard;
+package com.example.goodluck.domain;
 
 import java.util.List;
-
-import com.example.goodluck.domain.MyAttach;
 
 public interface AttachRepository {
     List<MyAttach> selectAttacheList(Long boardNo);
