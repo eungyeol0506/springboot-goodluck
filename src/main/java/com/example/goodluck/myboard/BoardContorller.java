@@ -123,6 +123,8 @@ public class BoardContorller {
             throw new ForbiddenBoardAccessException("수정 권한이 없는 사용자입니다.", board);
         }
         
+        board.setAttachList(attachService.getAttachList(boardNo));
+
         model.addAttribute("preValue", board);
 
         return "myboard/board_form";
@@ -131,13 +133,13 @@ public class BoardContorller {
     // 게시글 수정 요청
     @PostMapping("/board/form/{boardNo}")
     public String postBoardEdit(
-        @ModelAttribute(name="boardEditRequest") BoardModifyRequestDto boardModifyRequest)
-        // @RequestParam(value = "fileImage",required = false) List<MultipartFile> multipartFiles) 
+        @ModelAttribute(name="boardEditRequest") BoardModifyRequestDto boardModifyRequest,
+        @RequestParam(name="fileImage",required = false) List<MultipartFile> multipartFiles)
     {
         MyBoard board = boardModifyRequest.toDomain();
         
         boardService.eidtBoard(board);
-        return "redirect:/board/" + 1L;
+        return "redirect:/board/" + board.getBoardNo();
     }
     
     @PostMapping("/board/delete/{boardNo}")
