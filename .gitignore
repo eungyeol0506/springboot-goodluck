@@ -50,3 +50,5 @@ libs/oraclepki.jar
 libs/osdt_cert.jar
 libs/osdt_core.jar
 src/main/resources/static/files/*
+
+src/main/resources/*.sql
