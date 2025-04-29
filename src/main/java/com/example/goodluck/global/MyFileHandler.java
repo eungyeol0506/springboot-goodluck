@@ -1,4 +1,4 @@
-package com.example.goodluck.common;
+package com.example.goodluck.global;
 
 import java.io.IOException;
 import java.nio.file.Files;

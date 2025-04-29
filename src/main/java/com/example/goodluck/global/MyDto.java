@@ -1,4 +1,4 @@
-package com.example.goodluck.common;
+package com.example.goodluck.global;
 
 public interface MyDto<T> {
     public T toDomain();
