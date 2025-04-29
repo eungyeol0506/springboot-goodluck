@@ -1,4 +1,4 @@
-package com.example.goodluck.exception.myboard;
+package com.example.goodluck.global.exception.myboard;
 
 import com.example.goodluck.domain.MyBoard;
 

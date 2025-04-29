@@ -1,4 +1,4 @@
-package com.example.goodluck.exception;
+package com.example.goodluck.global.exception;
 
 import java.util.stream.Collectors;
 
@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
-import com.example.goodluck.exception.myuser.UserLoginFaildException;
-import com.example.goodluck.exception.myuser.UserNotFoundException;
-import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
-import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
-import com.example.goodluck.exception.myuser.UserRegistFaildException;
+import com.example.goodluck.global.exception.myboard.ForbiddenBoardAccessException;
+import com.example.goodluck.global.exception.myuser.UserLoginFaildException;
+import com.example.goodluck.global.exception.myuser.UserNotFoundException;
+import com.example.goodluck.global.exception.myuser.UserProfileImageUploadException;
+import com.example.goodluck.global.exception.myuser.UserPwNotMatchedException;
+import com.example.goodluck.global.exception.myuser.UserRegistFaildException;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;
 
 import jakarta.servlet.http.HttpServletRequest;

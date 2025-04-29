@@ -1,4 +1,4 @@
-package com.example.goodluck.exception.myuser;
+package com.example.goodluck.global.exception.myuser;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.myuser.dto.RegistUserRequestDto;

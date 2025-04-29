@@ -1,4 +1,4 @@
-package com.example.goodluck.exception.myboard;
+package com.example.goodluck.global.exception.myboard;
 
 public class BoardAttachUploadException extends RuntimeException {
     
