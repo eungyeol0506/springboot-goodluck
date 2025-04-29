@@ -100,17 +100,16 @@ public class JdbcTemplateUserRepository implements UserRepository{
                                      "WHERE %s = :userNo",
                                       USER_TABLE, KEY_COLUMN);
         
-        Map<String,Object> parameters = Map.of(
-            "userName", user.getUserName(),
-            "telNo", user.getTelNo(),
-            "postNo", user.getPostNo(),
-            "addressMain", user.getAddressMain(),
-            "addressDetail", user.getAddressDetail(),
-            "profileImgPath", user.getProfileImgPath(),
-            "profileImgName", user.getProfileImgName(),
-            "userNo", user.getUserNo()
-        );
-
+        Map<String,Object> parameters = new HashMap<>();
+        parameters.put("userName", user.getUserName());
+        parameters.put("telNo", user.getTelNo());
+        parameters.put("postNo", user.getPostNo());
+        parameters.put("addressMain", user.getAddressMain());
+        parameters.put("addressDetail", user.getAddressDetail());
+        parameters.put("profileImgPath", user.getProfileImgPath());
+        parameters.put("profileImgName", user.getProfileImgName());
+        parameters.put("userNo", user.getUserNo());
+        
         jdbcTemplate.update(query, parameters);
     }
 

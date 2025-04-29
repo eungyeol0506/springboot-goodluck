@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 
 // @Repository
-public class JdbcTemplateAttackRepository implements AttachRepository{
+public class JdbcTemplateAttachRepository implements AttachRepository{
 
     private final String ATTACH_TABLE = MyAttach.AttachConstants.TABLE_NAME.getValue();
     private final String ATTACH_SEQUENCE = MyAttach.AttachConstants.SEQUENCE_NAME.getValue();
@@ -20,7 +20,7 @@ public class JdbcTemplateAttackRepository implements AttachRepository{
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     
-    public JdbcTemplateAttackRepository(DataSource dataSource){
+    public JdbcTemplateAttachRepository(DataSource dataSource){
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
@@ -32,13 +32,6 @@ public class JdbcTemplateAttackRepository implements AttachRepository{
         String query = String.format("INSERT INTO %s (ATTACH_NO, FILE_NAME, FILE_PATH, FILE_SIZE, BOARD_NO) " +
                                      " VALUES (%s.NEXTVAL, :fileName, :filePath, :fileSize, :boardNo)",
                                      ATTACH_TABLE, ATTACH_SEQUENCE);
-            
-        // List<Object[]> batch = new ArrayList<>();
-        // for (MyAttach file : files) {
-        //     Object[] values = new Object[] {
-        //             file.getFileName(), file.getFilePath(), file.getFileSize(), file.getBoardNo()};
-        //     batch.add(values);
-        // }
 
         // 쿼리 실행
         jdbcTemplate.batchUpdate(query, SqlParameterSourceUtils.createBatch(files));

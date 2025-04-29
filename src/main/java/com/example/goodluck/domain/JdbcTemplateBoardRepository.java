@@ -34,16 +34,16 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
                         SELECT *
                           FROM ( SELECT B.BOARD_NO, B.BOARD_TITLE, B.CONTENTS, B.CREATE_DATE,
                                         B.UPDATE_DATE, B.VIEW_CNT, M.*, 
-                                        ROW_NUMBER() OVER(OREDR BY B.BOARD_NO DESC) AS RNUM)
+                                        ROW_NUMBER() OVER(ORDER BY B.BOARD_NO DESC) AS RNUM
                                    FROM MY_BOARD B
-                                 LEFT JOIN MY_USER M
-                                     ON B.USER_NO = M.USER_NO )
-                         WHERE RNUM >= :start 
-                           AND RNUM <= :end
+                                   LEFT JOIN MY_USER M ON B.USER_NO = M.USER_NO
+                                )
+                         WHERE RNUM BETWEEN :start AND :end
                        """;
         Map<String, Object> parameters = Map.of(
             "start", start,
-            "end", end );
+            "end", end 
+        );
         
         return jdbcTemplate.query(query, parameters, boardRowMapper());
     }
@@ -52,7 +52,7 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
     public Optional<MyBoard> findByNo(Long boardNo) {
         // query
         String query = """
-                        SELECT * FROM MY_BOARD.*, MY_USER.* FROM MY_BOARD 
+                        SELECT MY_BOARD.*, MY_USER.* FROM MY_BOARD 
                          LEFT JOIN MY_USER
                          ON MY_BOARD.USER_NO = MY_USER.USER_NO
                          WHERE MY_BOARD.BOARD_NO = :boardNo
@@ -87,14 +87,14 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
         String query = String.format("INSERT INTO %s(BOARD_NO, BOARD_TITLE, CONTENTS, CREATE_DATE, UPDATE_DATE, VIEW_CNT, USER_NO) "+
                                     " VALUES ( %s.NEXTVAL, :title, :contents, :createDate, :updateDate, :viewCnt, :userNo)",
                                     BOARD_TABLE, BOARD_SEQUENCE);
-        Map<String, Object> parameters = Map.of(
-            "title", newBoard.getBoardTitle(),
-            "contents", newBoard.getContents(),
-            "createDate", newBoard.getCreateDate(),
-            "updateDate", newBoard.getUpdateDate(),
-            "viewCnt", newBoard.getViewCnt(),
-            "userNo", newBoard.getWriter().getUserNo()
-        );
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("title", newBoard.getBoardTitle());
+        parameters.put("contents", newBoard.getContents());
+        parameters.put("createDate", newBoard.getCreateDate());
+        parameters.put("updateDate", newBoard.getUpdateDate());
+        parameters.put("viewCnt", newBoard.getViewCnt());
+        parameters.put("userNo", newBoard.getWriter().getUserNo());
+        
         
         jdbcTemplate.update(query, parameters);
     }
@@ -109,13 +109,12 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
                                      "WHERE %s = :boardNo ",
                                      BOARD_TABLE, KEY_COLUMN);
 
-        Map<String, Object> parameters = Map.of(
-            "title", board.getBoardTitle(),
-            "contents", board.getContents(),
-            "updateDate", board.getUpdateDate(),
-            "viewCnt", board.getViewCnt(),
-            "boardNo", board.getBoardNo()
-        );
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("title", board.getBoardTitle());
+        parameters.put("contents", board.getContents());
+        parameters.put("updateDate", board.getUpdateDate());
+        parameters.put("viewCnt", board.getViewCnt());
+        parameters.put("boardNo", board.getBoardNo());
 
         jdbcTemplate.update(query, parameters);
     }

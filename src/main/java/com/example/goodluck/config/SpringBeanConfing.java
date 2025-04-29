@@ -7,14 +7,14 @@ import org.springframework.context.annotation.Configuration;
 
 import com.example.goodluck.domain.AttachRepository;
 import com.example.goodluck.domain.BoardRepository;
-import com.example.goodluck.domain.JdbcTemplateAttackRepository;
+import com.example.goodluck.domain.JdbcTemplateAttachRepository;
 import com.example.goodluck.domain.JdbcTemplateBoardRepository;
 import com.example.goodluck.domain.JdbcTemplateCommentRepository;
+import com.example.goodluck.domain.JdbcTemplateUserRepository;
+import com.example.goodluck.domain.UserRepository;
 import com.example.goodluck.myboard.AttachService;
 import com.example.goodluck.myboard.BoardService;
 import com.example.goodluck.myboard.CommentService;
-import com.example.goodluck.myuser.JdbcTemplateUserRepository;
-import com.example.goodluck.myuser.UserRepository;
 import com.example.goodluck.myuser.UserService;
 
 @Configuration
@@ -51,7 +51,7 @@ public class SpringBeanConfing {
     }
     @Bean
     public AttachRepository attachRepository(){
-        return new JdbcTemplateAttackRepository(dataSource);
+        return new JdbcTemplateAttachRepository(dataSource);
     }
 
     @Bean
