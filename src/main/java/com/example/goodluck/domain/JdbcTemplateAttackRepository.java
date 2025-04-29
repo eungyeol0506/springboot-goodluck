@@ -1,90 +1,82 @@
 package com.example.goodluck.domain;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
+
+// @Repository
 public class JdbcTemplateAttackRepository implements AttachRepository{
 
-    private final JdbcTemplate jdbcTemplate;
+    private final String ATTACH_TABLE = MyAttach.AttachConstants.TABLE_NAME.getValue();
+    private final String ATTACH_SEQUENCE = MyAttach.AttachConstants.SEQUENCE_NAME.getValue();
+    private final String KEY_COLUMN = MyAttach.AttachConstants.PRIVATE_KEY.getValue();
+
+    private final NamedParameterJdbcTemplate jdbcTemplate;
     
     public JdbcTemplateAttackRepository(DataSource dataSource){
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    /*
+     * 저장 메서드
+     */
     @Override
-    public void insertAll(List<MyAttach> files) throws DataAccessException{
+    public void saveAll(List<MyAttach> files) {
+        String query = String.format("INSERT INTO %s (ATTACH_NO, FILE_NAME, FILE_PATH, FILE_SIZE, BOARD_NO) " +
+                                     " VALUES (%s.NEXTVAL, :fileName, :filePath, :fileSize, :boardNo)",
+                                     ATTACH_TABLE, ATTACH_SEQUENCE);
+            
+        // List<Object[]> batch = new ArrayList<>();
+        // for (MyAttach file : files) {
+        //     Object[] values = new Object[] {
+        //             file.getFileName(), file.getFilePath(), file.getFileSize(), file.getBoardNo()};
+        //     batch.add(values);
+        // }
 
-        long attachNo = getAttachNo();
-
-        for(MyAttach file : files){
-            file.setNewAttachNo(attachNo++);
-        }
-
-        // batch update
-        String ATTACH_SQL = "INSERT INTO my_attach( attach_no, file_name, file_path, file_size, board_no) values(?, ?, ?, ? ,?)";
-        jdbcTemplate.batchUpdate(ATTACH_SQL, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException{
-                MyAttach file = files.get(i);
-                ps.setLong(1, file.getAttachNo());
-                ps.setString(2, file.getFileName());
-                ps.setString(3, file.getFilePath());
-                ps.setLong(4, file.getFileSize());
-                ps.setLong(5, file.getBoardNo());
-            }
-
-            @Override
-            public int getBatchSize() {
-                return files.size();
-            }
-        }
-        );
+        // 쿼리 실행
+        jdbcTemplate.batchUpdate(query, SqlParameterSourceUtils.createBatch(files));
     }
 
-    private long getAttachNo() {
-        return jdbcTemplate.queryForObject("select MY_ATTACH_SEQ.NEXTVAL from DUAL", Long.class);
-    }
-
+    /*
+     * 조회 메서드
+     */
     @Override
-    public List<MyAttach> selectAttacheList(Long boardNo) {
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("select MY_ATTACH.* ");
-        queryBuilder.append(" from MY_ATTACH");
-        queryBuilder.append(" left join MY_BOARD");
-        queryBuilder.append(" on MY_ATTACH.BOARD_NO = MY_BOARD.BOARD_NO");
-        queryBuilder.append(" where MY_BOARD.BOARD_NO = " + boardNo);
+    public List<MyAttach> findByBoardNo(Long boardNo) {
+        String query = String.format("SELECT * FROM %s WHERE %s = :boardNo",
+                                    ATTACH_TABLE, "BOARD_NO");
 
-        List<MyAttach> result = jdbcTemplate.query(queryBuilder.toString(), attachRowMapper());
-        return result;
+        return jdbcTemplate.query(query, Map.of("boardNo", boardNo), attachRowMapper());
     }
 
+    /*
+     * 삭제 메서드
+     */
     @Override
-    public int updateAttach(MyAttach attach) {
-        // TODO Auto-generated method stub
-        return 0;
+    public void remove(List<Long> attaches) {
+        String query = String.format("DELETE FROM %s WHERE %s IN (:attachNos)",
+                                    ATTACH_TABLE, KEY_COLUMN);
+        
+        jdbcTemplate.update(query, Map.of("attachNos", attaches));
     }
+
 
     private RowMapper<MyAttach> attachRowMapper(){
         return new RowMapper<MyAttach>(){
-            @SuppressWarnings("null")
             @Override
             public MyAttach mapRow(ResultSet rs, int rowNum) throws SQLException {
                 MyAttach attach = MyAttach.builder()
                                         .attachNo(rs.getLong("ATTACH_NO")) 
                                         .fileName(rs.getString("FILE_NAME"))
                                         .filePath(rs.getString("FILE_PATH"))
-                                        .fileSize(rs.getInt("FILE_SIZE"))
+                                        .fileSize(rs.getLong("FILE_SIZE"))
+                                        .boardNo(rs.getLong("BOARD_NO"))
                                         .build()
                                         ;
 
@@ -93,15 +85,5 @@ public class JdbcTemplateAttackRepository implements AttachRepository{
             
         };   
     }
-    @Override
-    public int deleteAttach(MyAttach attach) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
 
-    @Override
-    public int deleteAttachList(List<MyAttach> attachList) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
 }

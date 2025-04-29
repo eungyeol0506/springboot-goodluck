@@ -10,10 +10,9 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public class JdbcTemplateCommentRepository {
+// @Repository
+public class JdbcTemplateCommentRepository implements CommentRepository{
     // 도메인에서 설정한 table, sequence 이름 정보
     private final String COMMENT_TABLE = MyComment.CommentConstants.TABLE_NAME.getValue();
     private final String COMMENT_SEQUENCE = MyComment.CommentConstants.SEQUENCE_NAME.getValue();
