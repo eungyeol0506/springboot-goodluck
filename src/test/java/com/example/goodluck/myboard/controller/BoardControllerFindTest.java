@@ -21,11 +21,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import com.example.goodluck.controller.BoardContorller;
 import com.example.goodluck.domain.MyAttach;
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.global.exception.myboard.ForbiddenBoardAccessException;
-import com.example.goodluck.myboard.AttachService;
-import com.example.goodluck.myboard.BoardContorller;
+import com.example.goodluck.service.board.AttachService;
 import com.example.goodluck.service.board.BoardService;
 import com.example.goodluck.service.user.UserService;
 

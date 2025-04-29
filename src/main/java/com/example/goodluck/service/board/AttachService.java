@@ -1,4 +1,4 @@
-package com.example.goodluck.myboard;
+package com.example.goodluck.service.board;
 
 import java.io.IOException;
 import java.util.ArrayList;

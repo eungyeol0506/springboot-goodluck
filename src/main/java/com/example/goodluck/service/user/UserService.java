@@ -11,27 +11,32 @@ import com.example.goodluck.global.exception.myuser.UserPwNotMatchedException;
 import com.example.goodluck.global.exception.myuser.UserRegistFaildException;
 import com.example.goodluck.service.user.in.UserRegisterParam;
 
-
+// @Service
 public class UserService {
 
-    private UserRepository userRepository;
-    // DI
+    private final UserRepository userRepository;
+    
     public UserService(UserRepository userRepository){
         this.userRepository = userRepository;
     }
-    
-    // 회원 가입
-    public MyUser registUser(UserRegisterParam param){
-        validateDuplicateUserId(newMyUser);
-        return userRepository.insertNew(newMyUser);
+    /*
+     * 회원가입 메서드
+     */
+    public MyUser regist(MyUser user){
+        validateDuplicateUserId(user);
+        userRepository.save(user);
+
+        return userRepository.findById(user.getUserId()).get();
     }
-    private void validateDuplicateUserId(MyUser newMyUser) {
-        userRepository.selectById(newMyUser.getUserId())
-                    .ifPresent(u -> { 
+    private void validateDuplicateUserId(MyUser user) {
+        userRepository.findById(user.getUserId()).ifPresent(u -> { 
                         throw new UserRegistFaildException("이미 존재하는 아이디입니다.", newMyUser);
                     });
     }
-    // 회원 로그인
+
+    /*
+     * 로그인 메서드
+     */
     public MyUser loginUser(String id, String pw){
         return userRepository.selectByIdPw(id, pw)
                              .orElseThrow(()->new UserLoginFaildException("올바르지 않은 로그인 정보입니다."));

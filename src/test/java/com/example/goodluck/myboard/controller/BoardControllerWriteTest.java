@@ -33,10 +33,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.goodluck.controller.BoardContorller;
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.myboard.AttachService;
-import com.example.goodluck.myboard.BoardContorller;
+import com.example.goodluck.service.board.AttachService;
 import com.example.goodluck.service.board.BoardService;
 import com.example.goodluck.service.user.UserService;
 

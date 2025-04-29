@@ -1,4 +1,4 @@
-package com.example.goodluck.myboard.dto;
+package com.example.goodluck.service.board;
 
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.global.dto.MyDto;

@@ -1,4 +1,4 @@
-package com.example.goodluck.myboard;
+package com.example.goodluck.controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,9 +12,10 @@ import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.global.exception.myboard.BoardAttachUploadException;
 import com.example.goodluck.global.exception.myboard.ForbiddenBoardAccessException;
 import com.example.goodluck.global.exception.myuser.UserNotFoundException;
-import com.example.goodluck.myboard.dto.BoardModifyRequestDto;
-import com.example.goodluck.myboard.dto.BoardWriteRequestDto;
+import com.example.goodluck.service.board.AttachService;
+import com.example.goodluck.service.board.BoardModifyRequestDto;
 import com.example.goodluck.service.board.BoardService;
+import com.example.goodluck.service.board.BoardWriteRequestDto;
 import com.example.goodluck.service.board.CommentService;
 import com.example.goodluck.service.user.UserService;
 

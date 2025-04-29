@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.goodluck.domain.AttachRepository;
 import com.example.goodluck.domain.MyBoard;
+import com.example.goodluck.service.board.AttachService;
 
 @ExtendWith(MockitoExtension.class)
 public class AttachServiceTest {
