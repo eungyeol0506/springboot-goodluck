@@ -2,6 +2,7 @@ package com.example.goodluck.domain;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,19 +35,18 @@ public class JdbcTemplateUserRepository implements UserRepository{
                                      "            :postNo, :addressMain, :addressDetail, :telNo, :profileImgPath, :profileImgName)",
                                      USER_TABLE, USER_SEQUENCE);
 
-        Map<String, Object> parameters = Map.of(
-            "userName", user.getUserName(),
-            "userId", user.getUserId(),
-            "userPw", user.getUserPw(),
-            "userEmail", user.getUserEmail(),
-            "postNo", user.getPostNo(),
-            "addressMain", user.getAddressMain(),
-            "addressDetail", user.getAddressDetail(),
-            "telNo", user.getTelNo(),
-            "profileImgPath", user.getProfileImgPath(),
-            "profileImgName", user.getProfileImgName()
-        );
-        
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("userName", user.getUserName());
+        parameters.put("userId", user.getUserId());
+        parameters.put("userPw", user.getUserPw());
+        parameters.put("userEmail", user.getUserEmail());
+        parameters.put("postNo", user.getPostNo());
+        parameters.put("addressMain", user.getAddressMain());
+        parameters.put("addressDetail", user.getAddressDetail());
+        parameters.put("telNo", user.getTelNo());
+        parameters.put("profileImgPath", user.getProfileImgPath());
+        parameters.put("profileImgName", user.getProfileImgName());
+                
         jdbcTemplate.update(query, parameters);
     }
 
