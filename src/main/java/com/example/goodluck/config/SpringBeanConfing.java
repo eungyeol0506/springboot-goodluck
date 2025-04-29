@@ -13,9 +13,9 @@ import com.example.goodluck.domain.JdbcTemplateCommentRepository;
 import com.example.goodluck.domain.JdbcTemplateUserRepository;
 import com.example.goodluck.domain.UserRepository;
 import com.example.goodluck.myboard.AttachService;
-import com.example.goodluck.myboard.BoardService;
-import com.example.goodluck.myboard.CommentService;
-import com.example.goodluck.myuser.UserService;
+import com.example.goodluck.service.board.BoardService;
+import com.example.goodluck.service.board.CommentService;
+import com.example.goodluck.service.user.UserService;
 
 @Configuration
 public class SpringBeanConfing {

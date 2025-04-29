@@ -24,11 +24,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.example.goodluck.common.MyFileHandler;
+import com.example.goodluck.controller.UserController;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myuser.UserLoginFaildException;
-import com.example.goodluck.myuser.UserController;
-import com.example.goodluck.myuser.UserService;
+import com.example.goodluck.global.MyFileHandler;
+import com.example.goodluck.global.exception.myuser.UserLoginFaildException;
+import com.example.goodluck.service.user.UserService;
 
 @WebMvcTest(UserController.class)
 @ExtendWith(MockitoExtension.class)

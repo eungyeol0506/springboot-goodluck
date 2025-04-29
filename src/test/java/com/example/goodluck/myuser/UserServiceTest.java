@@ -20,10 +20,12 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
 
+import com.example.goodluck.domain.JdbcTemplateUserRepository;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myuser.UserLoginFaildException;
-import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
-import com.example.goodluck.exception.myuser.UserRegistFaildException;
+import com.example.goodluck.global.exception.myuser.UserLoginFaildException;
+import com.example.goodluck.global.exception.myuser.UserPwNotMatchedException;
+import com.example.goodluck.global.exception.myuser.UserRegistFaildException;
+import com.example.goodluck.service.user.UserService;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {

@@ -33,11 +33,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.example.goodluck.common.MyFileHandler;
+import com.example.goodluck.controller.UserController;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
-import com.example.goodluck.myuser.UserController;
-import com.example.goodluck.myuser.UserService;
+import com.example.goodluck.global.MyFileHandler;
+import com.example.goodluck.global.exception.myuser.UserPwNotMatchedException;
+import com.example.goodluck.service.user.UserService;
 
 
 @WebMvcTest(UserController.class)

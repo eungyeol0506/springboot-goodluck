@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.goodluck.domain.MyBoard;
+import com.example.goodluck.service.board.BoardService;
 
 @SpringBootTest
 public class BoardServiceSpringbootTest {

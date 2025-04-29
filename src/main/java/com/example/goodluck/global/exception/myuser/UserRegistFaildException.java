@@ -1,18 +1,18 @@
 package com.example.goodluck.global.exception.myuser;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.myuser.dto.RegistUserRequestDto;
+import com.example.goodluck.service.user.in.UserRegisterParam;
 
 
 public class UserRegistFaildException extends RuntimeException {
-    RegistUserRequestDto registUserRequestDto;
+    UserRegisterParam registUserRequestDto;
 
     public UserRegistFaildException(String message) {
         super(message);
     }
     public UserRegistFaildException(String message, MyUser myUser){
         super(message);
-        registUserRequestDto = new RegistUserRequestDto();
+        registUserRequestDto = new UserRegisterParam();
         registUserRequestDto.setUserId(myUser.getUserId());
         registUserRequestDto.setUserName(myUser.getUserName());
         registUserRequestDto.setUserPw(myUser.getUserPw());
@@ -26,7 +26,7 @@ public class UserRegistFaildException extends RuntimeException {
     public String getMessage() {
         return super.getMessage();
     }
-    public RegistUserRequestDto getRegistUserRequestDto() {
+    public UserRegisterParam getRegistUserRequestDto() {
         return registUserRequestDto;
     }
     

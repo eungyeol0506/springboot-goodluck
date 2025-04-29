@@ -21,7 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.example.goodluck.domain.JdbcTemplateBoardRepository;
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
+import com.example.goodluck.global.exception.myboard.ForbiddenBoardAccessException;
+import com.example.goodluck.service.board.BoardService;
 
 @ExtendWith(MockitoExtension.class)
 public class BoardServiceTest {
@@ -42,14 +43,14 @@ public class BoardServiceTest {
                 // given
                 MyBoard board = new MyBoard(0L, "test", "test", 0, null, LocalDate.now(), 
                                             new MyUser(1L, "testUser", null, null, null, null, null, null, null, null, null));
-                BDDMockito.given(mockBoardRepository.selectBoard(anyLong())).willReturn(Optional.of(board));
+                BDDMockito.given(mockBoardRepository.findByNo(anyLong())).willReturn(Optional.of(board));
                 // when
                 MyBoard result = boardService.getBoardDetail(0L);
                 // then
                 Assertions.assertThat(board).isEqualTo(result);
                 Assertions.assertThat(result.getUser().getUserNo()).isEqualTo(1L);
 
-                Mockito.verify(mockBoardRepository).selectBoard(0L);
+                Mockito.verify(mockBoardRepository).findByNo(0L);
                 Mockito.verify(mockBoardRepository).updateBoardViewCnt(0L, result.getViewCnt());
             }
             @Test
@@ -59,13 +60,13 @@ public class BoardServiceTest {
                 for(int i=1; i<5; i++){
                     list.add(MyBoard.createDummy(Long.valueOf(i), String.valueOf(i), String.valueOf(i), 1L));
                 }
-                BDDMockito.given(mockBoardRepository.selectBoardList(anyLong(), anyLong())).willReturn(list);
+                BDDMockito.given(mockBoardRepository.findAll(anyLong(), anyLong())).willReturn(list);
                 // when
                 List<MyBoard> result = boardService.getBoardList(3L);
                 // then
                 Assertions.assertThat(result).isEqualTo(list);
                 
-                Mockito.verify(mockBoardRepository).selectBoardList(31L,45L);
+                Mockito.verify(mockBoardRepository).findAll(31L,45L);
             }
         }
         @Nested
@@ -74,13 +75,13 @@ public class BoardServiceTest {
             @Test
             void failGetBoardDetail(){
                 // given
-                BDDMockito.given(mockBoardRepository.selectBoard(0L)).willReturn(Optional.empty());
+                BDDMockito.given(mockBoardRepository.findByNo(0L)).willReturn(Optional.empty());
                 // when
                 Exception exception = Assertions.catchException( () -> boardService.getBoardDetail(0L));  
                 // then
                 Assertions.assertThat(exception).isInstanceOf(ForbiddenBoardAccessException.class);
 
-                Mockito.verify(mockBoardRepository).selectBoard(0L);
+                Mockito.verify(mockBoardRepository).findByNo(0L);
                 Mockito.verify(mockBoardRepository, Mockito.never()).updateBoardViewCnt(0L, 1); 
             }
 
@@ -89,13 +90,13 @@ public class BoardServiceTest {
             void failGetBoardList(){
                 // given
                 // 빈 리스트 반환하게 됨
-                BDDMockito.given(mockBoardRepository.selectBoardList(anyLong(),anyLong())).willReturn(new ArrayList<MyBoard>());
+                BDDMockito.given(mockBoardRepository.findAll(anyLong(),anyLong())).willReturn(new ArrayList<MyBoard>());
                 // when
-                List<MyBoard> result = mockBoardRepository.selectBoardList(10L, 20L);
+                List<MyBoard> result = mockBoardRepository.findAll(10L, 20L);
                 // then
                 Assertions.assertThat(result.size()).isEqualTo(0);
 
-                Mockito.verify(mockBoardRepository).selectBoardList(10L, 20L);
+                Mockito.verify(mockBoardRepository).findAll(10L, 20L);
             }
         }
     }
@@ -144,12 +145,12 @@ public class BoardServiceTest {
             void successEditBoard(){
                 // given
                 MyBoard editBoard = MyBoard.createDummy(1L,"test dummy", "---", 1L);
-                BDDMockito.given(mockBoardRepository.updateBoard(editBoard)).willReturn(1);
+                BDDMockito.given(mockBoardRepository.update(editBoard)).willReturn(1);
                 // when
                 boardService.eidtBoard(editBoard);
                 // then
                 Assertions.assertThat(editBoard.getUpdateDate()).isEqualTo(LocalDate.now());
-                Mockito.verify(mockBoardRepository).updateBoard(editBoard);
+                Mockito.verify(mockBoardRepository).update(editBoard);
             }
         }
         @Nested
@@ -159,25 +160,25 @@ public class BoardServiceTest {
             void failEditBoard(){
                 // given
                 MyBoard editBoard = MyBoard.createDummy(1L,"test dummy", "---", 1L);
-                BDDMockito.given(mockBoardRepository.updateBoard(editBoard)).willReturn(0);
+                BDDMockito.given(mockBoardRepository.update(editBoard)).willReturn(0);
                 // when
                 Exception exception = Assertions.catchException(() -> boardService.eidtBoard(editBoard));
                 // then
                 Assertions.assertThat(exception).isInstanceOf(IllegalStateException.class);
-                Mockito.verify(mockBoardRepository).updateBoard(editBoard);
+                Mockito.verify(mockBoardRepository).update(editBoard);
             }  
             @Test
             @DisplayName("update 시 예외가 발생한 경우")
             void failFromElseException(){
                 // given
                 MyBoard editBoard = MyBoard.createDummy(1L,"test dummy", "---", 1L);
-                BDDMockito.given(mockBoardRepository.updateBoard(editBoard)).willThrow(new RuntimeException("쿼리가 실패"));
+                BDDMockito.given(mockBoardRepository.update(editBoard)).willThrow(new RuntimeException("쿼리가 실패"));
                 // when
                 Exception exception = Assertions.catchException(() -> boardService.eidtBoard(editBoard));
                 // then
                 Assertions.assertThat(exception).isInstanceOf(RuntimeException.class)
                                                 .hasMessage("쿼리가 실패");
-                Mockito.verify(mockBoardRepository).updateBoard(editBoard);
+                Mockito.verify(mockBoardRepository).update(editBoard);
             }
         }
     }
@@ -191,11 +192,11 @@ public class BoardServiceTest {
             void successDeleteBoard(){
                 // given
                 Long boardNo = 1L;
-                BDDMockito.given(mockBoardRepository.deleteBoard(anyLong())).willReturn(1);
+                BDDMockito.given(mockBoardRepository.remove(anyLong())).willReturn(1);
                 // when
                 boardService.deleteBoard(boardNo);
                 // then
-                Mockito.verify(mockBoardRepository).deleteBoard(boardNo);
+                Mockito.verify(mockBoardRepository).remove(boardNo);
             }
         }
         @Nested
@@ -204,24 +205,24 @@ public class BoardServiceTest {
             @DisplayName("삭제된 데이터가 없는 경우")
             void failDeleteBoard(){ 
                 // given
-                BDDMockito.given(mockBoardRepository.deleteBoard(anyLong())).willReturn(0);
+                BDDMockito.given(mockBoardRepository.remove(anyLong())).willReturn(0);
                 // when
                 Exception exception = Assertions.catchException(() -> boardService.deleteBoard(1L));
                 // then
                 Assertions.assertThat(exception).isInstanceOf(IllegalStateException.class);
-                Mockito.verify(mockBoardRepository).deleteBoard(1L);
+                Mockito.verify(mockBoardRepository).remove(1L);
             }
             @Test
             @DisplayName("삭제 시 예외가 발생한 경우")
             void failFromElseException(){
                 // given
-                BDDMockito.given(mockBoardRepository.deleteBoard(anyLong())).willThrow(new RuntimeException("쿼리 실행 시 발생한 에러"));
+                BDDMockito.given(mockBoardRepository.remove(anyLong())).willThrow(new RuntimeException("쿼리 실행 시 발생한 에러"));
                 // when
                 Exception exception = Assertions.catchException(() -> boardService.deleteBoard(1L));
                 // then
                 Assertions.assertThat(exception).isInstanceOf(RuntimeException.class)
                                                 .hasMessage("쿼리 실행 시 발생한 에러");
-                Mockito.verify(mockBoardRepository).deleteBoard(1L);
+                Mockito.verify(mockBoardRepository).remove(1L);
             }
         }
     }

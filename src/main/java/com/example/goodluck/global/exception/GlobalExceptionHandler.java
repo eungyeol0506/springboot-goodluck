@@ -15,7 +15,7 @@ import com.example.goodluck.global.exception.myuser.UserNotFoundException;
 import com.example.goodluck.global.exception.myuser.UserProfileImageUploadException;
 import com.example.goodluck.global.exception.myuser.UserPwNotMatchedException;
 import com.example.goodluck.global.exception.myuser.UserRegistFaildException;
-import com.example.goodluck.myuser.dto.RegistUserRequestDto;
+import com.example.goodluck.service.user.in.UserRegisterParam;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -28,11 +28,11 @@ public class GlobalExceptionHandler {
         UserRegistFaildException exception,
         Model model)
     {
-        RegistUserRequestDto dto = exception.getRegistUserRequestDto();
+        UserRegisterParam dto = exception.getRegistUserRequestDto();
         if(dto != null){
             model.addAttribute("preValue", dto);
         }else{
-            model.addAttribute("preValue", new RegistUserRequestDto());
+            model.addAttribute("preValue", new UserRegisterParam());
         }
         model.addAttribute("notice", exception.getMessage());
 

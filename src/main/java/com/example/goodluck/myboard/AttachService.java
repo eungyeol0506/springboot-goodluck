@@ -7,10 +7,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.goodluck.common.MyBoardAttachFileHandler;
 import com.example.goodluck.domain.AttachRepository;
 import com.example.goodluck.domain.MyAttach;
 import com.example.goodluck.domain.MyBoard;
+import com.example.goodluck.global.MyBoardAttachFileHandler;
 
 public class AttachService {
     

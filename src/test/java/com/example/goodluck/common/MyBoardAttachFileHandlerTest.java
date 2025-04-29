@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 
 import com.example.goodluck.domain.MyBoard;
+import com.example.goodluck.global.MyBoardAttachFileHandler;
 
 public class MyBoardAttachFileHandlerTest {
     @Test

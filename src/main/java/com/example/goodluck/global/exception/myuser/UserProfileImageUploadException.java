@@ -1,8 +1,8 @@
 package com.example.goodluck.global.exception.myuser;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.myuser.dto.EditUserRequestDto;
-import com.example.goodluck.myuser.dto.RegistUserRequestDto;
+import com.example.goodluck.service.user.in.UserEditParam;
+import com.example.goodluck.service.user.in.UserRegisterParam;
 
 public class UserProfileImageUploadException extends RuntimeException {
     private final MyUser user; 
@@ -12,8 +12,8 @@ public class UserProfileImageUploadException extends RuntimeException {
         this.printStackTrace();
     }
 
-    public EditUserRequestDto getEditUserRequestDto(){
-        EditUserRequestDto returnDto = new EditUserRequestDto();
+    public UserEditParam getEditUserRequestDto(){
+        UserEditParam returnDto = new UserEditParam();
         returnDto.setUserNo(user.getUserNo());
         returnDto.setUserId(user.getUserId());
         returnDto.setUserName(user.getUserName());
@@ -29,8 +29,8 @@ public class UserProfileImageUploadException extends RuntimeException {
         return returnDto;
     }
 
-    public RegistUserRequestDto getRegistUserReqeustDto(){
-        RegistUserRequestDto returnDto = new RegistUserRequestDto();
+    public UserRegisterParam getRegistUserReqeustDto(){
+        UserRegisterParam returnDto = new UserRegisterParam();
         returnDto.setUserId(user.getUserId());
         returnDto.setUserName(user.getUserName());
         returnDto.setUserPw(user.getUserPw());

@@ -1,4 +1,4 @@
-package com.example.goodluck.myboard;
+package com.example.goodluck.service.board;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -8,12 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.goodluck.domain.BoardRepository;
 import com.example.goodluck.domain.MyBoard;
-import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
+import com.example.goodluck.global.exception.myboard.ForbiddenBoardAccessException;
 
+// @Service
 public class BoardService {
     // 한 페이지당 리스트 수
     private final int LIST_SIZE = 15;
-    private BoardRepository boardRepository;
+    private final BoardRepository boardRepository;
 
     @Autowired
     public BoardService(BoardRepository boardRepository){
@@ -29,7 +30,7 @@ public class BoardService {
     }
     
     public MyBoard getBoardDetail(Long boardNo){
-        MyBoard myBoard = boardRepository.selectBoard(boardNo)
+        MyBoard myBoard = boardRepository.findByNo(boardNo)
                                          .orElseThrow(
                                             () -> new ForbiddenBoardAccessException("게시글이 없습니다.", null)
                                           );
@@ -45,19 +46,19 @@ public class BoardService {
     public List<MyBoard> getBoardList(Long page){
         long start = ((page-1) * LIST_SIZE) + 1;
         long end = page * LIST_SIZE;
-        return boardRepository.selectBoardList(start, end);
+        return boardRepository.findAll(start, end);
     }
 
     public void eidtBoard(MyBoard board){
         // set update date
         board.setUpdateDate(LocalDate.now());
-        int updateRow = boardRepository.updateBoard(board);
+        int updateRow = boardRepository.update(board);
         if (updateRow <= 0){
             throw new IllegalStateException("수정에 실패하였습니다.");
         }
     }
     public void deleteBoard(Long boardNo){
-        int deleteRow = boardRepository.deleteBoard(boardNo);
+        int deleteRow = boardRepository.remove(boardNo);
         if (deleteRow <= 0){
             throw new IllegalStateException("삭제에 실패하였습니다.");
         }

@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.goodluck.domain.MyComment;
+import com.example.goodluck.service.board.CommentService;
 
 @SpringBootTest
 @Transactional

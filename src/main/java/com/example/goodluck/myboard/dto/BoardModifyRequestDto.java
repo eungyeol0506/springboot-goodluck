@@ -1,7 +1,7 @@
 package com.example.goodluck.myboard.dto;
 
-import com.example.goodluck.common.MyDto;
 import com.example.goodluck.domain.MyBoard;
+import com.example.goodluck.global.dto.MyDto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

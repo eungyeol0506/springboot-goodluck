@@ -1,7 +1,4 @@
-package com.example.goodluck.myuser.dto;
-
-import com.example.goodluck.common.MyDto;
-import com.example.goodluck.domain.MyUser;
+package com.example.goodluck.service.user.in;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class EditUserRequestDto implements MyDto<MyUser>{
+public class UserEditParam {
     // form 에서 작성하는 내용 
     // 변수명은 form 내 id 태그값
     @NotNull(message = "사용자 번호는 필수값입니다.")
@@ -30,22 +27,4 @@ public class EditUserRequestDto implements MyDto<MyUser>{
     private String addressDetail;
     private String profileImgPath;
     private String profileImgName;
-
-    // 도메인 별 특정 request가 존재하기 때문에 해당 변환 함수를 DTO 내 구현함
-    public MyUser toDomain(){
-        MyUser domain = new MyUser();
-        domain.setUserNo(this.userNo);
-        domain.setUserId(this.userId);
-        domain.setUserPw(this.userPw);
-        domain.setUserName(this.userName);
-        domain.setUserEmail(this.userEmail);
-        domain.setAddressMain(this.addressMain);
-        domain.setAddressDetail(this.addressDetail);
-        domain.setPostNo(this.postNo);
-        domain.setTelNo(this.telNo);
-        domain.setProfileImgPath(profileImgPath);
-        domain.setProfileImgName(profileImgName);
-        
-        return domain;
-    }
 }

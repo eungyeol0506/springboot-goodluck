@@ -1,13 +1,15 @@
-package com.example.goodluck.myuser;
+package com.example.goodluck.service.user;
 
 import java.util.List;
 import java.util.Optional;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myuser.UserLoginFaildException;
-import com.example.goodluck.exception.myuser.UserNotFoundException;
-import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
-import com.example.goodluck.exception.myuser.UserRegistFaildException;
+import com.example.goodluck.domain.UserRepository;
+import com.example.goodluck.global.exception.myuser.UserLoginFaildException;
+import com.example.goodluck.global.exception.myuser.UserNotFoundException;
+import com.example.goodluck.global.exception.myuser.UserPwNotMatchedException;
+import com.example.goodluck.global.exception.myuser.UserRegistFaildException;
+import com.example.goodluck.service.user.in.UserRegisterParam;
 
 
 public class UserService {
@@ -19,7 +21,7 @@ public class UserService {
     }
     
     // 회원 가입
-    public MyUser registUser(MyUser newMyUser){
+    public MyUser registUser(UserRegisterParam param){
         validateDuplicateUserId(newMyUser);
         return userRepository.insertNew(newMyUser);
     }

@@ -29,11 +29,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.FlashMap;
 
-import com.example.goodluck.common.MyFileHandler;
+import com.example.goodluck.controller.UserController;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myuser.UserRegistFaildException;
-import com.example.goodluck.myuser.UserController;
-import com.example.goodluck.myuser.UserService;
+import com.example.goodluck.global.MyFileHandler;
+import com.example.goodluck.global.exception.myuser.UserRegistFaildException;
+import com.example.goodluck.service.user.UserService;
 
 @WebMvcTest(UserController.class)
 @ExtendWith(MockitoExtension.class)

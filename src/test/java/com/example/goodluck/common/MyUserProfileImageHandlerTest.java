@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.global.MyUserProfileImageHandler;
 
 public class MyUserProfileImageHandlerTest {
     @Test

@@ -1,4 +1,4 @@
-package com.example.goodluck.myuser;
+package com.example.goodluck.controller;
 
 
 import java.io.IOException;
@@ -13,14 +13,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.goodluck.common.MyUserProfileImageHandler;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myuser.UserNotFoundException;
-import com.example.goodluck.exception.myuser.UserProfileImageUploadException;
-import com.example.goodluck.exception.myuser.UserPwNotMatchedException;
-import com.example.goodluck.myuser.dto.ChangePasswordDto;
-import com.example.goodluck.myuser.dto.EditUserRequestDto;
-import com.example.goodluck.myuser.dto.RegistUserRequestDto;
+import com.example.goodluck.global.MyUserProfileImageHandler;
+import com.example.goodluck.global.exception.myuser.UserNotFoundException;
+import com.example.goodluck.global.exception.myuser.UserProfileImageUploadException;
+import com.example.goodluck.global.exception.myuser.UserPwNotMatchedException;
+import com.example.goodluck.service.user.UserService;
+import com.example.goodluck.service.user.in.UserPwChangeParam;
+import com.example.goodluck.service.user.in.UserEditParam;
+import com.example.goodluck.service.user.in.UserRegisterParam;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -73,14 +74,14 @@ public class UserController {
     // 회원가입
     @GetMapping("/regist")
     public String getRegisterView(Model model){
-        model.addAttribute("preValue", new RegistUserRequestDto());
+        model.addAttribute("preValue", new UserRegisterParam());
         return "myuser/regist_form";
     }
     
     @SuppressWarnings("null")
     @PostMapping("/regist")
     public String postRegister(
-            @ModelAttribute(name="userRegistRequest") @Valid RegistUserRequestDto userRegistRequest,
+            @ModelAttribute(name="userRegistRequest") @Valid UserRegisterParam userRegistRequest,
             @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile,
             RedirectAttributes redirectAttributes
         ){
@@ -141,7 +142,7 @@ public class UserController {
 
     @PostMapping("/mypage/edit")
     public String postUserEdit( 
-            @ModelAttribute(name="userEditRequest") @Valid EditUserRequestDto userEditRequest,
+            @ModelAttribute(name="userEditRequest") @Valid UserEditParam userEditRequest,
             @RequestParam(value="fileImage", required=false) MultipartFile multipartFile,
             RedirectAttributes redirectAttributes) 
     {
@@ -168,7 +169,7 @@ public class UserController {
     
     @PostMapping("/mypage/change-password")
     public String postChangePasswordForm(
-        @ModelAttribute(name="changePasswordDto") @Valid ChangePasswordDto changePasswordDto,
+        @ModelAttribute(name="changePasswordDto") @Valid UserPwChangeParam changePasswordDto,
         HttpSession session) 
     {
         Long userNo = (Long) session.getAttribute("userNo");

@@ -1,7 +1,4 @@
-package com.example.goodluck.myuser.dto;
-
-import com.example.goodluck.common.MyDto;
-import com.example.goodluck.domain.MyUser;
+package com.example.goodluck.service.user.in;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class RegistUserRequestDto implements MyDto<MyUser>{
+public class UserRegisterParam{
     @NotBlank(message = "사용자 아이디는 필수값입니다.")
     private String userId;
     @NotBlank(message = "사용자 비밀번호는 필수값입니다.")
@@ -25,19 +22,4 @@ public class RegistUserRequestDto implements MyDto<MyUser>{
     private String addressMain;
     private String addressDetail;
     private String telNo;
-
-    @Override
-    public MyUser toDomain() {
-        MyUser domain = new MyUser();
-        domain.setUserId(this.userId);
-        domain.setUserPw(this.userPw);
-        domain.setUserName(this.userName); 
-        domain.setUserEmail(this.userEmail);
-        domain.setPostNo(this.postNo);
-        domain.setTelNo(this.telNo);
-        domain.setAddressMain(this.addressMain);
-        domain.setAddressDetail(this.addressDetail);
-
-        return domain;
-    }
 }

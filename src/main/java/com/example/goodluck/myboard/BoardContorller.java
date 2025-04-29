@@ -9,12 +9,14 @@ import org.springframework.ui.Model;
 
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.exception.myboard.BoardAttachUploadException;
-import com.example.goodluck.exception.myboard.ForbiddenBoardAccessException;
-import com.example.goodluck.exception.myuser.UserNotFoundException;
+import com.example.goodluck.global.exception.myboard.BoardAttachUploadException;
+import com.example.goodluck.global.exception.myboard.ForbiddenBoardAccessException;
+import com.example.goodluck.global.exception.myuser.UserNotFoundException;
 import com.example.goodluck.myboard.dto.BoardModifyRequestDto;
 import com.example.goodluck.myboard.dto.BoardWriteRequestDto;
-import com.example.goodluck.myuser.UserService;
+import com.example.goodluck.service.board.BoardService;
+import com.example.goodluck.service.board.CommentService;
+import com.example.goodluck.service.user.UserService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
