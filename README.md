@@ -42,18 +42,20 @@
 ├── .github/workflows/                    # GitHub Actions CI/CD 설정
 │   └── libs/                             # oracle-cloud 의존성 라이브러리 
 │   └── src/main/java/com/example/goodluck/
-│       ├── common/                       # 전역에서 공통으로 사용
+│       ├── GoodluckApplication.java      # 스프링 부트 앱
+│       ├── api/                          # REST API
 │       ├── config/                       # 스프링 설정
-│       ├── domain/                       # 도메인 계층
-│       ├── exception/                    # 예외처리 핸들러
-│       ├── myboard/                      # myboard 관련 모듈 (핵심 로직)
-│       ├── myuser/                       # myuser 관련 (핵심 로직)
-│       └── GoodluckApplication.java      # 스프링 부트 앱
+│       ├── controller/                   # WebMVC controller
+│       ├── domain/                       # 도메인, Repository
+│       ├── global/                       # 예외 핸들러 및 interface 들들
+│       └── service/                      # 트랜잭션 기반 핵심 로직
+│             ├── board/                  # 게시글 관련련 컴포넌트
+│             └── user/                   # 사용자 관련 컴포넌트
 │   └── src/main/resources/
 │       ├── static/                       # 이미지 파일 & js 파일
 │       ├── templates/                    # thymeleaf 템플릿릿
 │       └── application.properties        # 변수 설정
-│   └── src/test/                         # 테스트
+│   └── src/test/                         # 테스트 관련 코드
 └── README.md                             # 프로젝트 문서
 ```
 ## Document
