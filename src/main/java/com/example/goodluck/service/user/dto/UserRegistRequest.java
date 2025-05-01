@@ -1,4 +1,4 @@
-package com.example.goodluck.service.user.in;
+package com.example.goodluck.service.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserRegisterParam{
+public class UserRegistRequest{
     @NotBlank(message = "사용자 아이디는 필수값입니다.")
     private String userId;
     @NotBlank(message = "사용자 비밀번호는 필수값입니다.")

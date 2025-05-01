@@ -8,19 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@Transactional
-public class JdbcTemplateAttackRepositoryTest {
+// @Transactional
+public class JdbcTemplateAttachRepositoryTest {
 
     @Autowired JdbcTemplateAttachRepository attachRepository;
 
     @Test
     @DisplayName("저장에 성공한 경우")
+    @Order(1)
     void successSave(){
         // given
         List<MyAttach> attaches = new ArrayList<>();
@@ -41,15 +42,9 @@ public class JdbcTemplateAttackRepositoryTest {
 
     @Test
     @DisplayName("삭제에 성공한 경우")
+    @Order(2)
     void successRemove(){
-        // given
-        List<MyAttach> attaches = new ArrayList<>();
-        for(int i=0; i<3; i++){
-            MyAttach temp = getTestAttach();
-            temp.setFileName("Test 1");
-            attaches.add(temp);
-        }
-
+        // given (save 실행 해야 성공 가능... )
         List<MyAttach> findAttaches = attachRepository.findByBoardNo(9999L);
         List<Long> attachNos = new ArrayList<>();
         for(MyAttach attach : findAttaches){

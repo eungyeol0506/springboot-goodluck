@@ -1,53 +1,57 @@
 package com.example.goodluck.service.board;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.goodluck.domain.AttachRepository;
 import com.example.goodluck.domain.MyAttach;
-import com.example.goodluck.domain.MyBoard;
-import com.example.goodluck.global.MyBoardAttachFileHandler;
+import com.example.goodluck.global.FilePathHelper;
+import com.example.goodluck.global.SaveType;
+import com.example.goodluck.service.LocalFileStorageService;
 
+@Service
 public class AttachService {
     
-    private AttachRepository attachRepository;
+    private final AttachRepository attachRepository;
+    private final LocalFileStorageService fileService;
 
-    @Autowired
-    public AttachService(AttachRepository attachRepository){
+    public AttachService(AttachRepository attachRepository, LocalFileStorageService fileService){
         this.attachRepository = attachRepository;  
+        this.fileService = fileService;
     }
     
-    public void uploadAttachList(MyBoard board, List<MultipartFile> fileList) throws IOException{
-        MyBoardAttachFileHandler fileHandler;
-        List<MyAttach> myAttachList = new ArrayList<>();
-        // 디스크에 저장
-        fileHandler = MyBoardAttachFileHandler.builder()
-                                              .board(board).build();
+    /*
+     * 첨부파일 저장 메서드
+     */
+    public void upload(Long boardNo, List<MultipartFile> images){
+        List<MyAttach> attaches = new ArrayList<>();
 
-        for(MultipartFile file : fileList) {
-            if (file == null || file.isEmpty() || file.getOriginalFilename().trim().isEmpty()) {
-                System.out.println("빈 파일이거나 파일 이름이 없습니다. 스킵합니다.");
-                continue;
-            }
-            fileHandler.saveFile(file);
-            
-            // Test code
-            // fileHandler.saveFileTest(file);
-
-            MyAttach attach = fileHandler.getLastMyAttach();
-            attach.setBoardNo(board.getBoardNo());
-            myAttachList.add(attach);
-        }                                             
+        // 서버에 저장
+        for(MultipartFile image:images){
+            String relatvieFileName = fileService.save(image, boardNo, SaveType.BOARD);
+            // split extension, name, path
+            String filePath = FilePathHelper.getDirectoryPath(relatvieFileName);
+            String fileName = FilePathHelper.getFileNameOlny(filePath) + FilePathHelper.getExtension(filePath);
+            Long size = image.getSize();
+            attaches.add(MyAttach.builder()
+                            .boardNo(boardNo)
+                            .fileName(fileName)
+                            .filePath(filePath)
+                            .fileSize(size)
+                            .build());
+        }                                    
         
         // DB에 저장
-        attachRepository.insertAll(myAttachList);
+        attachRepository.saveAll(attaches);
     }
 
+    /*
+     * 첨부파일 조회 메서드
+     */
     public List<MyAttach> getAttachList(Long boardNo){
-        return attachRepository.selectAttacheList(boardNo);
+        return attachRepository.findByBoardNo(boardNo);
     }
 }

@@ -6,7 +6,7 @@ import java.util.Optional;
 public interface BoardRepository {
     public Optional<MyBoard> findByNo(Long boardNo);
     public List<MyBoard> findAll(Long start, Long end);
-    public void save(MyBoard newBoard);
+    public Long save(MyBoard newBoard);
     public void update(MyBoard board);
     public void remove(Long boardNo);
     public Long getAllCount();

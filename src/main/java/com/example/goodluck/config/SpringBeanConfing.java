@@ -12,10 +12,6 @@ import com.example.goodluck.domain.JdbcTemplateBoardRepository;
 import com.example.goodluck.domain.JdbcTemplateCommentRepository;
 import com.example.goodluck.domain.JdbcTemplateUserRepository;
 import com.example.goodluck.domain.UserRepository;
-import com.example.goodluck.service.board.AttachService;
-import com.example.goodluck.service.board.BoardService;
-import com.example.goodluck.service.board.CommentService;
-import com.example.goodluck.service.user.UserService;
 
 @Configuration
 public class SpringBeanConfing {
@@ -25,11 +21,6 @@ public class SpringBeanConfing {
     public SpringBeanConfing(DataSource dataSource) {
         this.dataSource = dataSource;
     }
-    
-    @Bean
-    public UserService userService() {
-        return new UserService(userRepository());
-    }
 
     @Bean
     public UserRepository userRepository(){
@@ -37,18 +28,10 @@ public class SpringBeanConfing {
     }
     
     @Bean
-    public BoardService boardService(){
-        return new BoardService(boardRepository());
-    }
-    @Bean
     public BoardRepository boardRepository(){
         return new JdbcTemplateBoardRepository(dataSource);
     }
 
-    @Bean
-    public AttachService attachService(){
-        return new AttachService(attachRepository());
-    }
     @Bean
     public AttachRepository attachRepository(){
         return new JdbcTemplateAttachRepository(dataSource);
@@ -58,8 +41,5 @@ public class SpringBeanConfing {
     public JdbcTemplateCommentRepository commentRepository(){
         return new JdbcTemplateCommentRepository(dataSource);
     }
-    @Bean
-    public CommentService commentService(){
-        return new CommentService(commentRepository());
-    }
+
 }

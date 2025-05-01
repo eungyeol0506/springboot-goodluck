@@ -10,7 +10,9 @@ import java.util.Optional;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 // @Repository
 public class JdbcTemplateBoardRepository implements BoardRepository{
@@ -20,9 +22,13 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
     private final String KEY_COLUMN = MyBoard.BoardConstants.PRIVATE_KEY.getValue();
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert boardJdbcInsert;
 
     public JdbcTemplateBoardRepository(final DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.boardJdbcInsert = new SimpleJdbcInsert(dataSource)
+                                    .withTableName(BOARD_TABLE) 
+                                    ;
     }
     
     /*
@@ -83,20 +89,25 @@ public class JdbcTemplateBoardRepository implements BoardRepository{
     * 저장 메서드
     */
     @Override
-    public void save(MyBoard newBoard) {
-        String query = String.format("INSERT INTO %s(BOARD_NO, BOARD_TITLE, CONTENTS, CREATE_DATE, UPDATE_DATE, VIEW_CNT, USER_NO) "+
-                                    " VALUES ( %s.NEXTVAL, :title, :contents, :createDate, :updateDate, :viewCnt, :userNo)",
-                                    BOARD_TABLE, BOARD_SEQUENCE);
+    public Long save(MyBoard newBoard) {
+        String query = String.format("SELECT %s.NEXTVAL FROM DUAL", BOARD_SEQUENCE);
+        Long nextValue = jdbcTemplate.queryForObject(query, new HashMap<>(), Long.class);
+
+        // String query = String.format("INSERT INTO %s(BOARD_NO, BOARD_TITLE, CONTENTS, CREATE_DATE, UPDATE_DATE, VIEW_CNT, USER_NO) "+
+        //                             " VALUES ( %s.NEXTVAL, :title, :contents, :createDate, :updateDate, :viewCnt, :userNo)",
+        //                             BOARD_TABLE, BOARD_SEQUENCE);
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("title", newBoard.getBoardTitle());
-        parameters.put("contents", newBoard.getContents());
-        parameters.put("createDate", newBoard.getCreateDate());
-        parameters.put("updateDate", newBoard.getUpdateDate());
-        parameters.put("viewCnt", newBoard.getViewCnt());
-        parameters.put("userNo", newBoard.getWriter().getUserNo());
+        parameters.put("BOARD_NO", nextValue);
+        parameters.put("BOARD_TITLE", newBoard.getBoardTitle());
+        parameters.put("CONTENTS", newBoard.getContents());
+        parameters.put("CREATE_DATE", newBoard.getCreateDate());
+        parameters.put("UPDATE_DATE", newBoard.getUpdateDate());
+        parameters.put("VIEW_CNT", newBoard.getViewCnt());
+        parameters.put("USER_NO", newBoard.getWriter().getUserNo());
         
-        
-        jdbcTemplate.update(query, parameters);
+        boardJdbcInsert.execute(new MapSqlParameterSource(parameters));
+        return nextValue;
+        // jdbcTemplate.update(query, parameters);
     }
     
     /*

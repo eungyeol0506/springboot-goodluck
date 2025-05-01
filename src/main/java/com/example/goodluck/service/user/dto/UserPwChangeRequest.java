@@ -1,10 +1,10 @@
-package com.example.goodluck.service.user.in;
+package com.example.goodluck.service.user.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class UserPwChangeParam {
+public class UserPwChangeRequest {
     @NotBlank(message = "이전 비밀번호 값을 입력해주세요.")
     private String oldPw;
 

@@ -11,8 +11,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@Transactional
 public class JdbcTemplateBoardRepositoryTest {
 
     @Autowired JdbcTemplateBoardRepository boardRepository;
@@ -24,12 +26,13 @@ public class JdbcTemplateBoardRepositoryTest {
         MyBoard board = getTestBoard();
 
         // when
-        boardRepository.save(board);
+        Long boardNo = boardRepository.save(board);
 
         // then
-        MyBoard result = boardRepository.findAll(0L,3L).get(1); // 9999L 제외해야해서 1번임
+        MyBoard result = boardRepository.findByNo(boardNo).get();
         assertNotNull(result.getBoardNo(), "값이 저장됨");
-        assertEquals(board.getBoardTitle(), result.getBoardTitle(), "같은 보드 맞음, 최신순 정렬임");
+        assertNotNull(result.getCreateDate(), "값이 저장됨");
+        assertEquals(board.getBoardTitle(), result.getBoardTitle(), "같은 보드 맞음");
     }
 
     @Test
@@ -37,9 +40,9 @@ public class JdbcTemplateBoardRepositoryTest {
     void successUpdate(){
         // given
         MyBoard board = getTestBoard();
-        boardRepository.save(board);
+        Long boardNo = boardRepository.save(board);
 
-        MyBoard thatBoard = boardRepository.findAll(0L,2L).get(1);
+        MyBoard thatBoard = boardRepository.findByNo(boardNo).get();
         thatBoard.setBoardTitle("수정된 제목");
         thatBoard.setViewCnt(thatBoard.getViewCnt() + 1);
 

@@ -1,4 +1,4 @@
-package com.example.goodluck.service.user.in;
+package com.example.goodluck.service.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserEditParam {
+public class UserEditRequest {
     // form 에서 작성하는 내용 
     // 변수명은 form 내 id 태그값
     @NotNull(message = "사용자 번호는 필수값입니다.")

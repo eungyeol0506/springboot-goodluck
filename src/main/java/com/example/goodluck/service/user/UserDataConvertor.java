@@ -1,12 +1,15 @@
 package com.example.goodluck.service.user;
 
-import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.service.user.in.UserEditParam;
-import com.example.goodluck.service.user.in.UserRegisterParam;
+import org.springframework.stereotype.Service;
 
-public class UserMapper {
+import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.service.user.dto.UserEditRequest;
+import com.example.goodluck.service.user.dto.UserRegistRequest;
+
+@Service
+public class UserDataConvertor {
  
-    public static MyUser toDomain(UserRegisterParam param){
+    public MyUser toDomain(UserRegistRequest param){
         return MyUser.builder()
                     .userId(param.getUserId())
                     .userPw(param.getUserPw())
@@ -18,7 +21,7 @@ public class UserMapper {
                     .build();
     }
 
-    public static MyUser toDomain(UserEditParam param){
+    public MyUser toDomain(UserEditRequest param){
         return MyUser.builder()
                     .userNo(param.getUserNo())
                     .userId(param.getUserId())
