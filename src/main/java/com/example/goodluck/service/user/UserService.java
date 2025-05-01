@@ -6,9 +6,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.domain.UserRepository;
+import com.example.goodluck.global.FilePathHelper;
 import com.example.goodluck.global.SaveType;
 import com.example.goodluck.global.ServiceExcepction;
 import com.example.goodluck.service.LocalFileStorageService;
+import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserRegistRequest;
 
 @Service
@@ -29,27 +31,25 @@ public class UserService {
     /*
      * 회원가입 메서드
      */
-    public MyUser regist(UserRegistRequest param, MultipartFile imageFile){
-        // db save
+    public Long regist(UserRegistRequest param, MultipartFile image){
         MyUser user = userDataConvertor.toDomain(param);
-        validateDuplicateUserId(user);
-        // 암호화
-        user.setUserPw(passwordEncoder.encode(user.getUserPw()));
-        userRepository.save(user);
+        validateDuplicateUserId(user.getUserId());
         
-        // file save
-        MyUser result = userRepository.findByNo(user.getUserNo()).get();
-        String relativeFileName = fileService.save(imageFile, result.getUserNo(), SaveType.PROFILE);
-        if( !relativeFileName.equals("FAILED")){
-            // path, name, extension 추출
-            // result.set
+        if(image != null){
+            String relativeFileName = fileService.save(image, 0L, SaveType.PROFILE);
+            if( !relativeFileName.equals("FAILED")){
+                String path = FilePathHelper.getDirectoryPath(relativeFileName);
+                String name = FilePathHelper.getFileNameOlny(path) + FilePathHelper.getExtension(path);
+                user.setProfileImgPath(path);
+                user.setProfileImgName(name);
+            }
         }
-        return result;
-    }
-    private void validateDuplicateUserId(MyUser user) {
-        userRepository.findById(user.getUserId()).ifPresent(
-            u -> { new UserServiceException(UserError.USER_ID_DUPLICATED);}
-        );
+        // db save
+        user.setUserPw(passwordEncoder.encode(user.getUserPw()));
+        Long userNo = userRepository.save(user);
+        
+        return userNo;
+        
     }
 
     /*
@@ -81,7 +81,20 @@ public class UserService {
     /*
      * 회원 정보 수정 메서드
      */
-    public void update(MyUser user) {
+    public void update(UserEditRequest param, MultipartFile image) {
+
+        MyUser user = userDataConvertor.toDomain(param);
+
+        if(image != null){
+            String relativeFileName = fileService.save(image, 0L, SaveType.PROFILE);
+            if( !relativeFileName.equals("FAILED")){
+                String path = FilePathHelper.getDirectoryPath(relativeFileName);
+                String name = FilePathHelper.getFileNameOlny(path) + FilePathHelper.getExtension(path);
+                user.setProfileImgPath(path);
+                user.setProfileImgName(name);
+            }
+        }
+
         userRepository.update(user);
     }
 
@@ -106,5 +119,10 @@ public class UserService {
         userRepository.update(user);
     }
     
-
+    
+    private void validateDuplicateUserId(String userId) {
+        userRepository.findById(userId).ifPresent(
+            u -> { new UserServiceException(UserError.USER_ID_DUPLICATED);}
+        );
+    }
 }
