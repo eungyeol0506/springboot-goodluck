@@ -2,26 +2,32 @@ package com.example.goodluck.domain;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
+@Builder
 public class MyAttach {
-    private long attachNo;
+    // pk
+    private Long attachNo;
+
     private String fileName;
     private String filePath;
-    private long fileSize;
-    private long boardNo;
+    private Long fileSize;
 
-    @Builder
-    public MyAttach(long attachNo, String fileName, String filePath, long fileSize){
-        this.attachNo = attachNo;
-        this.fileName = fileName;
-        this.filePath = filePath;
-        this.fileSize = fileSize;
-    }
-    public void setNewAttachNo(long attachNo){
-        this.attachNo = attachNo;
-    }
-    public void setBoardNo(long boardNo){
-        this.boardNo = boardNo ;
+    private Long boardNo;
+
+
+    @RequiredArgsConstructor
+    public enum AttachConstants{
+        PRIVATE_KEY("ATTACH_NO"),
+        TABLE_NAME("MY_ATTACH"),
+        SEQUENCE_NAME("MY_ATTACH_SEQ");
+
+        private final String value;
+        public String getValue(){
+            return value;
+        }
     }
 }

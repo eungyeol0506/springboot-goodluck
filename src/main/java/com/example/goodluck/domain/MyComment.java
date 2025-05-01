@@ -12,7 +12,7 @@ import lombok.Setter;
 @Builder
 public class MyComment {
     // pk
-    private long commentNo;
+    private Long commentNo;
     
     private Long userNo;
     private Long boardNo;
