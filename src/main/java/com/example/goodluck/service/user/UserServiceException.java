@@ -10,4 +10,5 @@ public class UserServiceException extends ServiceExcepction{
         super(errorCode);
     }
     
+    
 }

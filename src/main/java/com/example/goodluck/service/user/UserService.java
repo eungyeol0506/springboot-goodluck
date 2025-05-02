@@ -11,6 +11,8 @@ import com.example.goodluck.global.SaveType;
 import com.example.goodluck.global.ServiceExcepction;
 import com.example.goodluck.service.LocalFileStorageService;
 import com.example.goodluck.service.user.dto.UserEditRequest;
+import com.example.goodluck.service.user.dto.UserLoginRequest;
+import com.example.goodluck.service.user.dto.UserPwChangeRequest;
 import com.example.goodluck.service.user.dto.UserRegistRequest;
 
 @Service
@@ -55,7 +57,9 @@ public class UserService {
     /*
      * 로그인 메서드
      */
-    public MyUser login(String id, String pw){
+    public MyUser login(UserLoginRequest param){
+        String id = param.getId();
+        String pw = param.getPw();
 
         MyUser user = userRepository.findById(id).orElseThrow(
             () -> new UserServiceException(UserError.USER_NOT_FOUND)
@@ -101,7 +105,10 @@ public class UserService {
     /*
      * 비밀번호 변경 메서드
      */
-    public void changePw(Long userNo, String oldPw, String newPw){
+    public void changePw(Long userNo, UserPwChangeRequest param){
+        String oldPw = param.getOldPw();
+        String newPw = param.getNewPw();
+
         MyUser user = userRepository.findByNo(userNo).orElseThrow(
             ()-> new UserServiceException(UserError.USER_NOT_FOUND)
         );
@@ -115,14 +122,14 @@ public class UserService {
 
         String encodedPw = passwordEncoder.encode(newPw);
         user.setUserPw(encodedPw);
-
+        
         userRepository.update(user);
     }
     
     
     private void validateDuplicateUserId(String userId) {
         userRepository.findById(userId).ifPresent(
-            u -> { new UserServiceException(UserError.USER_ID_DUPLICATED);}
+            u -> { throw new UserServiceException(UserError.USER_ID_DUPLICATED);}
         );
     }
 }
