@@ -4,12 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.attoparser.dom.Comment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.goodluck.domain.BoardRepository;
-import com.example.goodluck.domain.MyAttach;
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.service.board.dto.BoardModifyRequest;
@@ -104,7 +102,7 @@ public class BoardService {
     public void delete(Long boardNo){
         commentService.removeByBoardNo(boardNo);
         attachService.removeByBoardNo(boardNo);
-        
+
         boardRepository.remove(boardNo);
     }
 
