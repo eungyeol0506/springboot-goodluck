@@ -13,6 +13,7 @@ public class UserDataConvertor {
         return MyUser.builder()
                     .userId(param.getUserId())
                     .userPw(param.getUserPw())
+                    .userName(param.getUserName())
                     .userEmail(param.getUserEmail())
                     .addressMain(param.getAddressMain())
                     .addressDetail(param.getAddressDetail())

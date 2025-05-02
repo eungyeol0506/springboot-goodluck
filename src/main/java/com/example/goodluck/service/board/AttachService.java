@@ -54,4 +54,21 @@ public class AttachService {
     public List<MyAttach> getAttachList(Long boardNo){
         return attachRepository.findByBoardNo(boardNo);
     }
+
+    /*
+     * 첨부파일 삭제 메서드
+     */
+    public void remove(List<MyAttach> attaches){
+
+        for(MyAttach attach : attaches){
+            String relativcePathName = attach.getFilePath() + attach.getFileName();
+            fileService.delete(relativcePathName);
+        }
+
+    }
+
+    public void removeByBoardNo(Long boardNo){
+        List<MyAttach> attaches = getAttachList(boardNo);
+        remove(attaches);
+    }    
 }
