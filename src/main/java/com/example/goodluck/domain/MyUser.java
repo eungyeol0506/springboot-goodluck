@@ -1,50 +1,39 @@
 package com.example.goodluck.domain;
 
-import java.beans.Transient;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@Builder
 public class MyUser {
-
+    // pk
     private Long userNo;
-    private String userName;
-    private String userEmail;
+
     private String userId;
     private String userPw;
+    
+    private String userEmail;
+    private String userName;
     private String postNo;
     private String addressMain;
     private String addressDetail;
     private String telNo;
+    // image
     private String profileImgPath;
     private String profileImgName;
-
-    public MyUser(){}
-    public MyUser(Long userNo, String userName, String userEmail, String userId, String userPw, String postNo,
-            String addressMain, String addressDetail, String telNo, String profileImgPath, String profileImgName) {
-        this.userNo = userNo;
-        this.userName = userName;
-        this.userEmail = userEmail;
-        this.userId = userId;
-        this.userPw = userPw;
-        this.postNo = postNo;
-        this.addressMain = addressMain;
-        this.addressDetail = addressDetail;
-        this.telNo = telNo;
-        this.profileImgPath = profileImgPath;
-        this.profileImgName = profileImgName;
-    }
-
-    @Transient
-    public static MyUser creatDummy(Long userNo){
-        return new MyUser(userNo, "Dummy", "test@test.com", "test", "testtest", null, null, null, null, null, null);
-    }
     
-    // @Transient
-    // public String getProfileStaticResourcePath(){
-    //     if (profileImgPath != null){
-    //         return "/files/profile/" + profileImgName;
-    //     }
-    //     return null;
-    // }
+    @RequiredArgsConstructor
+    public enum UserConstants{
+        PRIVATE_KEY("USER_NO"),
+        TABLE_NAME("MY_USER"),
+        SEQUENCE_NAME("MY_USER_SEQ");
+
+        private final String value;
+        public String getValue(){
+            return value;
+        }
+    }
 }

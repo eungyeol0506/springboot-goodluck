@@ -1,48 +1,42 @@
 package com.example.goodluck.domain;
 
-import java.beans.Transient;
 import java.time.LocalDate;
 import java.util.List;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Setter;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-// import org.springframework.web.multipart.MultipartFile;
-
-@Data
+@Getter
+@Setter
+@Builder
 public class MyBoard {
-    private long boardNo;
+    // pk
+    private Long boardNo;
+
     private String boardTitle;
     private String contents;
     private int viewCnt;
     private LocalDate updateDate;
     private LocalDate createDate;
     
-    private MyUser user;
-    private List<MyAttach> attachList;
-    
-    public MyBoard() {};
-    public MyBoard(Long boardNo, String boardTitle, String contents, int viewCnt, LocalDate updateDate, LocalDate createDate,
-            MyUser user) {
-        this.boardNo = boardNo;
-        this.boardTitle = boardTitle;
-        this.contents = contents;
-        this.viewCnt = viewCnt;
-        this.updateDate = updateDate;
-        this.createDate = createDate;
-        this.user = user;
-    }
-    
-    public void setWriterInfo(MyUser writer){
-        this.user = writer;
-    }
+    // 참조
+    private MyUser writer;
+    private List<MyAttach> attaches;
+    private List<MyComment> comments;
 
-    @Transient
-    public void increaseViewCnt(){
-        this.viewCnt += 1;
-    }
-    @Transient
-    public static MyBoard createDummy(Long boardNo, String boardTitle, String contens, Long userNo){
-        return new MyBoard(boardNo, boardTitle, contens, 0, null, LocalDate.now(), MyUser.creatDummy(userNo));
+    @RequiredArgsConstructor
+    public enum BoardConstants{
+        PRIVATE_KEY("BOARD_NO"),
+        TABLE_NAME("MY_BOARD"),
+        SEQUENCE_NAME("MY_BOARD_SEQ");
+
+        private final String value;
+        
+        public String getValue(){
+            return value;
+        }
     }
     
 }
