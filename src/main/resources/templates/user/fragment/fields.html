@@ -1,5 +1,4 @@
 <div th:fragment="userField" >
-
     <div>
         <label for="userName" class="form-label mt-4">이름<span class="text-danger">*</span></label>
         <input  type="text" class="form-control" placeholder="이름을 입력해주세요" 
@@ -19,10 +18,10 @@
     </div>
 
     <!-- 회원 가입 시 노출 -->
-    <div th:if="${mode} == 'regist'">
+    <div th:if="${mode == 'regist'}">
         <label for="userPw" class="form-label mt-4">비밀번호<span class="text-danger">*</span></label>
-        <input  type="password" class="form-control" 
-                th:field="*{userPw}"
+        <input  type="password" class="form-control" placeholder="비밀번호를 입력해주세요"
+                th:field="*{userPw}" 
                 th:value="${preValue.userPw}" />
     </div>
 

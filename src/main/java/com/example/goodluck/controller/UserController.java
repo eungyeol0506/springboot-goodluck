@@ -40,22 +40,23 @@ public class UserController {
      * 로그인 처리 
      */
     @GetMapping("/login")
-    public String getLogin() {
+    public String getLogin(Model model) {
+        model.addAttribute("loginRequest", new UserLoginRequest());
         return "user/login";
     }
 
-    // @PostMapping("/login")
-    // public String postLogin(@RequestParam(value = "loginRequest") UserLoginRequest param,
-    //                         HttpServletRequest request ) {
+    @PostMapping("/login")
+    public String postLogin(@ModelAttribute(value = "loginRequest") UserLoginRequest param,
+                            HttpServletRequest request ) {
 
-    //     MyUser user = userService.login(param);
+        MyUser user = userService.login(param);
 
-    //     // set session
-    //     HttpSession session = request.getSession();
-    //     session.setAttribute("userNo", user.getUserNo());
+        // set session
+        HttpSession session = request.getSession();
+        session.setAttribute("userNo", user.getUserNo());
         
-    //     return "home";
-    // }
+        return "home";
+    }
 
     /*
      * 로그아웃 처리
@@ -65,7 +66,7 @@ public class UserController {
         HttpSession session = request.getSession();
         session.invalidate();
 
-        return "redirect:/";
+        return "home";
     }
     
     /*
@@ -74,18 +75,20 @@ public class UserController {
     @GetMapping("/regist")
     public String getRegist(Model model){
         model.addAttribute("preValue", new UserRegistRequest());
-        return "myuser/regist_form";
+        model.addAttribute("notice", "");
+        model.addAttribute("requestData", new UserRegistRequest());
+        return "user/regist";
     }
     
-    // @SuppressWarnings("null")
-    // @PostMapping("/regist")
-    // public String postRegister(
-    //         @ModelAttribute(name="userRegistRequest") @Valid UserRegistRequest userRegistRequest,
-    //         @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile,
-    //         RedirectAttributes redirectAttributes
-    //     ){
-
-    // }
+    @PostMapping("/regist")
+    public String postRegister(
+            @ModelAttribute(name="requestData") @Valid UserRegistRequest userRegistRequest,
+            @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile,
+            RedirectAttributes redirectAttributes
+        ){
+            userService.regist(userRegistRequest, multipartFile);
+            return "home";
+    }
 
 
     /*

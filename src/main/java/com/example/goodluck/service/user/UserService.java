@@ -58,8 +58,8 @@ public class UserService {
      * 로그인 메서드
      */
     public MyUser login(UserLoginRequest param){
-        String id = param.getId();
-        String pw = param.getPw();
+        String id = param.getUsername();
+        String pw = param.getPassword();
 
         MyUser user = userRepository.findById(id).orElseThrow(
             () -> new UserServiceException(UserError.USER_NOT_FOUND)

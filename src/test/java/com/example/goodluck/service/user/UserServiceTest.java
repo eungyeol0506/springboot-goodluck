@@ -76,14 +76,14 @@ public class UserServiceTest {
         MyUser result = userService.login(param);
 
         assertNotNull(result);
-        assertEquals(param.getId(), result.getUserId());
+        assertEquals(param.getUserName(), result.getUserId());
     }
     
     @Test
     @DisplayName("잘못된 비밀번호로 로그인 실패")
     void failedPwNotMatched(){
         UserLoginRequest param = getTestLoginParam();
-        param.setId("123456789");
+        param.setPassword("123456789");
 
         Exception e = Assertions.catchException(() -> userService.login(param));
 
@@ -96,7 +96,7 @@ public class UserServiceTest {
     @DisplayName("존재하지 않는 사용자여도 로그인 실패")
     void failedUserNotFound(){
         UserLoginRequest param = getTestLoginParam();
-        param.setPw("1234");
+        param.setPassword("1234");
 
         Exception e = Assertions.catchException(() -> userService.login(param));
 
