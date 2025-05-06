@@ -1,140 +1,98 @@
-// package com.example.goodluck.global.exception;
+package com.example.goodluck.global.exception;
 
-// import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
-// import org.springframework.ui.Model;
-// import org.springframework.validation.ObjectError;
-// import org.springframework.web.bind.MethodArgumentNotValidException;
-// import org.springframework.web.bind.annotation.ControllerAdvice;
-// import org.springframework.web.bind.annotation.ExceptionHandler;
-// import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
-// import com.example.goodluck.service.user.dto.UserRegistRequest;
+import com.example.goodluck.global.ServiceExcepction;
+import com.example.goodluck.service.user.dto.UserLoginRequest;
 
-// import jakarta.servlet.http.HttpServletRequest;
-
-
-// @ControllerAdvice
-// public class GlobalExceptionHandler {
-//     // MyUser 관련 예외
-//     @ExceptionHandler(UserRegistFaildException.class)
-//     public String handleUserRegistFaildException(
-//         UserRegistFaildException exception,
-//         Model model)
-//     {
-//         UserRegistRequest dto = exception.getRegistUserRequestDto();
-//         if(dto != null){
-//             model.addAttribute("preValue", dto);
-//         }else{
-//             model.addAttribute("preValue", new UserRegistRequest());
-//         }
-//         model.addAttribute("notice", exception.getMessage());
-
-//         return "myuser/regist_form";
-//     }
-//     @ExceptionHandler(UserLoginFaildException.class)
-//     public String handldeUserLoginFaildException(UserLoginFaildException exception, Model model){
-//         model.addAttribute("notice", exception.getMessage());
-
-//         return "myuser/login";
-//     }
-//     @ExceptionHandler(UserProfileImageUploadException.class)
-//     public String handleUserProfileImageUploadException(
-//         UserProfileImageUploadException exception, 
-//         HttpServletRequest request,
-//         Model model){
-
-//         String requestUri = request.getRequestURI();
-//         if(requestUri.contains("regist")){
-//             model.addAttribute("preValue", exception.getRegistUserReqeustDto());
-//             model.addAttribute("notice", exception.getMessage());
+import jakarta.servlet.http.HttpServletRequest;
 
 
-//             return "myuser/regist_form";
-//         }else if(requestUri.contains("edit")){
-//             model.addAttribute("preValue", exception.getEditUserRequestDto());
-//             model.addAttribute("notice", exception.getMessage());
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    /*
+     * Business Logic 예외 처리
+     */
+    @ExceptionHandler(ServiceExcepction.class)
+    public String handleServiceException(
+        ServiceExcepction excepction,
+        HttpServletRequest request,
+        Model model
+    ){
+        model.addAttribute("notice", excepction.getErrorMessage());
+        return ExceptionViewHelper.resolveViewNameByUri(request.getRequestURI(), model);
+    }
+    
+    /*
+     * DTO validation 검증 실패 예외 처리 (이전 값을 setting 해주고, 해당 화면을 벗어나지 않음)
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public String handleMethodArgumentNotValidException(
+        MethodArgumentNotValidException exception, 
+        HttpServletRequest request,
+        Model model)
+    {
+        addBindingResultToModel(exception.getBindingResult(), model);
 
+        // String referer = request.getHeader("Referer");
+        String requestUri = request.getRequestURI();
+        return ExceptionViewHelper.resolveViewNameByUri(requestUri, model);
+    }
 
-//             return "myuser/mypage_form";
-//         }
+    // 정의 외 에러 발생 
+    @ExceptionHandler(RuntimeException.class)
+    public String handleRuntimeException(RuntimeException exception){
 
+        return "error";
+    }
 
-//         return "error";
-//     }
-//     @ExceptionHandler(UserNotFoundException.class)
-//     public String handelUserNotFoundException(UserNotFoundException exception, HttpServletRequest request, Model model){
-//         request.getSession().invalidate();
-//         model.addAttribute("notice", exception.getMessage());
-        
-//         return "home";
-//     }
+    /*
+     * preValue setting
+     */
+    private void addBindingResultToModel(BindingResult bindingResult, Model model){
+        // 메시지 내용 수집
+        String noticeMessage = bindingResult.getAllErrors()
+                                .stream()
+                                .map(ObjectError::getDefaultMessage)
+                                .collect(Collectors.joining("\n"));
 
-//     @ExceptionHandler(ForbiddenBoardAccessException.class)
-//     public String handleForbiddenBoardAccessException(ForbiddenBoardAccessException exception, RedirectAttributes redirectAttributes){
-//         redirectAttributes.addFlashAttribute("notice", exception.getMessage());
-        
-//         if (exception.getBoardInfo() == null){
-//             return "redirect:/list";
-//         }
+        model.addAttribute("notice", noticeMessage);
 
-//         return "redirect:/board/" + exception.getBoardInfo().getBoardNo();
-//     }
+        // dto 내용을 다시 set해주기 
+        Object dtoObejct = bindingResult.getTarget();
+        if(dtoObejct != null){
+        model.addAttribute("preValue", dtoObejct);
+        }
+    }
 
-//     @ExceptionHandler(UserPwNotMatchedException.class)
-//     public String handleUserPwNotMatchedException(UserPwNotMatchedException exception, Model model){
-//         model.addAttribute("notice", exception.getMessage());
-//         return "myuser/changePw_form";
-//     }
+    class ExceptionViewHelper{
 
-//     // dto 검증 시 발생 예외
-//     @ExceptionHandler(MethodArgumentNotValidException.class)
-//     public String handleMethodArgumentNotValidException(
-//         MethodArgumentNotValidException exception, 
-//         HttpServletRequest request,
-//         Model model)
-//     {
-//         // 메시지 내용 수집
-//         String noticeMessage = exception.getBindingResult().getAllErrors()
-//                                         .stream()
-//                                         .map(ObjectError::getDefaultMessage)
-//                                         .collect(Collectors.joining("\n"));
-
-//         model.addAttribute("notice", noticeMessage);
-        
-//         // dto 내용을 다시 set해주기 
-//         Object dtoObejct = exception.getBindingResult().getTarget();
-//         if(dtoObejct != null){
-//             model.addAttribute("preValue", dtoObejct);
-//         }
-
-//         // String referer = request.getHeader("Referer");
-//         String requestUri = request.getRequestURI();
-//         if(requestUri != null && requestUri.contains("regist")){
-//             return "myuser/regist_form";
-//         }
-//         else if(requestUri != null && requestUri.contains("login")){
-//             return "myuser/login";
-//         }
-//         else if(requestUri != null && requestUri.contains("edit")){
-//             return "myuser/mypage_form";
-//         }
-//         else if(requestUri != null && requestUri.contains("write")){
-//             return "myboard/newboard_form";
-//         }
-//         else if(requestUri != null && requestUri.contains("change-password")){
-//             return "myuser/changePw_form";
-//         }
-        
-
-
-//         return "error";
-//     }
-//     // 정의 외 에러 발생 
-//     @ExceptionHandler(RuntimeException.class)
-//     public String handleRuntimeException(RuntimeException exception){
-
-//         return "error";
-//     }
-// }
+        public static String resolveViewNameByUri(String requestUri, Model model){
+            if(requestUri != null && requestUri.contains("regist")){
+                return "user/regist";
+            }
+            else if(requestUri != null && requestUri.contains("login")){
+                model.addAttribute("loginRequest", new UserLoginRequest());
+                return "user/login";
+            }
+            else if(requestUri != null && requestUri.contains("edit")){
+                return "user/edit";
+            }
+            else if(requestUri != null && requestUri.contains("change-password")){
+                return "user/pwChange";
+            }
+            else if(requestUri != null && requestUri.contains("write")){
+                return "board/write";
+            }
+            return "error";
+        }
+    }
+}
     
