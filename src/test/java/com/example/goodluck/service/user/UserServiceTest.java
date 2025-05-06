@@ -76,7 +76,7 @@ public class UserServiceTest {
         MyUser result = userService.login(param);
 
         assertNotNull(result);
-        assertEquals(param.getUserName(), result.getUserId());
+        assertEquals(param.getUsername(), result.getUserId());
     }
     
     @Test
