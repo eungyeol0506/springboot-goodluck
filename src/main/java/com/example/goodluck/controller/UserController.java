@@ -1,23 +1,18 @@
 package com.example.goodluck.controller;
 
 
-import java.io.IOException;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.service.user.UserService;
-import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
-import com.example.goodluck.service.user.dto.UserPwChangeRequest;
 import com.example.goodluck.service.user.dto.UserRegistRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +20,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class UserController {
@@ -46,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String postLogin(@ModelAttribute(value = "loginRequest") UserLoginRequest param,
+    public String postLogin(@ModelAttribute(value = "loginRequest") @Valid UserLoginRequest param,
                             HttpServletRequest request ) {
 
         MyUser user = userService.login(param);
@@ -83,8 +77,7 @@ public class UserController {
     @PostMapping("/regist")
     public String postRegister(
             @ModelAttribute(name="requestData") @Valid UserRegistRequest userRegistRequest,
-            @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile,
-            RedirectAttributes redirectAttributes
+            @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile
         ){
             userService.regist(userRegistRequest, multipartFile);
             return "home";
@@ -94,19 +87,19 @@ public class UserController {
     /*
      * 회원 정보 조회
      */
-    @GetMapping("/mypage")
+    @GetMapping("/profile")
     public String getUserInfo(HttpSession session, Model model ){
         Long userNo = (Long) session.getAttribute("userNo");
         MyUser resultUser = userService.getUser(userNo);
 
         model.addAttribute("user", resultUser);
-        return "myuser/mypage" ;
+        return "user/mypage" ;
     }
 
-    /*
+    /* 
      * 회원 정보 수정 처리
      */
-    // @GetMapping("/mypage/edit")
+    // @GetMapping("/profile/form")
     // public String getUserEditView(HttpSession session, Model model) { 
     //     Long userNo = (Long) session.getAttribute("userNo");
     //     MyUser resultUser = userService.getUserInfo(userNo).orElseThrow(
@@ -117,7 +110,7 @@ public class UserController {
     //     return "myuser/mypage_form" ;
     // }
 
-    // @PostMapping("/mypage/edit")
+    // @PostMapping("/profile/form")
     // public String postUserEdit( 
     //         @ModelAttribute(name="userEditRequest") @Valid UserEditRequest userEditRequest,
     //         @RequestParam(value="fileImage", required=false) MultipartFile multipartFile,
