@@ -11,6 +11,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +25,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+import java.util.List;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -190,8 +199,42 @@ public class UserControllerTest {
             @Test
             @DisplayName("중복되는 아이디 예외 처리")
             void failedDuplicatedId(){
-                
+
             }
         }
+    }
+    
+    @Nested
+    class Update{
+
+        @Test
+        void successGetProfileForm() throws Exception{
+            // given: 가짜 사용자 번호와 사용자 객체 준비
+            Long fakeUserNo = 1L;
+            MyUser fakeUser = MyUser.builder()
+                                    .userNo(fakeUserNo)
+                                    .userName("홍길동")
+                                    .build();
+
+            BDDMockito.given(userService.getUser(anyLong())).willReturn(fakeUser);
+
+            // 세션 객체에 userNo 삽입
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute("userNo", fakeUserNo);
+            // 인증 객체 만들기
+            UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken("testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+            securityContext.setAuthentication(authentication);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+            // when & then
+            mockMvc.perform(get("/profile/form").session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("user/edit"))
+                .andExpect(model().attributeExists("requestData"))
+                .andExpect(model().attributeExists("notice"));
+        }
+        
     }
 }
