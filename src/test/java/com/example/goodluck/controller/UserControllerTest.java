@@ -3,25 +3,18 @@ package com.example.goodluck.controller;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
@@ -41,6 +34,7 @@ import com.example.goodluck.service.user.dto.UserRegistRequest;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class UserControllerTest {
     
     @Autowired private MockMvc mockMvc;
@@ -139,8 +133,14 @@ public class UserControllerTest {
     @Nested
     class Find{
         @Test
-        void successGetUserInfo(){
-
+        void successGetUserInfo() throws Exception{
+            // given
+            MockHttpSession session = new MockHttpSession();
+            // when then
+            mockMvc.perform(get("/profile")
+                            .session(session))
+                .andExpect(view().name("user/profile"))
+                ;
         }
     }
 
@@ -152,30 +152,44 @@ public class UserControllerTest {
 
             @Test
             void successGetRegist() throws Exception{
-                
+                mockMvc.perform(get("/regist"))
+                        .andExpect(view().name("user/regist"))
+                        ;
             }
 
             @Test
             void successPostRegist() throws Exception{
                 // given
                 MockMultipartFile file = new MockMultipartFile("fileImage", "test.png", MediaType.IMAGE_PNG_VALUE,"dummy-content".getBytes());
-                UserRegistRequest param = new UserRegistRequest();
-                param.setUserEmail("test@example.com");
-                param.setUserId("teeeestttt");
-                param.setUserPw("teeeestttt");
-                param.setUserName("테스트");
-    
+
+                BDDMockito.given(userService.regist(any(UserRegistRequest.class), any(MultipartFile.class))).willReturn(456L);
+
                 // when then
-                // mockMvc.perform(null)
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
                                 .file(file)
-                                .param("requestData.userEmail","test@example.com")
-                                .param("requestData.userId","teeeestttt")
-                                .param("requestData.userPw","teeeestttt")
-                                .param("requestData.userName","teeeestttt")
+                                .param("userEmail","test@example.com")
+                                .param("userId","teeeestttt")
+                                .param("userPw","teeeestttt")
+                                .param("userName","teeeestttt")
                                 )
                                 .andExpect(status().isOk())
                                 .andExpect(view().name("home"));
+                
+            }
+        }
+
+        @Nested
+        class Failed{
+
+            @Test
+            @DisplayName("@Valid 검증 예외 처리")
+            void faildValidation(){
+
+            }
+
+            @Test
+            @DisplayName("중복되는 아이디 예외 처리")
+            void failedDuplicatedId(){
                 
             }
         }
