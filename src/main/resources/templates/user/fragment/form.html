@@ -1,8 +1,8 @@
-<div th:fragment="form(mode, preValue, notice, requestData)">
+<div th:fragment="form(mode, notice, requestData)">
 
     <form th:action="@{${mode} == 'edit' ? '/mypage/edit' : '/regist'}"
           th:object="${requestData}" method="post">
-        <div th:replace="~{user/fragment/fields :: userField}"
+        <div th:replace="~{user/fragment/fields :: userFields}"
              th:with="mode = ${mode}">
         </div>
     
