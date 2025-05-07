@@ -88,7 +88,7 @@ public class UserService {
     public void update(UserEditRequest param, MultipartFile image) {
 
         MyUser user = userDataConvertor.toDomain(param);
-
+        
         if(image != null){
             String relativeFileName = fileService.save(image, 0L, SaveType.PROFILE);
             if( !relativeFileName.equals("FAILED")){

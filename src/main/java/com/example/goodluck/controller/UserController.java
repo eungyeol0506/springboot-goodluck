@@ -1,17 +1,22 @@
 package com.example.goodluck.controller;
 
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.service.user.UserService;
+import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
 import com.example.goodluck.service.user.dto.UserRegistRequest;
 
@@ -45,11 +50,22 @@ public class UserController {
 
         MyUser user = userService.login(param);
 
+        // 인증 객체 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+            user.getUserNo(),
+            null
+        );
+
+        // SecurityContext에 등록
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        
         // set session
         HttpSession session = request.getSession();
         session.setAttribute("userNo", user.getUserNo());
-        
-        return "home";
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+
+        return "redirect:/"; 
     }
 
     /*
@@ -68,7 +84,6 @@ public class UserController {
      */
     @GetMapping("/regist")
     public String getRegist(Model model){
-        model.addAttribute("preValue", new UserRegistRequest());
         model.addAttribute("notice", "");
         model.addAttribute("requestData", new UserRegistRequest());
         return "user/regist";
@@ -76,10 +91,10 @@ public class UserController {
     
     @PostMapping("/regist")
     public String postRegister(
-            @ModelAttribute(name="requestData") @Valid UserRegistRequest userRegistRequest,
-            @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile
+            @ModelAttribute(value ="requestData") @Valid UserRegistRequest param,
+            @RequestParam(value = "fileImage", required = false) MultipartFile file
         ){
-            userService.regist(userRegistRequest, multipartFile);
+            userService.regist(param, file);
             return "home";
     }
 
@@ -90,25 +105,27 @@ public class UserController {
     @GetMapping("/profile")
     public String getUserInfo(HttpSession session, Model model ){
         Long userNo = (Long) session.getAttribute("userNo");
-        MyUser resultUser = userService.getUser(userNo);
+        MyUser result = userService.getUser(userNo);
 
-        model.addAttribute("user", resultUser);
-        return "user/mypage" ;
+        model.addAttribute("user", result);
+        return "user/profile" ;
     }
 
     /* 
      * 회원 정보 수정 처리
      */
-    // @GetMapping("/profile/form")
-    // public String getUserEditView(HttpSession session, Model model) { 
-    //     Long userNo = (Long) session.getAttribute("userNo");
-    //     MyUser resultUser = userService.getUserInfo(userNo).orElseThrow(
-    //         () -> new UserNotFoundException("사용자 정보를 찾을 수 없습니다.")
-    //     );
+    @GetMapping("/profile/form")
+    public String getUserEditView(HttpSession session, Model model) { 
+        Long userNo = (Long) session.getAttribute("userNo");
+        MyUser result = userService.getUser(userNo);
 
-    //     model.addAttribute("preValue", resultUser);
-    //     return "myuser/mypage_form" ;
-    // }
+        UserEditRequest dto = new UserEditRequest();
+
+
+        model.addAttribute("notice", "");
+        model.addAttribute("requestData", dto);
+        return "user/edit" ;
+    }
 
     // @PostMapping("/profile/form")
     // public String postUserEdit( 

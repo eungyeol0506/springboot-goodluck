@@ -16,10 +16,27 @@
         <div class="container d-flex justify-content-center align-items-center">
             <div class="card mt-4 mb-3"  style="width: 100%; max-width: 800px;">
                 <h3 class="card-header">회원가입</h3>
-                <div th:replace="~{user/form :: form(mode='regist', preValue=${preValue}, notice=${notice}, requestData=${requestData})}">
+                <div th:replace="~{user/fragment/form :: form(mode='regist', notice=${notice}, requestData=${requestData})}">
                 </div>
-                     <!-- th:with="mode = 'regist' , preValue=${preValue}, notice=${notice}, requestData=${requestData}"> -->
             </div>
         </div>
     </body>
+
+    <script type="module">
+        import { initImageThumbnailUpload } from "/js/imageThumbnail.js";
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            const imageUploader = initImageThumbnailUpload({
+            inputSelector: '#fileImage',
+            imgSelector: '#userThumbnail',
+            defaultImage: 'https://img.icons8.com/?size=250&id=ABBSjQJK83zf&format=png&color=000000'
+        });
+
+        // "기본 이미지로 변경" 버튼 클릭 시 썸네일만 초기화
+        document.querySelector('#resetImageBtn').addEventListener('click', (e) => {
+            e.preventDefault(); // 혹시 모르니 안전하게 form 전송 방지
+            imageUploader.resetImage(); // 썸네일 리셋
+            });
+        });
+    </script> 
 </html>
