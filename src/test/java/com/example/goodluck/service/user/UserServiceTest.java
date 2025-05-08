@@ -76,33 +76,33 @@ public class UserServiceTest {
         MyUser result = userService.login(param);
 
         assertNotNull(result);
-        assertEquals(param.getId(), result.getUserId());
+        assertEquals(param.getUsername(), result.getUserId());
     }
     
     @Test
     @DisplayName("잘못된 비밀번호로 로그인 실패")
     void failedPwNotMatched(){
         UserLoginRequest param = getTestLoginParam();
-        param.setId("123456789");
-
-        Exception e = Assertions.catchException(() -> userService.login(param));
-
-        Assertions.assertThat(e).isInstanceOf(UserServiceException.class);
-        ServiceExcepction excepction = (ServiceExcepction) e;
-        assertEquals(UserError.USER_NOT_FOUND.getMessage(), excepction.getErrorMessage());
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 사용자여도 로그인 실패")
-    void failedUserNotFound(){
-        UserLoginRequest param = getTestLoginParam();
-        param.setPw("1234");
+        param.setPassword("123456789");
 
         Exception e = Assertions.catchException(() -> userService.login(param));
 
         Assertions.assertThat(e).isInstanceOf(UserServiceException.class);
         ServiceExcepction excepction = (ServiceExcepction) e;
         assertEquals(UserError.USER_PW_NOT_MATCHED.getMessage(), excepction.getErrorMessage());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 사용자여도 로그인 실패")
+    void failedUserNotFound(){
+        UserLoginRequest param = getTestLoginParam();
+        param.setUsername("닝닝닝");
+
+        Exception e = Assertions.catchException(() -> userService.login(param));
+
+        Assertions.assertThat(e).isInstanceOf(UserServiceException.class);
+        ServiceExcepction excepction = (ServiceExcepction) e;
+        assertEquals(UserError.USER_NOT_FOUND.getMessage(), excepction.getErrorMessage());
     }
 
     private UserLoginRequest getTestLoginParam(){

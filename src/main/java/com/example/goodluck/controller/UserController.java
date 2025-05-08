@@ -1,23 +1,23 @@
 package com.example.goodluck.controller;
 
 
-import java.io.IOException;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.service.user.UserService;
 import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
-import com.example.goodluck.service.user.dto.UserPwChangeRequest;
 import com.example.goodluck.service.user.dto.UserRegistRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +25,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class UserController {
@@ -40,22 +39,34 @@ public class UserController {
      * 로그인 처리 
      */
     @GetMapping("/login")
-    public String getLogin() {
+    public String getLogin(Model model) {
+        model.addAttribute("loginRequest", new UserLoginRequest());
         return "user/login";
     }
 
-    // @PostMapping("/login")
-    // public String postLogin(@RequestParam(value = "loginRequest") UserLoginRequest param,
-    //                         HttpServletRequest request ) {
+    @PostMapping("/login")
+    public String postLogin(@ModelAttribute(value = "loginRequest") @Valid UserLoginRequest param,
+                            HttpServletRequest request ) {
 
-    //     MyUser user = userService.login(param);
+        MyUser user = userService.login(param);
 
-    //     // set session
-    //     HttpSession session = request.getSession();
-    //     session.setAttribute("userNo", user.getUserNo());
+        // 인증 객체 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+            user.getUserNo(),
+            null
+        );
+
+        // SecurityContext에 등록
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
         
-    //     return "home";
-    // }
+        // set session
+        HttpSession session = request.getSession();
+        session.setAttribute("userNo", user.getUserNo());
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+
+        return "redirect:/"; 
+    }
 
     /*
      * 로그아웃 처리
@@ -65,7 +76,7 @@ public class UserController {
         HttpSession session = request.getSession();
         session.invalidate();
 
-        return "redirect:/";
+        return "home";
     }
     
     /*
@@ -73,65 +84,65 @@ public class UserController {
      */
     @GetMapping("/regist")
     public String getRegist(Model model){
-        model.addAttribute("preValue", new UserRegistRequest());
-        return "myuser/regist_form";
+        model.addAttribute("notice", "");
+        model.addAttribute("requestData", new UserRegistRequest());
+        return "user/regist";
     }
     
-    // @SuppressWarnings("null")
-    // @PostMapping("/regist")
-    // public String postRegister(
-    //         @ModelAttribute(name="userRegistRequest") @Valid UserRegistRequest userRegistRequest,
-    //         @RequestParam(value = "fileImage", required = false) MultipartFile multipartFile,
-    //         RedirectAttributes redirectAttributes
-    //     ){
-
-    // }
+    @PostMapping("/regist")
+    public String postRegister(
+            @ModelAttribute(value ="requestData") @Valid UserRegistRequest param,
+            @RequestParam(value = "fileImage", required = false) MultipartFile file
+        ){
+            userService.regist(param, file);
+            return "home";
+    }
 
 
     /*
      * 회원 정보 조회
      */
-    @GetMapping("/mypage")
+    @GetMapping("/profile")
     public String getUserInfo(HttpSession session, Model model ){
         Long userNo = (Long) session.getAttribute("userNo");
-        MyUser resultUser = userService.getUser(userNo);
+        MyUser result = userService.getUser(userNo);
 
-        model.addAttribute("user", resultUser);
-        return "myuser/mypage" ;
+        model.addAttribute("user", result);
+        return "user/profile" ;
     }
 
-    /*
+    /* 
      * 회원 정보 수정 처리
      */
-    // @GetMapping("/mypage/edit")
-    // public String getUserEditView(HttpSession session, Model model) { 
-    //     Long userNo = (Long) session.getAttribute("userNo");
-    //     MyUser resultUser = userService.getUserInfo(userNo).orElseThrow(
-    //         () -> new UserNotFoundException("사용자 정보를 찾을 수 없습니다.")
-    //     );
+    @GetMapping("/profile/form")
+    public String getUserEditView(HttpSession session, Model model) { 
+        Long userNo = (Long) session.getAttribute("userNo");
+        MyUser result = userService.getUser(userNo);
 
-    //     model.addAttribute("preValue", resultUser);
-    //     return "myuser/mypage_form" ;
-    // }
+        UserEditRequest dto = new UserEditRequest();
+        dto.setUserNo(userNo);
+        dto.setUserName(result.getUserName());
+        dto.setUserEmail(result.getUserEmail());
+        dto.setPostNo(result.getPostNo());
+        dto.setTelNo(result.getTelNo());
+        dto.setAddressMain(result.getAddressMain());
+        dto.setAddressDetail(result.getAddressDetail());
+        dto.setProfileImgName(result.getProfileImgName());
+        dto.setProfileImgPath(result.getProfileImgPath());
 
-    // @PostMapping("/mypage/edit")
-    // public String postUserEdit( 
-    //         @ModelAttribute(name="userEditRequest") @Valid UserEditRequest userEditRequest,
-    //         @RequestParam(value="fileImage", required=false) MultipartFile multipartFile,
-    //         RedirectAttributes redirectAttributes) 
-    // {
-    //     // dto -> domain
-    //     MyUser user = userEditRequest.toDomain();
-        
-    //     // save file
-    //     saveProfileImage(multipartFile, user);       
-        
-    //     // save DB data
-    //     userService.updateUser(user);
-        
-    //     redirectAttributes.addFlashAttribute("notice", "회원정보를 수정하였습니다.");
-    //     return "redirect:/mypage";   
-    // }
+        model.addAttribute("notice", "");
+        model.addAttribute("requestData", dto);
+        return "user/edit" ;
+    }
+
+    @PostMapping("/profile/form")
+    public String postUserEdit( 
+            @ModelAttribute(name="requestData") @Valid UserEditRequest param,
+            @RequestParam(value="fileImage", required=false) MultipartFile file) 
+    {
+        userService.update(param, file);
+        return "redirect:/profle";   
+    }
     
     /*
      * 비밀번호 변경 처리

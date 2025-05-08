@@ -1,10 +1,13 @@
-<div th:fragment="userField" >
+<div th:fragment="userFields" >
 
+    <!-- 프로필 이미지 업로드 삽입 -->
+    <div th:insert="~{user/fragment/img-upload :: imgUpload}"></div>
+
+    <!-- 나머지 필드 -->
     <div>
         <label for="userName" class="form-label mt-4">이름<span class="text-danger">*</span></label>
         <input  type="text" class="form-control" placeholder="이름을 입력해주세요" 
-                th:field="*{userName}"
-                th:value="${preValue.userName}"/>
+                th:field="*{userName}"/>
     </div>
 
     <!-- 회원 가입 시 노출 -->
@@ -12,46 +15,44 @@
         <label for="userId-group" class="form-label mt-4">아이디<span class="text-danger">*</span></label>
         <div class="input-group" id="userId-group">
             <input  type="text" class="form-control" placeholder="아이디를 입력해주세요"
-                    th:field="*{userId}"
-                    th:value="${preValue.userId}" aria-describedby="userIdHelp" />
+                    th:field="*{userId}" aria-describedby="userIdHelp" />
             <!-- <button type="button" class="btn btn-primary" id="userIdHelp">중복확인</button> -->
         </div>
     </div>
 
     <!-- 회원 가입 시 노출 -->
-    <div th:if="${mode} == 'regist'">
+    <div th:if="${mode == 'regist'}">
         <label for="userPw" class="form-label mt-4">비밀번호<span class="text-danger">*</span></label>
-        <input  type="password" class="form-control" 
-                th:field="*{userPw}"
-                th:value="${preValue.userPw}" />
+        <input  type="password" class="form-control" placeholder="비밀번호를 입력해주세요"
+                th:field="*{userPw}" fc/>
     </div>
 
     <div>
         <label for="userEmail" class="form-label mt-4">이메일<span class="text-danger">*</span></label>
         <input  type="text" class="form-control" 
                 th:field="*{userEmail}" placeholder="이메일을 입력해주세요"
-                th:value="${preValue.userEmail}" aria-describedby="userEmailHelp"/>    
+                aria-describedby="userEmailHelp"/>    
         <small id="userEmailHelp" class="form-text text-muted">Ex. your-address@example.com</small>
     </div>
 
     <div>
         <label for="postNo" class="form-label mt-4">우편번호</label>
         <input type="text" class="form-control" 
-                th:field="*{postNo}" th:value="${preValue.postNo}"/>    
+                th:field="*{postNo}" />    
     </div>
     <div>
         <label for="addressMain" class="form-label mt-4">주소</label>
         <input type="text" class="form-control" 
-                th:field="*{addressMain}" th:value="${preValue.addressMain}"/>    
+                th:field="*{addressMain}" />    
     </div>
     <div>
         <label for="addressDetail" class="form-label mt-4">상세주소</label>
         <input type="text" class="form-control" 
-                th:field="*{addressDetail}" th:value="${preValue.addressDetail}"/>    
+                th:field="*{addressDetail}" />    
     </div>
     <div>
         <label for="telNo" class="form-label mt-4">전화번호</label>
         <input type="text" class="form-control" 
-                th:field="*{telNo}" th:value="${preValue.telNo}">    
+                th:field="*{telNo}" />    
     </div>
 </div>

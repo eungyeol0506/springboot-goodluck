@@ -58,8 +58,8 @@ public class UserService {
      * 로그인 메서드
      */
     public MyUser login(UserLoginRequest param){
-        String id = param.getId();
-        String pw = param.getPw();
+        String id = param.getUsername();
+        String pw = param.getPassword();
 
         MyUser user = userRepository.findById(id).orElseThrow(
             () -> new UserServiceException(UserError.USER_NOT_FOUND)
@@ -88,7 +88,7 @@ public class UserService {
     public void update(UserEditRequest param, MultipartFile image) {
 
         MyUser user = userDataConvertor.toDomain(param);
-
+        
         if(image != null){
             String relativeFileName = fileService.save(image, 0L, SaveType.PROFILE);
             if( !relativeFileName.equals("FAILED")){
@@ -121,15 +121,13 @@ public class UserService {
         }
 
         String encodedPw = passwordEncoder.encode(newPw);
-        user.setUserPw(encodedPw);
-        
-        userRepository.update(user);
+        userRepository.updatePw(userNo, encodedPw);
     }
     
     
     private void validateDuplicateUserId(String userId) {
         userRepository.findById(userId).ifPresent(
-            u -> { throw new UserServiceException(UserError.USER_ID_DUPLICATED);}
+            u -> { throw new UserServiceException(UserError.USER_ID_DUPLICATED, u);}
         );
     }
 }

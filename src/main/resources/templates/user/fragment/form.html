@@ -1,0 +1,23 @@
+<div th:fragment="form(mode, notice, requestData)">
+
+    <form th:action="@{${mode} == 'edit' ? '/mypage/edit' : '/regist'}"
+          th:object="${requestData}" method="post">
+        <div th:replace="~{user/fragment/fields :: userFields}"
+             th:with="mode = ${mode}">
+        </div>
+    
+        <th:block th:if="${notice != null && notice != '' }">
+            <div class="d-grid gap-2 me-3 ms-3">
+                <div class="alert alert-dismissible alert-secondary">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <strong th:text="${notice}"></strong> 
+                </div>
+            </div>
+        </th:block>
+    
+        <div class="d-grid gap-2 mb-4 me-3 ms-3">
+            <button type="submit" class="btn btn-primary" >등록하기</button>
+        </div>
+    </form>
+
+</div>

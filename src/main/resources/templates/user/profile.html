@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Luck</title>
+    <!-- Bootstrap CSS -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/minty/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 공통 헤더 삽입 -->
+    <div th:replace="~{common/header :: header}"></div>
+    
+    <div class="container d-flex justify-content-center align-items-center">
+    <div class="card mt-4 mb-3"  style="width: 100%; max-width: 800px;">
+        <h3 class="card-header">내 정보</h3>
+        <div class="card-body">
+          <h4 class="card-title">
+            <span th:text="${user.userName}"></span>
+          </h4>
+          <h6 class="card-subtitle text-muted">
+            @<span th:text="${user.userId}"></span>
+          </h6>
+        </div>
+        <div style="text-align: center;">
+          <th:bolck th:if="${user.profileImgName == null}">
+            <img th:src="@{/noimage.png}" alt="기본 프로필이미지" style="max-width: 600px; max-height: 600px;"/>
+          </th:bolck>
+          <th:block th:if="${user.profileImgName != null}">
+            <img th:src="@{'/files/profile/'+ ${user.profileImgName}}" alt="사용자 프로필이미지" style="max-width: 600px; max-height: 600px;"/>
+          </th:block>
+        </div>
+        
+        <div class="card-body">
+            <form>
+                <fieldset>
+                    <div>
+                        <label for="userEmail" class="form-label mt-4">이메일</label>
+                        <input type="email" class="form-control-plaintext" id="userEmail" readonly="" th:attr="value=${user.userEmail}">
+                    </div>
+                    <div>
+                        <label for="telNo" class="form-label mt-4">전화번호</label>
+                        <input type="text" class="form-control-plaintext" id="telNo" readonly="" th:attr="value=${user.telNo}">
+                    </div>
+                    <div>
+                        <label for="postNo" class="form-label mt-4">우편번호</label>
+                        <input type="text" class="form-control-plaintext" id="postNo" readonly="" th:attr="value=${user.postNo}">
+                    </div>
+                    <div>
+                        <label for="addressMain" class="form-label mt-4">주소</label>
+                        <input type="text" class="form-control-plaintext" id="addressMain" readonly="" th:attr="value=${user.addressMain}">
+                    </div>
+                    <div>
+                        <label class="col-form-label col-form-label-sm mt-4" for="addressDetail">상세 주소</label>
+                        <input class="form-control form-control-plaintext" type="text" id="addressDetail" readonly="" th:attr="value=${user.addressDetail}">
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div class="d-grid gap-2 my-4 me-3 ms-3">
+          <button class="btn btn-lg btn-primary" 
+                  type="button"
+                  th:onclick="|window.location.href='/mypage/edit'|">
+                  정보 수정
+          </button>
+        </div>    
+      </div>
+
+    </div>
+    </div>
+</body>
+</html>
