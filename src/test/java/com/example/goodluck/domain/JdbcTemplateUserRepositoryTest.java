@@ -50,6 +50,21 @@ public class JdbcTemplateUserRepositoryTest {
 	}
 
 	@Test
+	@DisplayName("사용자 비밀번호 변경 성공")
+	void successUpdatePw(){
+		// given
+		String newPw = "암호화된 비번";
+		Long userNo = 1L;
+
+		// when
+		userRepository.updatePw(userNo, newPw);
+
+		// then
+		MyUser result = userRepository.findByNo(1L).get();
+		assertEquals(newPw, result.getUserPw());
+	}
+
+	@Test
 	@DisplayName("사용자 삭제 성공")
 	void successRemove(){
 		// given

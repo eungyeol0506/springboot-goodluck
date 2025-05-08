@@ -108,14 +108,13 @@ public class JdbcTemplateUserRepository implements UserRepository{
     public void update(MyUser user) {
         String query = String.format("UPDATE %s " +
                                      "SET USER_NAME = :userName, TEL_NO = :telNo, POST_NO = :postNo, " +
-                                     " USER_PW = :userPw, ADDRESS_MAIN = :addressMain, ADDRESS_DETAIL = :addressDetail, " +
+                                     " ADDRESS_MAIN = :addressMain, ADDRESS_DETAIL = :addressDetail, " +
                                      " PROFILE_IMG_PATH = :profileImgPath, PROFILE_IMG_NAME = :profileImgName " +
                                      "WHERE %s = :userNo",
                                       USER_TABLE, KEY_COLUMN);
         
         Map<String,Object> parameters = new HashMap<>();
         parameters.put("userName", user.getUserName());
-        parameters.put("userPw", user.getUserPw());
         parameters.put("telNo", user.getTelNo());
         parameters.put("postNo", user.getPostNo());
         parameters.put("addressMain", user.getAddressMain());
@@ -130,7 +129,22 @@ public class JdbcTemplateUserRepository implements UserRepository{
         }
     }
 
-    
+    @Override
+    public void updatePw(Long userNo, String newPw){
+        String query = String.format("UPDATE %s " +
+                                    " SET USER_PW = :newPw" +
+                                    " WHERE %s = :userNo",
+                                    USER_TABLE, KEY_COLUMN);
+
+        Map<String,Object> parameters = new HashMap<>();
+        parameters.put("newPw", newPw);
+        parameters.put("userNo", userNo);
+
+        int row = jdbcTemplate.update(query, parameters);
+        if(row > 0){
+            // 성공했다..
+        }
+    }   
 
     private RowMapper<MyUser> userRowMapper(){
 

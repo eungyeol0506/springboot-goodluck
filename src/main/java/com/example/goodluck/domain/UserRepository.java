@@ -8,4 +8,5 @@ public interface UserRepository {
     public Optional<MyUser> findById(String id);
     public void remove(Long no);
     public void update(MyUser user);
+    public void updatePw(Long userNo, String newPw);
 }

@@ -121,9 +121,7 @@ public class UserService {
         }
 
         String encodedPw = passwordEncoder.encode(newPw);
-        user.setUserPw(encodedPw);
-        
-        userRepository.update(user);
+        userRepository.updatePw(userNo, encodedPw);
     }
     
     

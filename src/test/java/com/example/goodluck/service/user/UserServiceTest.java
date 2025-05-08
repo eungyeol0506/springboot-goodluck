@@ -89,20 +89,20 @@ public class UserServiceTest {
 
         Assertions.assertThat(e).isInstanceOf(UserServiceException.class);
         ServiceExcepction excepction = (ServiceExcepction) e;
-        assertEquals(UserError.USER_NOT_FOUND.getMessage(), excepction.getErrorMessage());
+        assertEquals(UserError.USER_PW_NOT_MATCHED.getMessage(), excepction.getErrorMessage());
     }
 
     @Test
     @DisplayName("존재하지 않는 사용자여도 로그인 실패")
     void failedUserNotFound(){
         UserLoginRequest param = getTestLoginParam();
-        param.setPassword("1234");
+        param.setUsername("닝닝닝");
 
         Exception e = Assertions.catchException(() -> userService.login(param));
 
         Assertions.assertThat(e).isInstanceOf(UserServiceException.class);
         ServiceExcepction excepction = (ServiceExcepction) e;
-        assertEquals(UserError.USER_PW_NOT_MATCHED.getMessage(), excepction.getErrorMessage());
+        assertEquals(UserError.USER_NOT_FOUND.getMessage(), excepction.getErrorMessage());
     }
 
     private UserLoginRequest getTestLoginParam(){
