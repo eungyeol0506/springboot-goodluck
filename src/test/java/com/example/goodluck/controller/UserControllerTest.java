@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -81,8 +82,8 @@ public class UserControllerTest {
                 mockMvc.perform(post("/login")
                                 .param("username",username)
                                 .param("password", password))
-                        .andExpect(status().isOk())
-                        .andExpect(view().name("home"))
+                        .andExpect(status().is3xxRedirection())
+                        .andExpect(redirectedUrl("/"))
                         .andExpect(request().sessionAttribute("userNo", mockUser.getUserNo()))
                         ;
             }
@@ -144,12 +145,31 @@ public class UserControllerTest {
         @Test
         void successGetUserInfo() throws Exception{
             // given
+            // 세션 객체에 userNo 삽입
+            Long fakeUserNo = 456L;
+            MyUser test = MyUser.builder()
+                                .userNo(fakeUserNo)
+                                .userId("12345")
+                                .userPw("tttt")
+                                .userName("테스트")
+                                .userEmail("test@test.com")
+                                .build();
             MockHttpSession session = new MockHttpSession();
+            session.setAttribute("userNo", fakeUserNo);
+            // 인증 객체 만들기
+            UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken("testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+            securityContext.setAuthentication(authentication);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+
+            BDDMockito.given(userService.getUser(anyLong())).willReturn(test);
             // when then
             mockMvc.perform(get("/profile")
                             .session(session))
-                .andExpect(view().name("user/profile"))
-                ;
+                    .andExpect(view().name("user/profile"))
+                    ;
         }
     }
 
@@ -170,36 +190,51 @@ public class UserControllerTest {
             void successPostRegist() throws Exception{
                 // given
                 MockMultipartFile file = new MockMultipartFile("fileImage", "test.png", MediaType.IMAGE_PNG_VALUE,"dummy-content".getBytes());
-
+                
+                BDDMockito.given(userService.regist(any(UserRegistRequest.class), any(MultipartFile.class))).willReturn(456L);
+                
+                // when then
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
+                .file(file)
+                .param("userEmail","test@example.com")
+                .param("userId","teeeestttt")
+                .param("userPw","teeeestttt")
+                .param("userName","teeeestttt")
+                )
+                .andExpect(status().isOk())
+                .andExpect(view().name("home"));
+                
+            }
+        }
+        
+        @Nested
+        class Failed{
+            
+            @Test
+            @DisplayName("@Valid 검증 예외 처리")
+            void faildValidation() throws Exception{
+                // given
+                MockMultipartFile file = new MockMultipartFile("fileImage", "test.png", MediaType.IMAGE_PNG_VALUE,"dummy-content".getBytes());
                 BDDMockito.given(userService.regist(any(UserRegistRequest.class), any(MultipartFile.class))).willReturn(456L);
 
                 // when then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
                                 .file(file)
                                 .param("userEmail","test@example.com")
-                                .param("userId","teeeestttt")
+                                .param("userId","")
                                 .param("userPw","teeeestttt")
                                 .param("userName","teeeestttt")
                                 )
                                 .andExpect(status().isOk())
-                                .andExpect(view().name("home"));
-                
-            }
-        }
-
-        @Nested
-        class Failed{
-
-            @Test
-            @DisplayName("@Valid 검증 예외 처리")
-            void faildValidation(){
-
+                                .andExpect(view().name("user/regist"))
+                                .andExpect(model().attributeExists("notice"))
+                                ;
             }
 
             @Test
             @DisplayName("중복되는 아이디 예외 처리")
             void failedDuplicatedId(){
-
+                // given
             }
         }
     }
@@ -207,34 +242,49 @@ public class UserControllerTest {
     @Nested
     class Update{
 
-        @Test
-        void successGetProfileForm() throws Exception{
-            // given: 가짜 사용자 번호와 사용자 객체 준비
-            Long fakeUserNo = 1L;
-            MyUser fakeUser = MyUser.builder()
-                                    .userNo(fakeUserNo)
-                                    .userName("홍길동")
-                                    .build();
+        @Nested
+        class Success{
 
-            BDDMockito.given(userService.getUser(anyLong())).willReturn(fakeUser);
+            @Test
+            void successGetProfileForm() throws Exception{
+                // given: 가짜 사용자 번호와 사용자 객체 준비
+                Long fakeUserNo = 1L;
+                MyUser fakeUser = MyUser.builder()
+                                        .userNo(fakeUserNo)
+                                        .userName("홍길동")
+                                        .build();
+    
+                BDDMockito.given(userService.getUser(anyLong())).willReturn(fakeUser);
+    
+                // 세션 객체에 userNo 삽입
+                MockHttpSession session = new MockHttpSession();
+                session.setAttribute("userNo", fakeUserNo);
+                // 인증 객체 만들기
+                UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken("testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+    
+                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+                securityContext.setAuthentication(authentication);
+                session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+    
+    
+                // when & then
+                mockMvc.perform(get("/profile/form").session(session))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("user/edit"))
+                    .andExpect(model().attributeExists("requestData"))
+                    .andExpect(model().attributeExists("notice"));
+            }
 
-            // 세션 객체에 userNo 삽입
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute("userNo", fakeUserNo);
-            // 인증 객체 만들기
-            UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken("testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-
-            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-            securityContext.setAuthentication(authentication);
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
-            // when & then
-            mockMvc.perform(get("/profile/form").session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("user/edit"))
-                .andExpect(model().attributeExists("requestData"))
-                .andExpect(model().attributeExists("notice"));
+            @Test
+            void successPostUpdate(){
+                
+            }
         }
         
+        @Nested
+        class Failed{
+
+        }
     }
 }

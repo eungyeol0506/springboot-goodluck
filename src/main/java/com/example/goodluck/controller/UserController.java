@@ -120,31 +120,29 @@ public class UserController {
         MyUser result = userService.getUser(userNo);
 
         UserEditRequest dto = new UserEditRequest();
-
+        dto.setUserNo(userNo);
+        dto.setUserName(result.getUserName());
+        dto.setUserEmail(result.getUserEmail());
+        dto.setPostNo(result.getPostNo());
+        dto.setTelNo(result.getTelNo());
+        dto.setAddressMain(result.getAddressMain());
+        dto.setAddressDetail(result.getAddressDetail());
+        dto.setProfileImgName(result.getProfileImgName());
+        dto.setProfileImgPath(result.getProfileImgPath());
 
         model.addAttribute("notice", "");
         model.addAttribute("requestData", dto);
         return "user/edit" ;
     }
 
-    // @PostMapping("/profile/form")
-    // public String postUserEdit( 
-    //         @ModelAttribute(name="userEditRequest") @Valid UserEditRequest userEditRequest,
-    //         @RequestParam(value="fileImage", required=false) MultipartFile multipartFile,
-    //         RedirectAttributes redirectAttributes) 
-    // {
-    //     // dto -> domain
-    //     MyUser user = userEditRequest.toDomain();
-        
-    //     // save file
-    //     saveProfileImage(multipartFile, user);       
-        
-    //     // save DB data
-    //     userService.updateUser(user);
-        
-    //     redirectAttributes.addFlashAttribute("notice", "회원정보를 수정하였습니다.");
-    //     return "redirect:/mypage";   
-    // }
+    @PostMapping("/profile/form")
+    public String postUserEdit( 
+            @ModelAttribute(name="requestData") @Valid UserEditRequest param,
+            @RequestParam(value="fileImage", required=false) MultipartFile file) 
+    {
+        userService.update(param, file);
+        return "redirect:/profle";   
+    }
     
     /*
      * 비밀번호 변경 처리

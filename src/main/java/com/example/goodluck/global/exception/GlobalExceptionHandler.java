@@ -9,7 +9,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.global.ServiceExcepction;
+import com.example.goodluck.service.user.UserService;
+import com.example.goodluck.service.user.UserServiceException;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,10 +29,11 @@ public class GlobalExceptionHandler {
         HttpServletRequest request,
         Model model
     ){
+        addUserDomainToModel(excepction, model, request.getRequestURI());
         model.addAttribute("notice", excepction.getErrorMessage());
         return ExceptionViewHelper.resolveViewNameByUri(request.getRequestURI(), model);
     }
-    
+
     /*
      * DTO validation 검증 실패 예외 처리 (이전 값을 setting 해주고, 해당 화면을 벗어나지 않음)
      */
@@ -39,7 +43,7 @@ public class GlobalExceptionHandler {
         HttpServletRequest request,
         Model model)
     {
-        addBindingResultToModel(exception.getBindingResult(), model);
+        addBindingResultToModel(exception.getBindingResult(), model, request.getRequestURI());
 
         // String referer = request.getHeader("Referer");
         String requestUri = request.getRequestURI();
@@ -56,7 +60,17 @@ public class GlobalExceptionHandler {
     /*
      * preValue setting
      */
-    private void addBindingResultToModel(BindingResult bindingResult, Model model){
+    private void addUserDomainToModel(ServiceExcepction ex, Model model, String uri){
+        if (uri.contains("regist") || uri.contains("edit")) {
+            UserServiceException exception = (UserServiceException) ex;
+            MyUser user = exception.getUser();
+            if(user != null){
+                // model.addAttribute("requestData", )
+            }
+        } else if (uri.contains("wrtie")) {
+        }
+    }
+    private void addBindingResultToModel(BindingResult bindingResult, Model model, String uri){
         // 메시지 내용 수집
         String noticeMessage = bindingResult.getAllErrors()
                                 .stream()
@@ -66,14 +80,24 @@ public class GlobalExceptionHandler {
         model.addAttribute("notice", noticeMessage);
 
         // dto 내용을 다시 set해주기 
-        Object dtoObejct = bindingResult.getTarget();
-        if(dtoObejct != null){
-        model.addAttribute("preValue", dtoObejct);
-        }
+        ExceptionViewHelper.bindingTargetToModel(bindingResult, model, uri);
     }
 
     class ExceptionViewHelper{
+        public static void bindingTargetToModel(BindingResult result, Model model, String uri){
+            Object dto = result.getTarget();
+            if (dto == null) return;
+        
+            if (uri.contains("regist")) {
+                model.addAttribute("requestData", dto);
+            } else if (uri.contains("login")) {
+                model.addAttribute("loginRequest", dto);
+            }
 
+            model.addAttribute("preValue", dto); // fallback
+            
+        }
+        
         public static String resolveViewNameByUri(String requestUri, Model model){
             if(requestUri != null && requestUri.contains("regist")){
                 return "user/regist";

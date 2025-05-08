@@ -127,7 +127,7 @@ public class UserService {
     
     private void validateDuplicateUserId(String userId) {
         userRepository.findById(userId).ifPresent(
-            u -> { throw new UserServiceException(UserError.USER_ID_DUPLICATED);}
+            u -> { throw new UserServiceException(UserError.USER_ID_DUPLICATED, u);}
         );
     }
 }
