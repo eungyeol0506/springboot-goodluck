@@ -18,6 +18,7 @@ import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.service.user.UserService;
 import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
+import com.example.goodluck.service.user.dto.UserPwChangeRequest;
 import com.example.goodluck.service.user.dto.UserRegistRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -147,40 +148,31 @@ public class UserController {
     /*
      * 비밀번호 변경 처리
      */
-    // @GetMapping("/mypage/change-password")
-    // public String getChangePasswordForm( HttpSession session ) {
-    //     if(session.getAttribute("userNo") == null){
-    //         return "redirect:/";
-    //     }
-    //     return "myuser/changePw_form";
-    // }
+    @GetMapping("/password-change")
+    public String getChangePasswordForm( HttpSession session ) {
+        if(session.getAttribute("userNo") == null){
+            session.invalidate();
+            return "redirect:/";
+        }
+        return "user/password-change";
+    }
     
-    // @PostMapping("/mypage/change-password")
-    // public String postChangePasswordForm(
-    //     @ModelAttribute(name="changePasswordDto") @Valid UserPwChangeRequest changePasswordDto,
-    //     HttpSession session) 
-    // {
-    //     Long userNo = (Long) session.getAttribute("userNo");
-    //     if(userNo == null || userNo == 0){
-    //         return "redirect:/";
-    //     }
+    @PostMapping("/password-change")
+    public String postChangePasswordForm(
+        @ModelAttribute(name="changePasswordDto") @Valid UserPwChangeRequest param,
+        HttpSession session) 
+    {
+        Long userNo = (Long) session.getAttribute("userNo");
+        if(userNo == null || userNo == 0){
+            return "redirect:/";
+        }
         
-    //     MyUser findUser = userService.getUserInfo(userNo).orElseThrow(
-    //                             () -> new UserNotFoundException("세션 사용자 정보를 찾을 수 없습니다.")
-    //                         );
-                            
-    //     if (! changePasswordDto.isNotConfirmPasswordValue()){
-    //         throw new UserPwNotMatchedException("비밀번호 확인값이 올바르지 않습니다.");
-    //     }
+        userService.changePw(userNo, param);
 
-    //     Map<String, String> inputPwValue = changePasswordDto.toDomain();
-    //     String newPw = inputPwValue.get("newPw");
-    //     String oldPw = inputPwValue.get("oldPw");
+        session.invalidate();
+        return "redirect:/login";
 
-    //     userService.updateUserPw(findUser, oldPw, newPw);
-
-    //     return "redirect:/mypage";
-    // }
+    }
     
 
 }

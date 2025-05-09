@@ -34,11 +34,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.service.user.UserError;
 import com.example.goodluck.service.user.UserService;
 import com.example.goodluck.service.user.UserServiceException;
+import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
 import com.example.goodluck.service.user.dto.UserRegistRequest;
 
@@ -233,8 +235,25 @@ public class UserControllerTest {
 
             @Test
             @DisplayName("중복되는 아이디 예외 처리")
-            void failedDuplicatedId(){
+            void failedDuplicatedId() throws Exception{
                 // given
+                MockMultipartFile file = new MockMultipartFile("fileImage", "test.png", MediaType.IMAGE_PNG_VALUE,"dummy-content".getBytes());
+                MyUser test = MyUser.builder().userId("test").userPw("testt").build();
+                BDDMockito.given(userService.regist(any(UserRegistRequest.class), any(MultipartFile.class))).willThrow(new UserServiceException(UserError.USER_ID_DUPLICATED, test));
+                
+                // when then
+                mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
+                                .file(file)
+                                .param("userEmail","test@example.com")
+                                .param("userId","testtttt")
+                                .param("userPw","teeeestttt")
+                                .param("userName","teeeestttt")
+                                )
+                                .andExpect(status().isOk())
+                                .andExpect(view().name("user/regist"))
+                                .andExpect(model().attribute("notice", UserError.USER_ID_DUPLICATED.getMessage()))
+                                .andExpect(model().attributeExists("requestData"))
+                                ;
             }
         }
     }
@@ -260,12 +279,7 @@ public class UserControllerTest {
                 MockHttpSession session = new MockHttpSession();
                 session.setAttribute("userNo", fakeUserNo);
                 // 인증 객체 만들기
-                UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken("testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-    
-                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-                securityContext.setAuthentication(authentication);
-                session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+                setSecurityContext(session);
     
     
                 // when & then
@@ -276,15 +290,61 @@ public class UserControllerTest {
                     .andExpect(model().attributeExists("notice"));
             }
 
+            
             @Test
-            void successPostUpdate(){
-                
-            }
+            void successPostUpdate() throws Exception{
+                // given
+                MockMultipartFile file = new MockMultipartFile(
+                "fileImage", "profile.png", "image/png", "dummy".getBytes());
+                MockHttpSession session = new MockHttpSession();
+                setSecurityContext(session);
+
+                // requestData의 각 필드는 UserEditRequest의 필드명과 일치해야 함
+                mockMvc.perform(multipart("/profile/form")
+                        .file(file)
+                        .session(session)
+                        .param("userName", "테스트")
+                        .param("userEmail", "eunji@test.com")
+                        .param("userNo", "456"))
+                    .andExpect(status().is3xxRedirection()) // redirect
+                    .andExpect(redirectedUrl("/profle"));   // 리다이렉트 대상 URL
+                    }
         }
         
         @Nested
         class Failed{
 
+            @Test
+            @DisplayName("DTO Validation 예외 처리")
+            void faildValidation() throws Exception{
+                // given
+                MockMultipartFile file = new MockMultipartFile(
+                "fileImage", "profile.png", "image/png", "dummy".getBytes());
+                MockHttpSession session = new MockHttpSession();
+                setSecurityContext(session);
+
+                mockMvc.perform(multipart("/profile/form")
+                        .file(file)
+                        .session(session)
+                        .param("userName", "")
+                        .param("userEmail", "eunji@test.com")
+                        .param("userNo", "456"))
+                    .andExpect(status().isOk()) // redirect
+                    .andExpect(view().name("user/edit"))
+                    .andExpect(model().attributeExists("notice"))
+                    ;  
+                
+            }
         }
     }
+    
+    private void setSecurityContext(MockHttpSession session) {
+        UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken("testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+    }
+    
 }
