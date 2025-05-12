@@ -67,9 +67,12 @@
 |USER|`/login`|로그인|❌| - |GET/POST|
 |USER|`/logout`|로그아웃| - | - |GET|
 |USER|`/regist`|회원가입|❌| - |GET/POST|
-|USER|`/profile`|마이 페이지|✅|✅| - |GET|
-|USER|`/profile/form`|내 정보 수정|✅|✅| - |GET/POST|
-|USER|`/password-change`|비밀번호 변경경|✅|✅| - |GET/POST|
-|USER|`/list`|게시글 목록|❌| - |GET|
+|USER|`/profile`|마이 페이지|✅|✅|GET|
+|USER|`/profile/form`|내 정보 수정|✅|✅|GET/POST|
+|USER|`/password-change`|비밀번호 변경경|✅|✅|GET/POST|
+|BOARD|`/list/{page}`|게시글 목록|❌| - |GET|
+|BOARD|`/board/{boardNo}`|게시글 조회|❌| - |GET|
+|BOARD|`/board/write`|게시글 조회|✅| - |GET/POST|
+|BOARD|`/board/{boardNo}`|게시글 삭제|✅|✅|DELETE|
 
 ### 참고 자료
