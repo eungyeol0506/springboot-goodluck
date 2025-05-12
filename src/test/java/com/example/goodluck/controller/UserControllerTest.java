@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,13 +36,15 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
+import com.example.goodluck.domain.AuthUser;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.service.user.UserError;
 import com.example.goodluck.service.user.UserService;
 import com.example.goodluck.service.user.UserServiceException;
-import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
+import com.example.goodluck.service.user.dto.UserPwChangeRequest;
 import com.example.goodluck.service.user.dto.UserRegistRequest;
 
 @SpringBootTest
@@ -86,8 +89,8 @@ public class UserControllerTest {
                                 .param("password", password))
                         .andExpect(status().is3xxRedirection())
                         .andExpect(redirectedUrl("/"))
-                        .andExpect(request().sessionAttribute("userNo", mockUser.getUserNo()))
                         ;
+
             }
 
             @Test
@@ -147,32 +150,33 @@ public class UserControllerTest {
         @Test
         void successGetUserInfo() throws Exception{
             // given
-            // 세션 객체에 userNo 삽입
             Long fakeUserNo = 456L;
-            MyUser test = MyUser.builder()
+            MyUser mockUser = MyUser.builder()
                                 .userNo(fakeUserNo)
                                 .userId("12345")
                                 .userPw("tttt")
                                 .userName("테스트")
                                 .userEmail("test@test.com")
                                 .build();
-            MockHttpSession session = new MockHttpSession();
-            session.setAttribute("userNo", fakeUserNo);
-            // 인증 객체 만들기
-            UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken("testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
-            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-            securityContext.setAuthentication(authentication);
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+            // userService가 이 userNo로 유저 조회 시 mockUser 반환
+            BDDMockito.given(userService.getUser(anyLong())).willReturn(mockUser);
 
-            BDDMockito.given(userService.getUser(anyLong())).willReturn(test);
+            // AuthUser 생성
+            AuthUser authUser = getAuth(mockUser);
+
             // when then
             mockMvc.perform(get("/profile")
-                            .session(session))
+                    .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        )))
+                    .andDo(print())
+                    .andExpect(status().isOk())
                     .andExpect(view().name("user/profile"))
+                    .andExpect(model().attributeExists("user"))
                     ;
         }
+
     }
 
     @Nested
@@ -197,14 +201,15 @@ public class UserControllerTest {
                 
                 // when then
                 mockMvc.perform(MockMvcRequestBuilders.multipart("/regist")
-                .file(file)
-                .param("userEmail","test@example.com")
-                .param("userId","teeeestttt")
-                .param("userPw","teeeestttt")
-                .param("userName","teeeestttt")
-                )
-                .andExpect(status().isOk())
-                .andExpect(view().name("home"));
+                                .file(file)
+                                .param("userEmail","test@example.com")
+                                .param("userId","teeeestttt")
+                                .param("userPw","teeeestttt")
+                                .param("userName","teeeestttt")
+                                )
+                        .andExpect(status().is3xxRedirection())
+                        .andExpect(redirectedUrl("/"))
+                        ;
                 
             }
         }
@@ -266,24 +271,28 @@ public class UserControllerTest {
 
             @Test
             void successGetProfileForm() throws Exception{
-                // given: 가짜 사용자 번호와 사용자 객체 준비
-                Long fakeUserNo = 1L;
-                MyUser fakeUser = MyUser.builder()
-                                        .userNo(fakeUserNo)
-                                        .userName("홍길동")
-                                        .build();
-    
-                BDDMockito.given(userService.getUser(anyLong())).willReturn(fakeUser);
-    
+                // given
                 // 세션 객체에 userNo 삽입
-                MockHttpSession session = new MockHttpSession();
-                session.setAttribute("userNo", fakeUserNo);
-                // 인증 객체 만들기
-                setSecurityContext(session);
-    
+                Long fakeUserNo = 456L;
+                MyUser mockUser = MyUser.builder()
+                                    .userNo(fakeUserNo)
+                                    .userId("12345")
+                                    .userPw("tttt")
+                                    .userName("테스트")
+                                    .userEmail("test@test.com")
+                                    .build();
+
+                // userService가 이 userNo로 유저 조회 시 mockUser 반환
+                BDDMockito.given(userService.getUser(anyLong())).willReturn(mockUser);
+
+                // AuthUser 생성
+                AuthUser authUser = getAuth(mockUser);
     
                 // when & then
-                mockMvc.perform(get("/profile/form").session(session))
+                mockMvc.perform(get("/profile/form")
+                        .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        )))
                     .andExpect(status().isOk())
                     .andExpect(view().name("user/edit"))
                     .andExpect(model().attributeExists("requestData"))
@@ -296,19 +305,93 @@ public class UserControllerTest {
                 // given
                 MockMultipartFile file = new MockMultipartFile(
                 "fileImage", "profile.png", "image/png", "dummy".getBytes());
-                MockHttpSession session = new MockHttpSession();
-                setSecurityContext(session);
+                // given
+                // 세션 객체에 userNo 삽입
+                Long fakeUserNo = 456L;
+                MyUser mockUser = MyUser.builder()
+                                    .userNo(fakeUserNo)
+                                    .userId("12345")
+                                    .userPw("tttt")
+                                    .userName("테스트")
+                                    .userEmail("test@test.com")
+                                    .build();
 
-                // requestData의 각 필드는 UserEditRequest의 필드명과 일치해야 함
+                // userService가 이 userNo로 유저 조회 시 mockUser 반환
+                BDDMockito.given(userService.getUser(anyLong())).willReturn(mockUser);
+
+                // AuthUser 생성
+                AuthUser authUser = getAuth(mockUser);
+
+                // when & then
                 mockMvc.perform(multipart("/profile/form")
                         .file(file)
-                        .session(session)
+                        .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        ))
                         .param("userName", "테스트")
                         .param("userEmail", "eunji@test.com")
-                        .param("userNo", "456"))
+                        .param("userNo", String.valueOf(fakeUserNo)))
                     .andExpect(status().is3xxRedirection()) // redirect
                     .andExpect(redirectedUrl("/profle"));   // 리다이렉트 대상 URL
-                    }
+
+            }
+
+            /*
+             * 비밀번호 변경
+             */
+            @Test
+            void successGetPasswordChange() throws Exception{
+                // given
+                Long fakeUserNo = 456L;
+                MyUser mockUser = MyUser.builder()
+                                    .userNo(fakeUserNo)
+                                    .userId("12345")
+                                    .userPw("tttt")
+                                    .userName("테스트")
+                                    .userEmail("test@test.com")
+                                    .build();
+
+                AuthUser authUser = getAuth(mockUser);
+    
+                // when & then
+                mockMvc.perform(get("/password-change")
+                        .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        )))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("user/password-change"))
+                    ;
+            }
+
+
+            @Test
+            void successPostPasswordChange() throws Exception{
+                // given
+                Long fakeUserNo = 456L;
+                String oldPw = "12345678";
+                String newPw = "12345679";
+
+                MyUser mockUser = MyUser.builder()
+                                    .userNo(fakeUserNo)
+                                    .userId("12345")
+                                    .userPw(oldPw)
+                                    .userName("테스트")
+                                    .userEmail("test@test.com")
+                                    .build();
+                
+                AuthUser authUser = getAuth(mockUser);
+                // when then
+                mockMvc.perform(post("/password-change")
+                        .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        ))
+                        .param("oldPw", oldPw)
+                        .param("newPw", newPw)
+                        .param("newPwCfm", newPw))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/login"))
+                    ;
+            }
         }
         
         @Nested
@@ -321,6 +404,7 @@ public class UserControllerTest {
                 MockMultipartFile file = new MockMultipartFile(
                 "fileImage", "profile.png", "image/png", "dummy".getBytes());
                 MockHttpSession session = new MockHttpSession();
+                
                 setSecurityContext(session);
 
                 mockMvc.perform(multipart("/profile/form")
@@ -335,9 +419,59 @@ public class UserControllerTest {
                     ;  
                 
             }
+        
+            @Test
+            @DisplayName("비밀번호 로직에 걸려 예외 발생")
+            void failedTryChangeSamePassword() throws Exception{
+                // given
+                Long fakeUserNo = 456L;
+                String oldPw = "12345678";
+                String newPw = "12345679";
+
+                MyUser mockUser = MyUser.builder()
+                                    .userNo(fakeUserNo)
+                                    .userId("12345")
+                                    .userPw(oldPw)
+                                    .userName("테스트")
+                                    .userEmail("test@test.com")
+                                    .build();
+                
+                AuthUser authUser = getAuth(mockUser);
+
+                BDDMockito.willThrow(new UserServiceException(UserError.IS_NOT_USER_PW))
+                    .given(userService)
+                    .changePw(anyLong(), any(UserPwChangeRequest.class));
+
+
+                // when then
+                mockMvc.perform(post("/password-change")
+                        .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        ))
+                        .param("oldPw", oldPw)
+                        .param("newPw", newPw)
+                        .param("newPwCfm", newPw))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("user/password-change"))
+                    ;
+
+
+            }
         }
     }
-    
+    private AuthUser getAuth(MyUser mockUser) {
+        // AuthUser 생성
+        AuthUser authUser = new AuthUser(mockUser);
+        // 인증 객체 주입
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+            authUser,
+            null,
+            authUser.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        return authUser;
+    }
+
     private void setSecurityContext(MockHttpSession session) {
         UsernamePasswordAuthenticationToken authentication =
         new UsernamePasswordAuthenticationToken("testUser", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));

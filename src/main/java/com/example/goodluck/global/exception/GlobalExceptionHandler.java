@@ -113,6 +113,8 @@ public class GlobalExceptionHandler {
                 model.addAttribute("loginRequest", dto);
             } else if (uri.contains("profile")){
                 model.addAttribute("requestData", dto);
+            } else if (uri.contains("password")){
+                model.addAttribute("requestData", dto);
             }
 
             // model.addAttribute("preValue", dto); // fallback
@@ -130,8 +132,8 @@ public class GlobalExceptionHandler {
             else if(requestUri != null && requestUri.contains("profile")){
                 return "user/edit";
             }
-            else if(requestUri != null && requestUri.contains("change-password")){
-                return "user/pwChange";
+            else if(requestUri != null && requestUri.contains("password")){
+                return "user/password-change";
             }
             else if(requestUri != null && requestUri.contains("write")){
                 return "board/write";

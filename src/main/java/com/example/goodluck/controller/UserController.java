@@ -3,7 +3,6 @@ package com.example.goodluck.controller;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -14,7 +13,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.goodluck.domain.AuthUser;
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.global.helper.LoginSessionHelper;
 import com.example.goodluck.service.user.UserService;
 import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
@@ -27,6 +28,10 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 
+/*
+ * 사용자 처리 컨트롤러
+ * POST 매핑 시 성공은 redirect 처리해야 함
+ */
 @Controller
 public class UserController {
     
@@ -47,24 +52,30 @@ public class UserController {
 
     @PostMapping("/login")
     public String postLogin(@ModelAttribute(value = "loginRequest") @Valid UserLoginRequest param,
-                            HttpServletRequest request ) {
-
+    HttpServletRequest request ) {
+        
         MyUser user = userService.login(param);
+
+        HttpSession session = request.getSession();
+
+        // 삭제할 구문
+        session.setAttribute("userNo", user.getUserNo());
+
+        // 보안 로직
+        AuthUser authUser = new AuthUser(user);
 
         // 인증 객체 생성
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-            user.getUserNo(),
-            null
+            authUser,
+            null,
+            authUser.getAuthorities()
         );
 
         // SecurityContext에 등록
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
-        
-        // set session
-        HttpSession session = request.getSession();
-        session.setAttribute("userNo", user.getUserNo());
-        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                             context);
 
         return "redirect:/"; 
     }
@@ -74,6 +85,9 @@ public class UserController {
      */
     @GetMapping("/logout")
     public String getLogout(HttpServletRequest request) {
+        // SecurityContext 초기화
+        SecurityContextHolder.clearContext();
+
         HttpSession session = request.getSession();
         session.invalidate();
 
@@ -96,7 +110,7 @@ public class UserController {
             @RequestParam(value = "fileImage", required = false) MultipartFile file
         ){
             userService.regist(param, file);
-            return "home";
+            return "redirect:/";
     }
 
 
@@ -104,8 +118,10 @@ public class UserController {
      * 회원 정보 조회
      */
     @GetMapping("/profile")
-    public String getUserInfo(HttpSession session, Model model ){
-        Long userNo = (Long) session.getAttribute("userNo");
+    public String getUserInfo(Model model){
+        if( !LoginSessionHelper.isValidate()) return "redirect:/" ;        
+        Long userNo = LoginSessionHelper.getUserNo();
+        
         MyUser result = userService.getUser(userNo);
 
         model.addAttribute("user", result);
@@ -116,12 +132,59 @@ public class UserController {
      * 회원 정보 수정 처리
      */
     @GetMapping("/profile/form")
-    public String getUserEditView(HttpSession session, Model model) { 
-        Long userNo = (Long) session.getAttribute("userNo");
-        MyUser result = userService.getUser(userNo);
+    public String getUserEditView(Model model) { 
+        if( !LoginSessionHelper.isValidate()) return "redirect:/" ;        
+        Long userNo = LoginSessionHelper.getUserNo();
 
+        MyUser result = userService.getUser(userNo);
+        UserEditRequest dto = convertDomainToDto(result);
+
+        model.addAttribute("notice", "");
+        model.addAttribute("requestData", dto);
+        return "user/edit" ;
+    }
+    
+    @PostMapping("/profile/form")
+    public String postUserEdit( 
+            @ModelAttribute(name="requestData") @Valid UserEditRequest param,
+            @RequestParam(value="fileImage", required=false) MultipartFile file) 
+    {
+        if( !LoginSessionHelper.isValidate()) return "redirect:/" ;
+        Long userNo = LoginSessionHelper.getUserNo();
+        
+        /* 강제로 요청 param에 setting */
+        param.setUserNo(userNo);
+
+        userService.update(param, file);
+        return "redirect:/profle";   
+    }
+    
+    /*
+    * 비밀번호 변경 처리
+    */
+    @GetMapping("/password-change")
+    public String getChangePasswordForm(Model model) {
+        if( !LoginSessionHelper.isValidate()) return "redirect:/" ;
+        model.addAttribute("requestData", new UserPwChangeRequest());
+        return "user/password-change";
+    }
+    
+    @PostMapping("/password-change")
+    public String postChangePasswordForm(
+        @ModelAttribute(name="requestData") @Valid UserPwChangeRequest param) 
+    {
+        if( !LoginSessionHelper.isValidate()) return "redirect:/" ;
+        Long userNo = LoginSessionHelper.getUserNo();
+
+        userService.changePw(userNo, param);
+
+        return "redirect:/login";
+            
+    }
+
+    private UserEditRequest convertDomainToDto(MyUser result) {
         UserEditRequest dto = new UserEditRequest();
-        dto.setUserNo(userNo);
+        dto.setUserNo(result.getUserNo());
         dto.setUserName(result.getUserName());
         dto.setUserEmail(result.getUserEmail());
         dto.setPostNo(result.getPostNo());
@@ -130,51 +193,10 @@ public class UserController {
         dto.setAddressDetail(result.getAddressDetail());
         dto.setProfileImgName(result.getProfileImgName());
         dto.setProfileImgPath(result.getProfileImgPath());
-
-        model.addAttribute("notice", "");
-        model.addAttribute("requestData", dto);
-        return "user/edit" ;
+        return dto;
     }
-
-    @PostMapping("/profile/form")
-    public String postUserEdit( 
-            @ModelAttribute(name="requestData") @Valid UserEditRequest param,
-            @RequestParam(value="fileImage", required=false) MultipartFile file) 
-    {
-        userService.update(param, file);
-        return "redirect:/profle";   
-    }
-    
-    /*
-     * 비밀번호 변경 처리
-     */
-    @GetMapping("/password-change")
-    public String getChangePasswordForm( HttpSession session ) {
-        if(session.getAttribute("userNo") == null){
-            session.invalidate();
-            return "redirect:/";
-        }
-        return "user/password-change";
-    }
-    
-    @PostMapping("/password-change")
-    public String postChangePasswordForm(
-        @ModelAttribute(name="changePasswordDto") @Valid UserPwChangeRequest param,
-        HttpSession session) 
-    {
-        Long userNo = (Long) session.getAttribute("userNo");
-        if(userNo == null || userNo == 0){
-            return "redirect:/";
-        }
         
-        userService.changePw(userNo, param);
-
-        session.invalidate();
-        return "redirect:/login";
-
-    }
-    
-
 }
-
+    
+    
     
