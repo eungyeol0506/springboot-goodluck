@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.goodluck.domain.MyUser;
-import com.example.goodluck.global.ServiceExcepction;
-import com.example.goodluck.service.user.UserService;
 import com.example.goodluck.service.user.UserServiceException;
+import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
+import com.example.goodluck.service.user.dto.UserRegistRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -23,13 +23,41 @@ public class GlobalExceptionHandler {
     /*
      * Business Logic 예외 처리
      */
-    @ExceptionHandler(ServiceExcepction.class)
-    public String handleServiceException(
-        ServiceExcepction excepction,
+    @ExceptionHandler(UserServiceException.class)
+    public String handleUserServiceException(
+        UserServiceException excepction,
         HttpServletRequest request,
         Model model
     ){
-        addUserDomainToModel(excepction, model, request.getRequestURI());
+        MyUser user = excepction.getUser();
+        String uri = request.getRequestURI();
+        if(uri.contains("regist")){
+            UserRegistRequest dto = new UserRegistRequest();
+            dto.setUserId(user.getUserId());
+            dto.setUserName(user.getUserName());
+            dto.setUserEmail(user.getUserEmail());
+            dto.setUserPw(user.getUserPw());
+            dto.setAddressMain(user.getAddressMain());
+            dto.setAddressDetail(user.getAddressDetail());
+            dto.setPostNo(user.getPostNo());
+            dto.setTelNo(user.getTelNo());
+            
+            model.addAttribute("requestData", dto);
+            // addDomainToModel(dto, model, request.getRequestURI());
+        }else if(uri.contains("profile")){
+            UserEditRequest dto = new UserEditRequest();
+            dto.setUserNo(user.getUserNo());
+            dto.setUserEmail(user.getUserEmail());
+            dto.setUserName(user.getUserName());
+            dto.setTelNo(user.getTelNo());
+            dto.setPostNo(user.getPostNo());
+            dto.setAddressMain(user.getAddressMain());
+            dto.setAddressDetail(user.getAddressDetail());
+            dto.setProfileImgName(user.getProfileImgName());
+            dto.setProfileImgPath(user.getProfileImgPath());
+
+            model.addAttribute("requestData", dto);
+        }
         model.addAttribute("notice", excepction.getErrorMessage());
         return ExceptionViewHelper.resolveViewNameByUri(request.getRequestURI(), model);
     }
@@ -58,18 +86,9 @@ public class GlobalExceptionHandler {
     }
 
     /*
-     * preValue setting
+     * 이전 값을 setting 해주기
      */
-    private void addUserDomainToModel(ServiceExcepction ex, Model model, String uri){
-        if (uri.contains("regist") || uri.contains("edit")) {
-            UserServiceException exception = (UserServiceException) ex;
-            MyUser user = exception.getUser();
-            if(user != null){
-                // model.addAttribute("requestData", )
-            }
-        } else if (uri.contains("wrtie")) {
-        }
-    }
+
     private void addBindingResultToModel(BindingResult bindingResult, Model model, String uri){
         // 메시지 내용 수집
         String noticeMessage = bindingResult.getAllErrors()
@@ -92,9 +111,15 @@ public class GlobalExceptionHandler {
                 model.addAttribute("requestData", dto);
             } else if (uri.contains("login")) {
                 model.addAttribute("loginRequest", dto);
+            } else if (uri.contains("profile")){
+                model.addAttribute("requestData", dto);
+            } else if (uri.contains("password")){
+                model.addAttribute("requestData", dto);
+            } else if (uri.contains("write")){
+                model.addAttribute("requestData", dto);
             }
 
-            model.addAttribute("preValue", dto); // fallback
+            // model.addAttribute("preValue", dto); // fallback
             
         }
         
@@ -106,11 +131,11 @@ public class GlobalExceptionHandler {
                 model.addAttribute("loginRequest", new UserLoginRequest());
                 return "user/login";
             }
-            else if(requestUri != null && requestUri.contains("edit")){
+            else if(requestUri != null && requestUri.contains("profile")){
                 return "user/edit";
             }
-            else if(requestUri != null && requestUri.contains("change-password")){
-                return "user/pwChange";
+            else if(requestUri != null && requestUri.contains("password")){
+                return "user/password-change";
             }
             else if(requestUri != null && requestUri.contains("write")){
                 return "board/write";

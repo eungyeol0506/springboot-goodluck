@@ -1,0 +1,26 @@
+<div th:fragment="form(mode, notice, requestData)">
+
+    <form th:action="@{${mode} == 'write' ? '/board/write' : '/board/modify'}"
+          th:object="${requestData}"
+          method="post"
+          enctype="multipart/form-data">
+
+        <div th:replace="~{board/fragment/fields :: boardFields}"
+            th:with="mode = ${mode}">
+        </div>
+
+
+        <th:block th:if="${notice != null}">
+            <div class="d-grid gap-2 mt-4 me-3 ms-3">
+                <div class="alert alert-dismissible alert-secondary">
+                    <!-- <button type="button" class="btn-close" data-bs-dismiss="alert"></button> -->
+                    <strong th:text="${notice}"></strong> 
+                </div>
+            </div>
+        </th:block>
+
+        <div class="d-grid gap-2 my-4 me-3 ms-3">
+            <button class="btn btn-lg btn-primary" type="submit">저장</button>
+        </div>
+    </form>
+</div>
