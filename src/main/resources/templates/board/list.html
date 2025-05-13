@@ -40,7 +40,7 @@
                            style="text-decoration-line: none;">
                         </a>
                     </td>
-                    <td th:text="${board.writer.userName}"
+                    <td th:text="${board.writer != null ? board.writer.userName : ''}"
                         style="text-align: center;">
                     </td>
                     <td th:text="${board.createDate}"

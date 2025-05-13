@@ -2,7 +2,8 @@
 
     <form th:action="@{${mode} == 'write' ? '/board/write' : '/board/modify'}"
           th:object="${requestData}"
-          method="multipart/form-data">
+          method="post"
+          enctype="multipart/form-data">
 
         <div th:replace="~{board/fragment/fields :: boardFields}"
             th:with="mode = ${mode}">

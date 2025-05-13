@@ -78,7 +78,7 @@ public class BoardController {
      */
     @GetMapping("/board/write")
     public String getBoardWriteForm(HttpSession session, Model model) {
-        if(LoginSessionHelper.isValidate()) return "redirect:/";
+        if( !LoginSessionHelper.isValidate()) return "redirect:/";
         
         model.addAttribute("requestData", new BoardWriteRequest());
         return "board/write";

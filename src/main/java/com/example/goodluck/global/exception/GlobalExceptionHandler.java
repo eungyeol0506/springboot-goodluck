@@ -115,6 +115,8 @@ public class GlobalExceptionHandler {
                 model.addAttribute("requestData", dto);
             } else if (uri.contains("password")){
                 model.addAttribute("requestData", dto);
+            } else if (uri.contains("write")){
+                model.addAttribute("requestData", dto);
             }
 
             // model.addAttribute("preValue", dto); // fallback
