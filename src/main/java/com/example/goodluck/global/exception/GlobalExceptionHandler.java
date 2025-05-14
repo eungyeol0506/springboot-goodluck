@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.goodluck.domain.MyUser;
+import com.example.goodluck.service.board.BoardServiceException;
 import com.example.goodluck.service.user.UserServiceException;
 import com.example.goodluck.service.user.dto.UserEditRequest;
 import com.example.goodluck.service.user.dto.UserLoginRequest;
@@ -46,7 +47,6 @@ public class GlobalExceptionHandler {
             // addDomainToModel(dto, model, request.getRequestURI());
         }else if(uri.contains("profile")){
             UserEditRequest dto = new UserEditRequest();
-            dto.setUserNo(user.getUserNo());
             dto.setUserEmail(user.getUserEmail());
             dto.setUserName(user.getUserName());
             dto.setTelNo(user.getTelNo());
@@ -62,6 +62,19 @@ public class GlobalExceptionHandler {
         return ExceptionViewHelper.resolveViewNameByUri(request.getRequestURI(), model);
     }
 
+    @ExceptionHandler(BoardServiceException.class)
+    public String handleUserServiceException(
+        BoardServiceException excepction,
+        HttpServletRequest request,
+        Model model
+    ){
+        /*
+         * Board Error code 처리 로직 
+         */
+        
+        return ExceptionViewHelper.resolveViewNameByUri(request.getRequestURI(), model);
+    }
+
     /*
      * DTO validation 검증 실패 예외 처리 (이전 값을 setting 해주고, 해당 화면을 벗어나지 않음)
      */
@@ -72,6 +85,7 @@ public class GlobalExceptionHandler {
         Model model)
     {
         addBindingResultToModel(exception.getBindingResult(), model, request.getRequestURI());
+    
 
         // String referer = request.getHeader("Referer");
         String requestUri = request.getRequestURI();
@@ -105,6 +119,7 @@ public class GlobalExceptionHandler {
     class ExceptionViewHelper{
         public static void bindingTargetToModel(BindingResult result, Model model, String uri){
             Object dto = result.getTarget();
+            System.out.println(">>> param class: " + dto.getClass().getName());
             if (dto == null) return;
         
             if (uri.contains("regist")) {
@@ -117,7 +132,9 @@ public class GlobalExceptionHandler {
                 model.addAttribute("requestData", dto);
             } else if (uri.contains("write")){
                 model.addAttribute("requestData", dto);
-            }
+            } else if (uri.contains("modify")){
+                model.addAttribute("requestData", dto);
+            } 
 
             // model.addAttribute("preValue", dto); // fallback
             
@@ -139,6 +156,9 @@ public class GlobalExceptionHandler {
             }
             else if(requestUri != null && requestUri.contains("write")){
                 return "board/write";
+            }
+            else if(requestUri != null && requestUri.contains("modify")){
+                return "board/modify";
             }
             return "error";
         }

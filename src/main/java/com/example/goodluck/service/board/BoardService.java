@@ -5,15 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.goodluck.domain.BoardRepository;
+import com.example.goodluck.domain.MyAttach;
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.service.board.dto.BoardModifyRequest;
 import com.example.goodluck.service.board.dto.BoardWriteRequest;
 
 @Service
+@Transactional
 public class BoardService {
     // 한 페이지당 리스트 수
     private final static int LIST_SIZE = 15;
@@ -80,20 +83,39 @@ public class BoardService {
     }
 
     /*
-     * 게시글 수정 메서드 - 수정 중 
+     * 게시글 수정 메서드
      */
-    public Long modify(BoardModifyRequest param, List<MultipartFile> images){
+    public Long modify(BoardModifyRequest param, List<Long> deleteImages, List<MultipartFile> images){
         LocalDate now = LocalDate.now();
         MyBoard board = boardConvertor.toDomain(param);
         board.setUpdateDate(now);
 
-
+        // 삭제가 필요한 경우 첨부파일 삭제
+        if(deleteImages != null && !deleteImages.isEmpty()){
+            List<MyAttach> attaches = attachService.getAttachList(board.getBoardNo());
+            List<MyAttach> deleteAttachList = getDeleteAttachList(attaches, deleteImages);
+            attachService.remove(deleteAttachList);
+        }
+        // 새 이미지 등록
         if(images != null && !images.isEmpty()){
             attachService.upload(board.getBoardNo(), images);
         }
-        
+        // 게시글 수정
         boardRepository.update(board);
         return board.getBoardNo();
+    }
+
+    /*
+     * Get list of MyAttach objects that need to be deleted
+     */
+    private List<MyAttach> getDeleteAttachList(List<MyAttach> attaches, List<Long> deleteImages) {
+        List<MyAttach> deleteAttachList = new ArrayList<>();
+        for (MyAttach attach : attaches) {
+            if (deleteImages.contains(attach.getAttachNo())) {
+                deleteAttachList.add(attach);
+            }
+        }
+        return deleteAttachList;
     }
 
     /*

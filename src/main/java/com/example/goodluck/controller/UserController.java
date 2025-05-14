@@ -91,7 +91,7 @@ public class UserController {
         HttpSession session = request.getSession();
         session.invalidate();
 
-        return "home";
+        return "redirect:/";
     }
     
     /*
@@ -153,10 +153,10 @@ public class UserController {
         Long userNo = LoginSessionHelper.getUserNo();
         
         /* 강제로 요청 param에 setting */
-        param.setUserNo(userNo);
+        // param.(userNo);
 
-        userService.update(param, file);
-        return "redirect:/profle";   
+        userService.update(userNo, param, file);
+        return "redirect:/profile";   
     }
     
     /*
@@ -184,7 +184,6 @@ public class UserController {
 
     private UserEditRequest convertDomainToDto(MyUser result) {
         UserEditRequest dto = new UserEditRequest();
-        dto.setUserNo(result.getUserNo());
         dto.setUserName(result.getUserName());
         dto.setUserEmail(result.getUserEmail());
         dto.setPostNo(result.getPostNo());

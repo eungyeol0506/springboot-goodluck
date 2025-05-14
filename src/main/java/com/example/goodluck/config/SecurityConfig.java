@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> 
                 auth
                     .requestMatchers("/profile", "/profile/form").authenticated()
-                    .requestMatchers("/board/write", "/board/form").authenticated()
+                    .requestMatchers("/board/write", "/board/modify/**").authenticated()
                     .anyRequest().permitAll()
                 )
                 .formLogin(form ->

@@ -1,0 +1,21 @@
+<div th:fragment="existingImages">
+    <div class="existing-images-container mt-3">
+        <h5 class="mb-3">기존 이미지</h5>
+        <div class="row" id="existingImagesRow">
+            <div th:each="attach : ${requestData.board.attaches}" class="col-md-4 mb-3 image-container">
+                <div class="card">
+                    <img th:src="@{'/files/attach/' + ${requestData.boardNo} + '/' + ${attach.fileName}}"
+                         class="card-img-top"
+                         th:alt="'첨부 이미지 ' + ${attachStat.index + 1}">
+                    <div class="card-body text-center">
+                        <button type="button" 
+                                class="btn btn-danger delete-image-btn"
+                                th:data-image-id="${attach.attachNo}">
+                            삭제
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

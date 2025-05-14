@@ -9,6 +9,7 @@ import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.global.helper.LoginSessionHelper;
 import com.example.goodluck.service.board.BoardService;
+import com.example.goodluck.service.board.dto.BoardModifyRequest;
 import com.example.goodluck.service.board.dto.BoardWriteRequest;
 import com.example.goodluck.service.user.UserService;
 
@@ -67,9 +68,17 @@ public class BoardController {
     @GetMapping("/board/{boardNo}")
     public String getBoardDetail(@PathVariable("boardNo") Long boardNo, Model model){
         MyBoard result = boardService.findBoardByNo(boardNo);
-
+        
+        model.addAttribute("isWriter", false);
         model.addAttribute("board", result);
-
+        
+        if(LoginSessionHelper.isValidate()){
+            Long currentUser = LoginSessionHelper.getUserNo();
+            if ( currentUser.equals(result.getWriter().getUserNo())){
+                model.addAttribute("isWriter", true);
+            }
+        }
+        
         return "board/board";
     }
 
@@ -103,7 +112,52 @@ public class BoardController {
     /*
      * 게시글 수정 처리
      */
-    
+    @GetMapping("/board/modify/{boardNo}")
+    public String getBoardModifyForm(@PathVariable("boardNo") Long boardNo, Model model) {
+        if (!LoginSessionHelper.isValidate()) return "redirect:/";
+        Long userNo = LoginSessionHelper.getUserNo();
+        
+        // Get current user and board
+        MyUser currentUser = userService.getUser(userNo);
+        MyBoard board = boardService.findBoardByNo(boardNo);
+
+        // Check if current user is the writer
+        if (!currentUser.getUserNo().equals(board.getWriter().getUserNo())) {
+            return "redirect:/board/" + boardNo;
+        }
+
+        BoardModifyRequest requestData = new BoardModifyRequest();
+        requestData.setBoardNo(board.getBoardNo());
+        requestData.setBoardTitle(board.getBoardTitle());
+        requestData.setContents(board.getContents());   
+
+        model.addAttribute("requestData", requestData);
+        return "board/modify";
+    }
+
+    @PostMapping("/board/modify/{boardNo}")
+    public String postBoardModify(
+        @PathVariable("boardNo") Long boardNo,
+        @ModelAttribute(name="requestData") @Valid BoardModifyRequest param,
+        @RequestParam(name="fileImage", required=false) List<MultipartFile> newFiles,
+        @RequestParam(name="deleteImageNo", required=false) List<Long> deleteImageNoList
+    ) {
+        if (!LoginSessionHelper.isValidate()) return "redirect:/";
+        Long userNo = LoginSessionHelper.getUserNo();
+
+        // Get current user and board
+        MyUser currentUser = userService.getUser(userNo);
+        MyBoard board = boardService.findBoardByNo(boardNo);
+
+        // Check if current user is the writer
+        if (!currentUser.getUserNo().equals(board.getWriter().getUserNo())) {
+            return "redirect:/board/" + boardNo;
+        }
+
+        boardService.modify(param, deleteImageNoList, newFiles);
+
+        return "redirect:/board/" + boardNo;
+    }
 
     /*
      * 게시글 삭제 요청
