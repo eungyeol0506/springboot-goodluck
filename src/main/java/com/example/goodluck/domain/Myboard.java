@@ -1,6 +1,7 @@
 package com.example.goodluck.domain;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Builder;
@@ -23,8 +24,10 @@ public class MyBoard {
     
     // 참조
     private MyUser writer;
-    private List<MyAttach> attaches;
-    private List<MyComment> comments;
+    @Builder.Default
+    private List<MyAttach> attaches = new ArrayList<>();
+    @Builder.Default
+    private List<MyComment> comments = new ArrayList<>();
 
     @RequiredArgsConstructor
     public enum BoardConstants{

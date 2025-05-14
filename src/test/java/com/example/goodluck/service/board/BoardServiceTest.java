@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.global.ServiceExcepction;
+import com.example.goodluck.service.board.dto.BoardModifyRequest;
 import com.example.goodluck.service.board.dto.BoardWriteRequest;
 import com.example.goodluck.service.user.UserService;
 
@@ -78,7 +79,28 @@ public class BoardServiceTest {
     @DisplayName("게시글 수정 성공")    
     void successModify(){
         // given
+        // 1. Create a test board first
+        MyUser user = userService.getUser(201L);
+        BoardWriteRequest writeParam = new BoardWriteRequest();
+        writeParam.setBoardTitle("Original Title");
+        writeParam.setContents("Original Content");
+        Long boardNo = boardService.write(user, writeParam, null);
 
+        // 2. Prepare modification data
+        BoardModifyRequest modifyParam = new BoardModifyRequest();
+        modifyParam.setBoardNo(boardNo);
+        modifyParam.setBoardTitle("Modified Title");
+        modifyParam.setContents("Modified Content");
+
+        // when
+        Long modifiedBoardNo = boardService.modify(modifyParam, null, null);
+
+        // then
+        MyBoard result = boardService.findBoardByNo(modifiedBoardNo);
+        assertEquals("Modified Title", result.getBoardTitle());
+        assertEquals("Modified Content", result.getContents());
+        assertEquals(boardNo, modifiedBoardNo);
     }
+
 
 }

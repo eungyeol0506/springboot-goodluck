@@ -24,7 +24,7 @@ public class UserDataConvertor {
 
     public MyUser toDomain(UserEditRequest param){
         return MyUser.builder()
-                    .userNo(param.getUserNo())
+                    .userName(param.getUserName())
                     .userEmail(param.getUserEmail())
                     .telNo(param.getTelNo())
                     .postNo(param.getPostNo())

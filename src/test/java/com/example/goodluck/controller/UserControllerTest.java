@@ -100,9 +100,8 @@ public class UserControllerTest {
                 mockMvc.perform(get("/logout")
                                 .session(session))
                     .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(view().name("home"))       
-                    .andExpect(request().sessionAttributeDoesNotExist("userNo"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/"))       
                     ;
             }
         }        
@@ -329,8 +328,7 @@ public class UserControllerTest {
                             new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
                         ))
                         .param("userName", "테스트")
-                        .param("userEmail", "eunji@test.com")
-                        .param("userNo", String.valueOf(fakeUserNo)))
+                        .param("userEmail", "eunji@test.com"))
                     .andExpect(status().is3xxRedirection()) // redirect
                     .andExpect(redirectedUrl("/profle"));   // 리다이렉트 대상 URL
 

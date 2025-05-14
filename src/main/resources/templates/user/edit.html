@@ -20,5 +20,23 @@
                 </div>
             </div>
         </div>
+
+        <script type="module">
+            import { initImageThumbnailUpload } from "/js/imageThumbnail.js";
+
+            document.addEventListener('DOMContentLoaded', ()=>{
+                const imageUploader = initImageThumbnailUpload({
+                inputSelector: '#fileImage',
+                imgSelector: '#userThumbnail',
+                defaultImage: 'https://img.icons8.com/?size=250&id=ABBSjQJK83zf&format=png&color=000000'
+            });
+
+            // "기본 이미지로 변경" 버튼 클릭 시 썸네일만 초기화
+            document.querySelector('#resetImageBtn').addEventListener('click', (e) => {
+                e.preventDefault(); // 혹시 모르니 안전하게 form 전송 방지
+                imageUploader.resetImage(); // 썸네일 리셋
+                });
+            });
+        </script>     
     </body>
 </html>

@@ -85,9 +85,10 @@ public class UserService {
     /*
      * 회원 정보 수정 메서드
      */
-    public void update(UserEditRequest param, MultipartFile image) {
+    public void update(Long userNo, UserEditRequest param, MultipartFile image) {
 
         MyUser user = userDataConvertor.toDomain(param);
+        user.setUserNo(userNo);
         
         if(image != null){
             String relativeFileName = fileService.save(image, 0L, SaveType.PROFILE);

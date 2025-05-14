@@ -116,6 +116,7 @@ public class BoardControllerTest {
 
                 // when & then
                 mockMvc.perform(get("/board/{boardNo}", 1L))
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(view().name("board/board"))
                     .andExpect(model().attributeExists("board"));
@@ -227,8 +228,167 @@ public class BoardControllerTest {
 
     @Nested
     @DisplayName("게시글 수정")
-    class Modify{
-        
+    class Modify {
+        @Nested
+        class Success {
+            @Test
+            @DisplayName("게시글 수정 폼 조회 성공")
+            void getModifyForm() throws Exception {
+                // given
+                MyUser mockUser = MyUser.builder()
+                    .userNo(1L)
+                    .userId("testUser")
+                    .userName("테스트유저")
+                    .build();
+
+                MyBoard mockBoard = MyBoard.builder()
+                    .boardNo(1L)
+                    .boardTitle("Original Title")
+                    .contents("Original Content")
+                    .writer(mockUser)
+                    .build();
+
+                AuthUser authUser = getAuth(mockUser);
+                
+                BDDMockito.given(boardService.findBoardByNo(anyLong())).willReturn(mockBoard);
+
+                // when & then
+                mockMvc.perform(get("/board/modify/{boardNo}", 1L)
+                        .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        )))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("board/modify"))
+                    .andExpect(model().attributeExists("requestData"));
+            }
+
+            @Test
+            @DisplayName("게시글 수정 성공 - 첨부파일 포함")
+            void postModifyWithAttachments() throws Exception {
+                // given
+                MyUser mockUser = MyUser.builder()
+                    .userNo(1L)
+                    .userId("testUser")
+                    .userName("테스트유저")
+                    .build();
+
+                MyBoard mockBoard = MyBoard.builder()
+                    .boardNo(1L)
+                    .boardTitle("Original Title")
+                    .contents("Original Content")
+                    .writer(mockUser)
+                    .build();
+
+                MockMultipartFile newFile = new MockMultipartFile(
+                    "fileImage", 
+                    "test.png", 
+                    MediaType.IMAGE_PNG_VALUE,
+                    "test image content".getBytes()
+                );
+
+                AuthUser authUser = getAuth(mockUser);
+                
+                BDDMockito.given(boardService.findBoardByNo(anyLong())).willReturn(mockBoard);
+                BDDMockito.given(boardService.modify(any(), anyList(), anyList())).willReturn(1L);
+
+                // when & then
+                mockMvc.perform(multipart("/board/modify/{boardNo}", 1L)
+                        .file(newFile)
+                        .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        ))
+                        .param("boardNo", "1")
+                        .param("boardTitle", "Modified Title")
+                        .param("contents", "Modified Content")
+                        .param("deleteImageNo", "2", "3"))
+                    .andDo(print())
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/board/1"));
+            }
+        }
+
+        @Nested
+        class Failed {
+            @Test
+            @DisplayName("게시글 수정 실패 - 권한 없음")
+            void modifyWithoutPermission() throws Exception {
+                // given
+                MyUser mockUser = MyUser.builder()
+                    .userNo(1L)
+                    .userId("testUser")
+                    .userName("테스트유저")
+                    .build();
+
+                MyUser differentUser = MyUser.builder()
+                    .userNo(2L)
+                    .userId("differentUser")
+                    .userName("다른유저")
+                    .build();
+
+                MyBoard mockBoard = MyBoard.builder()
+                    .boardNo(1L)
+                    .boardTitle("Original Title")
+                    .contents("Original Content")
+                    .writer(differentUser)  // Different user is the writer
+                    .build();
+
+                AuthUser authUser = getAuth(mockUser);
+                
+                BDDMockito.given(boardService.findBoardByNo(anyLong())).willReturn(mockBoard);
+
+                // when & then
+                mockMvc.perform(get("/board/modify/{boardNo}", 1L)
+                        .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        )))
+                    .andDo(print())
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/board/1"));
+            }
+
+            @Test
+            @DisplayName("게시글 수정 실패 - 로그인하지 않은 경우")
+            void modifyWithoutLogin() throws Exception {
+                mockMvc.perform(get("/board/modify/{boardNo}", 1L))
+                    .andExpect(status().is4xxClientError());
+            }
+
+            @Test
+            @DisplayName("게시글 수정 실패 - 필수 필드 누락")
+            void modifyWithInvalidData() throws Exception {
+                // given
+                MyUser mockUser = MyUser.builder()
+                    .userNo(1L)
+                    .userId("testUser")
+                    .userName("테스트유저")
+                    .build();
+
+                MyBoard mockBoard = MyBoard.builder()
+                    .boardNo(1L)
+                    .boardTitle("Original Title")
+                    .contents("Original Content")
+                    .writer(mockUser)
+                    .build();
+
+                AuthUser authUser = getAuth(mockUser);
+                
+                BDDMockito.given(boardService.findBoardByNo(anyLong())).willReturn(mockBoard);
+
+                // when & then
+                mockMvc.perform(multipart("/board/modify/{boardNo}", 1L)
+                        .with(authentication(
+                            new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
+                        ))
+                        .param("boardNo", "1")
+                        // Missing required boardTitle
+                        .param("contents", "Modified Content"))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("board/modify"))
+                    ;
+            }
+        }
     }
 
     private AuthUser getAuth(MyUser mockUser) {

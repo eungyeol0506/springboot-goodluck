@@ -1,4 +1,6 @@
 <div th:fragment="boardFields">
+    <input type="hidden" th:if="${mode == 'modify'}" th:field="*{boardNo}">
+    
     <label for="boardTitle" class="form-label">제목</label>
     <h3>
         <input type="text" class="form-control form-control-lg" 
@@ -16,7 +18,14 @@
     </div>
     
     <!-- 글 수정 시 노출 -->
-    <div th:if="${mode == 'edit'}">
-
+    <div th:if="${mode == 'modify'}">
+        <!-- 기존 이미지 표시 -->
+        <div th:replace="~{board/fragment/existing-images :: existingImages}"></div>
+        
+        <!-- 새 이미지 업로드 -->
+        <div class="mt-4">
+            <h5 class="mb-3">새 이미지 추가</h5>
+            <div th:replace="~{board/fragment/thumbnail-img :: thumbnails}"></div>
+        </div>
     </div>
 </div>
