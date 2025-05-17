@@ -37,11 +37,11 @@ public class UserService {
         MyUser user = userDataConvertor.toDomain(param);
         validateDuplicateUserId(user.getUserId());
         
-        if(image != null){
+        if(image != null && !image.isEmpty()){
             String relativeFileName = fileService.save(image, 0L, SaveType.PROFILE);
             if( !relativeFileName.equals("FAILED")){
                 String path = FilePathHelper.getDirectoryPath(relativeFileName);
-                String name = FilePathHelper.getFileNameOlny(path) + FilePathHelper.getExtension(path);
+                String name = FilePathHelper.getFileNameOlny(relativeFileName) + FilePathHelper.getExtension(relativeFileName);
                 user.setProfileImgPath(path);
                 user.setProfileImgName(name);
             }

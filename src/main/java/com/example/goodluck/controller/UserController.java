@@ -111,7 +111,7 @@ public class UserController {
             @RequestParam(value = "fileImage", required = false) MultipartFile file
         ){
             userService.regist(param, file);
-            return "redirect:/";
+            return "redirect:/login";
     }
 
 
