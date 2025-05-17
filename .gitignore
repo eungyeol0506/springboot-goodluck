@@ -52,3 +52,4 @@ libs/osdt_core.jar
 src/main/resources/static/files/*
 
 src/main/resources/*.sql
+uploads/**
