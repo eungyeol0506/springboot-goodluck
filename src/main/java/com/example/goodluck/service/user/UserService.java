@@ -91,12 +91,22 @@ public class UserService {
         user.setUserNo(userNo);
         
         if(image != null){
-            String relativeFileName = fileService.save(image, 0L, SaveType.PROFILE);
-            if( !relativeFileName.equals("FAILED")){
-                String path = FilePathHelper.getDirectoryPath(relativeFileName);
-                String name = FilePathHelper.getFileNameOlny(path) + FilePathHelper.getExtension(path);
-                user.setProfileImgPath(path);
-                user.setProfileImgName(name);
+            if(image.isEmpty()){
+                MyUser preUser = userRepository.findByNo(userNo).orElseThrow(
+                    () -> new UserServiceException(UserError.USER_NOT_FOUND)
+                );
+
+                user.setProfileImgName(preUser.getProfileImgName());
+                user.setProfileImgPath(preUser.getProfileImgPath());
+            }
+            else{
+                String relativeFileName = fileService.save(image, 0L, SaveType.PROFILE);
+                if( !relativeFileName.equals("FAILED")){
+                    String path = FilePathHelper.getDirectoryPath(relativeFileName);
+                    String name = FilePathHelper.getFileNameOlny(relativeFileName) + "." + FilePathHelper.getExtension(relativeFileName);
+                    user.setProfileImgPath(path);
+                    user.setProfileImgName(name);
+                }
             }
         }
 

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +15,8 @@ import com.example.goodluck.global.SaveType;
 
 @Service
 public class LocalFileStorageService implements FileStorageService{
-    private final String uploadDirName = "./uploads";
+    @Value("${file.upload-dir}")
+    private String uploadDirName;
 
     @Override
     public void delete(String relativePath) {
@@ -31,7 +33,10 @@ public class LocalFileStorageService implements FileStorageService{
     public String save(MultipartFile image, Long no, SaveType saveType) {
         try{
             String relativePathName = getSavePath(saveType, no, image.getOriginalFilename());
+            System.out.println("Original filename: " + image.getOriginalFilename());
+
             Path fullPath = Paths.get(uploadDirName).resolve(relativePathName);
+            System.out.println("Full save path: " + fullPath.toString());
 
             if(Files.notExists(fullPath.getParent())){
                 Files.createDirectories(fullPath.getParent());
@@ -42,6 +47,7 @@ public class LocalFileStorageService implements FileStorageService{
             return fullPath.toString().replace("\\", "/");
 
         }catch(IOException e){
+            e.printStackTrace();
             return "FAILED";
         }
     }

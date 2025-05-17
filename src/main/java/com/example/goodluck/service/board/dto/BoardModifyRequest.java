@@ -16,4 +16,5 @@ public class BoardModifyRequest  {
     private String contents;
 
 
+    
 }

@@ -12,12 +12,30 @@
     </head>
 
     <body>
+        <!-- 레이아웃 헤더 -->
         <div th:replace="~{layout/header :: header}"></div>
+        <!-- 카드 컴포넌트 -->
         <div class="container d-flex justify-content-center align-items-center">
             <div class="card mt-4 mb-3"  style="width: 100%; max-width: 800px;">
                 <h3 class="card-header">회원가입</h3>
-                <div th:replace="~{user/fragment/form :: form(mode='regist', notice=${notice}, requestData=${requestData})}">
-                </div>
+
+                <form th:action="@{/regist}"
+                        method="post"
+                        enctype="multipart/form-data">
+
+                    <div th:insert="~{user/fragment/imageFields :: imgFields(image=null)}"></div>
+
+                    <div th:object="${registRequest}" class="mb-4">
+                        <div th:insert="~{user/fragment/userFields :: registFields}"></div>
+                    </div>
+
+                    <!-- 알림 메시지 -->
+                    <div clsss="mb-4" th:replace="~{notice :: noticeBox(${notice})}"></div>
+
+                    <div class="d-grid gap-2 mb-4 me-3 ms-3">
+                        <button type="submit" class="btn btn-primary" >가입하기</button>
+                    </div>
+                </form>
             </div>
         </div>
     </body>

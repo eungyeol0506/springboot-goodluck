@@ -1,0 +1,12 @@
+<div th:fragment="noticeBox(notice)">
+    
+    <th:block th:if="${notice != null and !notice.isEmpty() }">
+        <div class="d-grid gap-2 me-3 ms-3">
+            <div class="alert alert-dismissible alert-secondary">
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <strong th:text="${notice}"></strong> 
+            </div>
+        </div>
+    </th:block>
+
+</div>

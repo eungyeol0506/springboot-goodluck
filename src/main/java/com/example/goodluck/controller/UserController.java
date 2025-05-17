@@ -28,13 +28,14 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 
+
 /*
  * 사용자 처리 컨트롤러
  * POST 매핑 시 성공은 redirect 처리해야 함
  */
 @Controller
 public class UserController {
-    
+
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -100,13 +101,13 @@ public class UserController {
     @GetMapping("/regist")
     public String getRegist(Model model){
         model.addAttribute("notice", "");
-        model.addAttribute("requestData", new UserRegistRequest());
+        model.addAttribute("registRequest", new UserRegistRequest());
         return "user/regist";
     }
     
     @PostMapping("/regist")
     public String postRegister(
-            @ModelAttribute(value ="requestData") @Valid UserRegistRequest param,
+            @ModelAttribute(value ="registRequest") @Valid UserRegistRequest param,
             @RequestParam(value = "fileImage", required = false) MultipartFile file
         ){
             userService.regist(param, file);
@@ -140,20 +141,18 @@ public class UserController {
         UserEditRequest dto = convertDomainToDto(result);
 
         model.addAttribute("notice", "");
-        model.addAttribute("requestData", dto);
+        model.addAttribute("editRequest", dto);
+        // model.addAttribute("profilePath", result.getImageResource());
         return "user/edit" ;
     }
     
     @PostMapping("/profile/form")
     public String postUserEdit( 
-            @ModelAttribute(name="requestData") @Valid UserEditRequest param,
+            @ModelAttribute(name="editRequest") @Valid UserEditRequest param,
             @RequestParam(value="fileImage", required=false) MultipartFile file) 
     {
         if( !LoginSessionHelper.isValidate()) return "redirect:/" ;
         Long userNo = LoginSessionHelper.getUserNo();
-        
-        /* 강제로 요청 param에 setting */
-        // param.(userNo);
 
         userService.update(userNo, param, file);
         return "redirect:/profile";   
@@ -181,7 +180,7 @@ public class UserController {
         return "redirect:/login";
             
     }
-
+    
     private UserEditRequest convertDomainToDto(MyUser result) {
         UserEditRequest dto = new UserEditRequest();
         dto.setUserName(result.getUserName());
@@ -190,8 +189,7 @@ public class UserController {
         dto.setTelNo(result.getTelNo());
         dto.setAddressMain(result.getAddressMain());
         dto.setAddressDetail(result.getAddressDetail());
-        dto.setProfileImgName(result.getProfileImgName());
-        dto.setProfileImgPath(result.getProfileImgPath());
+        dto.setImageFullPath(result.getImageResource());
         return dto;
     }
         
