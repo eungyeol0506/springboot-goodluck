@@ -30,4 +30,8 @@ public class MyAttach {
             return value;
         }
     }
+
+    public String getAttachFullPath(){
+        return "/uploads/attaches/" + boardNo + "/" + fileName;
+    }
 }

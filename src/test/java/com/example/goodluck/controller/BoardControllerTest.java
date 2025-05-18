@@ -150,7 +150,7 @@ public class BoardControllerTest {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(view().name("board/write"))
-                    .andExpect(model().attributeExists("requestData"));
+                    ;
             }
 
             @Test

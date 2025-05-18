@@ -21,29 +21,29 @@
                 <!-- 보드 내용 -->
                 <h3><span th:text="${board.boardTitle}"></span></h3>
                 <div class="col d-flex justify-content-between w-50">
-                    <p>작성자 <span th:text="${board.writer.userName}"></span></p>
+                    <p>작성자 <span th:text="${board.writerName}"></span></p>
                     <p>조회수 <span th:text="${board.viewCnt}"></span></p>
-                    <p>작성일 <span th:text="${board.createDate}"></span></p>
+                    <p>최근수정일 <span th:text="${board.lastUpdateDate}"></span></p>
                 </div>
 
                 <hr class="mt-1">
 
                 <!-- 첨부파일 캐러셀 -->
-                <th:block th:if="${#lists.size(board.attaches) > 0}">
+                <th:block th:if="${#lists.size(board.attachPaths) > 0}">
                     <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel" style="width: 100%;">
                         <div class="carousel-inner" style="height: 600px;">
-                            <th:block th:each="attach, stat : ${board.attaches}">
+                            <th:block th:each="attachPath, stat : ${board.attachPaths}">
                                 <div class="carousel-item" th:classappend="${stat.index == 0} ? ' active' : ''"
                                     style="width: 100%; height: 100%; object-fit: contain; background-color: #253e3721;">
                                     <img class="d-blcok"
-                                        th:src="@{'${attach.filePath} + '/' + ${attach.fileName}}"
+                                        th:src="@{${attachPath}}"
                                         th:alt="'첨부 이미지' + ${stat.index + 1}"
                                         style="object-position: center;">
                                 </div>
                             </th:block>
                         </div>
 
-                        <th:block th:if="${board.attaches != null and #lists.size(board.attaches) >= 2}">
+                        <th:block th:if="${board.attachPaths != null and #lists.size(board.attachPaths) >= 2}">
                             <a class="carousel-control-prev" href="#carouselExampleSlidesOnly" role="button" data-bs-slide="prev">
                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                 <span class="sr-only"></span>
@@ -72,13 +72,15 @@
                     </th:block>
                     
                     <th:block th:if="${isWriter != null && isWriter == true}">
-                        <form th:action="@{/board/modify}" method="get">
-                            <input type="hidden" th:attr="value=${board.boardNo}" name="boardNo" id="boardNo"/>
+                        <!-- 수정 버튼: GET /board/modify/{boardNo} -->
+                        <form th:action="@{/board/modify/{boardNo}(boardNo=${board.boardNo})}" method="get">
                             <button type="submit" class="btn btn-primary btn-sm">수정</button>
                         </form>
 
-                        <form th:action="@{/board/{boardNo}(boardNo=${board.boardNo})}" 
-                                method="delete" onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                        <!-- 삭제 버튼: DELETE /board/{boardNo} (method spoofing 사용) -->
+                        <form th:action="@{/board/delete/{boardNo}(boardNo=${board.boardNo})}" 
+                            method="post" 
+                            onsubmit="return confirm('정말 삭제하시겠습니까?')">
                             <button type="submit" class="btn btn-primary btn-sm">삭제</button>
                         </form>
                     </th:block>

@@ -31,13 +31,14 @@ public class AttachService {
 
         // 서버에 저장
         for(MultipartFile image:images){
+            if(image.isEmpty()) break; 
             String relatvieFileName = fileService.save(image, boardNo, SaveType.BOARD);
             if(relatvieFileName.equals("FAILED")){
                 throw new BoardServiceException(BoardError.BOARD_NOT_FOUND);
             }
             // split extension, name, path
             String filePath = FilePathHelper.getDirectoryPath(relatvieFileName);
-            String fileName = FilePathHelper.getFileNameOlny(relatvieFileName) + FilePathHelper.getExtension(relatvieFileName);
+            String fileName = FilePathHelper.getFileNameOlny(relatvieFileName) + "." + FilePathHelper.getExtension(relatvieFileName);
             Long size = image.getSize();
             attaches.add(MyAttach.builder()
                             .boardNo(boardNo)

@@ -23,4 +23,5 @@ public class BoardConvertor {
                     .contents(param.getContents())
                     .build();
     }
+
 }
