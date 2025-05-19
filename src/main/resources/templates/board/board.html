@@ -85,6 +85,13 @@
                         </form>
                     </th:block>
                 </div>
+
+                <!-- 댓글 -->
+                <hr class="mt-1 mb-1">
+                <div th:replace="~{comment/form :: commentFileds(${board.boardNo}) }"></div>
+                <div class="mt-4" th:if="${board.comments != null and #lists.size(board.comments) > 0}"
+                    th:replace="~{comment/commentList :: commentList(${board.comments})}">
+                </div>
             </div>
         </div>
     </div>

@@ -1,11 +1,16 @@
-<div th:fragment="commentFileds">
-    <form th:action="@{}" th:object="${commentDto}" method="post">
+<div th:fragment="commentFileds(boardNo)">
+    <form th:action="@{/board/{boardNo}/comment(boardNo=${boardNo})}" 
+            method="post">
         <fieldset>
             <div>
-                <label for="exampleTextarea" class="form-label mt-4">Example textarea</label>
-                <textarea class="form-control" id="exampleTextarea" rows="3"></textarea>
+                <label for="exampleTextarea" class="form-label mt-4">댓글 작성란</label>
+                <textarea class="form-control"
+                      id="exampleTextarea"
+                      name="reply"
+                      rows="3"
+                      placeholder="여기에 댓글을 작성해주세요."></textarea>
             </div>
         </fieldset>    
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">작성</button>
     </form>
 </div>

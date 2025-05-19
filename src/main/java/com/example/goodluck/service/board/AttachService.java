@@ -77,6 +77,7 @@ public class AttachService {
 
     public void removeByBoardNo(Long boardNo){
         List<MyAttach> attaches = getAttachList(boardNo);
+        if(attaches.isEmpty()) return;
         remove(attaches);
     }    
 }

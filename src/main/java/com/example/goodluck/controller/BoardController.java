@@ -7,12 +7,14 @@ import org.springframework.ui.Model;
 
 import com.example.goodluck.domain.MyAttach;
 import com.example.goodluck.domain.MyBoard;
+import com.example.goodluck.domain.MyComment;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.global.helper.LoginSessionHelper;
 import com.example.goodluck.service.board.BoardService;
 import com.example.goodluck.service.board.dto.BoardData;
 import com.example.goodluck.service.board.dto.BoardModifyRequest;
 import com.example.goodluck.service.board.dto.BoardWriteRequest;
+import com.example.goodluck.service.board.dto.CommentRequest;
 import com.example.goodluck.service.user.UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @Controller
@@ -81,7 +85,6 @@ public class BoardController {
 
         BoardData boardData = toBoardData(result);
         model.addAttribute("board", boardData);
-
         return "board/board";
     }
 
@@ -178,6 +181,22 @@ public class BoardController {
         return "redirect:/list?page=1";
     }
 
+    /*
+     * 댓글 작성 메서드
+     */
+    @PostMapping("/board/{boardNo}/comment")
+    public String postMethodName(
+        @PathVariable("boardNo") Long boardNo,
+        @RequestParam("reply") String reply) 
+    {
+        if(!LoginSessionHelper.isValidate()) return "redirect:/";
+        Long userNo = LoginSessionHelper.getUserNo();
+
+        boardService.addComment(userNo, boardNo, reply);
+
+        return "redirect:/board/"+boardNo;
+    }
+    
     public BoardData toBoardData(MyBoard domain){
         BoardData boardData = new BoardData();
         boardData.setBoardNo(domain.getBoardNo());
@@ -193,7 +212,11 @@ public class BoardController {
         for (MyAttach image : domain.getAttaches()){
             boardData.getAttachPaths().add(image.getAttachFullPath());
         }
-        boardData.setComments(domain.getComments());
+
+        for(MyComment comment : domain.getComments()){
+            MyUser replyUser = userService.getUser(comment.getUserNo());
+            boardData.addCommentData(replyUser.getUserName(), comment.getReply(), comment.getCreateDate());
+        }
 
         return boardData;
     }
