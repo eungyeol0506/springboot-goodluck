@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.goodluck.domain.BoardRepository;
 import com.example.goodluck.domain.MyAttach;
 import com.example.goodluck.domain.MyBoard;
+import com.example.goodluck.domain.MyComment;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.service.board.dto.BoardModifyRequest;
 import com.example.goodluck.service.board.dto.BoardWriteRequest;
@@ -146,5 +147,19 @@ public class BoardService {
         }
 
         return pageList; 
+    }
+    /*
+     * 댓글 작성 메서드
+     */
+    public void addComment(Long userNo, Long boardNo, String reply){
+        LocalDate now = LocalDate.now();
+        MyComment comment = MyComment.builder()
+                            .boardNo(boardNo)
+                            .createDate(now)
+                            .reply(reply)
+                            .userNo(userNo)
+                            .build();
+
+        commentService.save(comment);
     }
 }

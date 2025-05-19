@@ -1,0 +1,12 @@
+<div th:fragment="commentList(comments)">
+    <ul class="list-group">
+        <li th:each=" comment : ${comments}"
+            class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong th:text="${comment.writerName}">작성자</strong>
+                <small class="text-muted" th:text="${#temporals.format(comment.createDate, 'yyyy.MM.dd')}">작성일</small><br />
+                <span th:text="${comment.reply}">댓글 내용</span>
+            </div>
+        </li>
+    </ul>
+</div>
