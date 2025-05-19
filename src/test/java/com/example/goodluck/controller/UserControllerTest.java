@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -187,6 +186,7 @@ public class UserControllerTest {
             @Test
             void successGetRegist() throws Exception{
                 mockMvc.perform(get("/regist"))
+                        .andDo(print())
                         .andExpect(view().name("user/regist"))
                         ;
             }
@@ -253,10 +253,11 @@ public class UserControllerTest {
                                 .param("userPw","teeeestttt")
                                 .param("userName","teeeestttt")
                                 )
+                                .andDo(print())
                                 .andExpect(status().isOk())
                                 .andExpect(view().name("user/regist"))
                                 .andExpect(model().attribute("notice", UserError.USER_ID_DUPLICATED.getMessage()))
-                                .andExpect(model().attributeExists("requestData"))
+                                .andExpect(model().attributeExists("registRequest"))
                                 ;
             }
         }
@@ -292,9 +293,10 @@ public class UserControllerTest {
                         .with(authentication(
                             new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities())
                         )))
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(view().name("user/edit"))
-                    .andExpect(model().attributeExists("requestData"))
+                    .andExpect(model().attributeExists("editRequest"))
                     .andExpect(model().attributeExists("notice"));
             }
 
@@ -330,7 +332,7 @@ public class UserControllerTest {
                         .param("userName", "테스트")
                         .param("userEmail", "eunji@test.com"))
                     .andExpect(status().is3xxRedirection()) // redirect
-                    .andExpect(redirectedUrl("/profle"));   // 리다이렉트 대상 URL
+                    .andExpect(redirectedUrl("/profile"));   // 리다이렉트 대상 URL
 
             }
 
@@ -409,8 +411,7 @@ public class UserControllerTest {
                         .file(file)
                         .session(session)
                         .param("userName", "")
-                        .param("userEmail", "eunji@test.com")
-                        .param("userNo", "456"))
+                        .param("userEmail", "eunji@test.com"))
                     .andExpect(status().isOk()) // redirect
                     .andExpect(view().name("user/edit"))
                     .andExpect(model().attributeExists("notice"))

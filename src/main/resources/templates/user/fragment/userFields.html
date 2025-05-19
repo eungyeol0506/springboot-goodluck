@@ -1,0 +1,67 @@
+<div th:fragment="commonFields">
+    <label for="userName" class="form-label mt-4">이름<span class="text-danger">*</span></label>
+    <input  type="text" 
+            class="form-control" 
+            placeholder="이름을 입력해주세요" 
+            th:field="*{userName}" />
+    
+    <label for="userEmail" class="form-label mt-4">이메일<span class="text-danger">*</span></label>
+    <input  type="text" 
+            class="form-control" 
+            placeholder="이메일을 입력해주세요"
+            aria-describedby="userEmailHelp"
+            th:field="*{userEmail}"/>    
+    <small id="userEmailHelp" class="form-text text-muted">Ex. your-address@example.com</small>
+
+    <label for="telNo" class="form-label mt-4">전화번호</label>
+    <input type="text" 
+            class="form-control" 
+            th:field="*{telNo}"/>    
+
+    <label for="postNo" class="form-label mt-4">우편번호</label>
+    <input type="text" 
+            class="form-control" 
+            th:field="*{postNo}"/>       
+
+    <label for="addressMain" class="form-label mt-4">주소</label>
+    <input type="text" 
+            class="form-control" 
+            th:field="*{addressMain}"/>    
+
+    <label for="addressDetail" class="form-label mt-4">상세주소</label>
+    <input type="text" 
+            class="form-control" 
+            th:field="*{addressDetail}"/>    
+
+</div>
+
+<div th:fragment="registFields" >
+
+    <label for="userId-group" class="form-label mt-4">아이디<span class="text-danger">*</span></label>
+    <div class="input-group" id="userId-group">
+        <input  type="text" 
+                class="form-control" 
+                placeholder="아이디를 입력해주세요"
+                aria-describedby="userIdHelp" 
+                th:field="*{userId}" />
+        <button type="button" class="btn btn-primary" id="userIdCheckBtn">중복확인</button>
+        
+    </div>
+
+    <label for="userPw" class="form-label mt-4">비밀번호<span class="text-danger">*</span></label>
+    <input  type="password" 
+            class="form-control" 
+            placeholder="비밀번호를 입력해주세요"
+            th:field="*{userPw}" />
+
+    <div th:insert="~{:: commonFields}"> </div>
+    
+</div>
+
+<div th:fragment="editFields">
+    
+    <input type="hidden" th:field="*{imageFullPath}" />
+    <div th:insert="~{:: commonFields}"> </div>
+
+
+</div>

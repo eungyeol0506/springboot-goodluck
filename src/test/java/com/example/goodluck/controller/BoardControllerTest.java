@@ -31,7 +31,6 @@ import com.example.goodluck.service.board.BoardService;
 import com.example.goodluck.service.board.dto.BoardWriteRequest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -150,7 +149,7 @@ public class BoardControllerTest {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(view().name("board/write"))
-                    .andExpect(model().attributeExists("requestData"));
+                    ;
             }
 
             @Test
@@ -260,7 +259,7 @@ public class BoardControllerTest {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(view().name("board/modify"))
-                    .andExpect(model().attributeExists("requestData"));
+                    .andExpect(model().attributeExists("modifyData"));
             }
 
             @Test

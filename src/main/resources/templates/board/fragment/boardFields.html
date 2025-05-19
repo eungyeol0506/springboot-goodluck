@@ -1,0 +1,24 @@
+<div th:fragment="commonFields">
+    <label for="boardTitle" class="form-label">제목</label>
+    <h3 class = "mb-4">
+        <input type="text" 
+                class="form-control form-control-lg" 
+                placeholder="제목을 입력해주세요"
+                th:field="*{boardTitle}" />
+    </h3>
+
+    <label for="contents" class="form-label mt-2">기록하고 싶은 행운내용을 작성해주세요</label>
+    <textarea class="form-control" 
+            rows="10"
+            th:field="*{contents}" >
+    </textarea>
+</div>
+
+<div th:fragment="writeFields">
+    <div th:replace="~{ ::commonFields}" ></div>
+</div>
+
+<div th:fragment="modifyFields">
+    <div th:replace="~{ ::commonFields}" ></div>
+    <input type="hidden"  th:field="*{boardNo}"/>
+</div>

@@ -30,8 +30,8 @@ public class UserDataConvertor {
                     .postNo(param.getPostNo())
                     .addressMain(param.getAddressMain())
                     .addressDetail(param.getAddressDetail())
-                    .profileImgPath(param.getProfileImgPath())
-                    .profileImgName(param.getProfileImgName())
+                    // .profileImgPath(param.getProfileImgPath())
+                    // .profileImgName(param.getProfileImgName())
                     .build();
     }
 }

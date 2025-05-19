@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
             dto.setPostNo(user.getPostNo());
             dto.setTelNo(user.getTelNo());
             
-            model.addAttribute("requestData", dto);
+            model.addAttribute("registRequest", dto);
             // addDomainToModel(dto, model, request.getRequestURI());
         }else if(uri.contains("profile")){
             UserEditRequest dto = new UserEditRequest();
@@ -53,10 +53,10 @@ public class GlobalExceptionHandler {
             dto.setPostNo(user.getPostNo());
             dto.setAddressMain(user.getAddressMain());
             dto.setAddressDetail(user.getAddressDetail());
-            dto.setProfileImgName(user.getProfileImgName());
-            dto.setProfileImgPath(user.getProfileImgPath());
-
-            model.addAttribute("requestData", dto);
+            // dto.setProfileImgName(user.getProfileImgName());
+            // dto.setProfileImgPath(user.getProfileImgPath());
+            dto.setImageFullPath(user.getImageResource());
+            model.addAttribute("editRequest", dto);
         }
         model.addAttribute("notice", excepction.getErrorMessage());
         return ExceptionViewHelper.resolveViewNameByUri(request.getRequestURI(), model);
@@ -119,21 +119,21 @@ public class GlobalExceptionHandler {
     class ExceptionViewHelper{
         public static void bindingTargetToModel(BindingResult result, Model model, String uri){
             Object dto = result.getTarget();
-            System.out.println(">>> param class: " + dto.getClass().getName());
+
             if (dto == null) return;
-        
+            
             if (uri.contains("regist")) {
-                model.addAttribute("requestData", dto);
+                model.addAttribute("registRequest", dto);
             } else if (uri.contains("login")) {
                 model.addAttribute("loginRequest", dto);
             } else if (uri.contains("profile")){
-                model.addAttribute("requestData", dto);
+                model.addAttribute("editRequest", dto);
             } else if (uri.contains("password")){
                 model.addAttribute("requestData", dto);
             } else if (uri.contains("write")){
-                model.addAttribute("requestData", dto);
+                model.addAttribute("writeRequest", dto);
             } else if (uri.contains("modify")){
-                model.addAttribute("requestData", dto);
+                model.addAttribute("modifyData", dto);
             } 
 
             // model.addAttribute("preValue", dto); // fallback

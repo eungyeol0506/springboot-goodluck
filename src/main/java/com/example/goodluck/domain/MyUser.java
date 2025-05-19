@@ -1,5 +1,7 @@
 package com.example.goodluck.domain;
 
+import java.util.Optional;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +37,13 @@ public class MyUser {
         public String getValue(){
             return value;
         }
+    }
+
+    public String getImageResource(){
+        if (Optional.ofNullable(profileImgName).isEmpty()){
+            return null;
+        }
+        
+        return "/uploads/profiles/" + profileImgName;
     }
 }

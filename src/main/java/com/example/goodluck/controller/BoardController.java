@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
+import com.example.goodluck.domain.MyAttach;
 import com.example.goodluck.domain.MyBoard;
 import com.example.goodluck.domain.MyUser;
 import com.example.goodluck.global.helper.LoginSessionHelper;
 import com.example.goodluck.service.board.BoardService;
+import com.example.goodluck.service.board.dto.BoardData;
 import com.example.goodluck.service.board.dto.BoardModifyRequest;
 import com.example.goodluck.service.board.dto.BoardWriteRequest;
 import com.example.goodluck.service.user.UserService;
@@ -16,7 +18,6 @@ import com.example.goodluck.service.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,16 +70,18 @@ public class BoardController {
     public String getBoardDetail(@PathVariable("boardNo") Long boardNo, Model model){
         MyBoard result = boardService.findBoardByNo(boardNo);
         
+        // 작성 권한 확인
         model.addAttribute("isWriter", false);
-        model.addAttribute("board", result);
-        
         if(LoginSessionHelper.isValidate()){
             Long currentUser = LoginSessionHelper.getUserNo();
             if ( currentUser.equals(result.getWriter().getUserNo())){
                 model.addAttribute("isWriter", true);
             }
         }
-        
+
+        BoardData boardData = toBoardData(result);
+        model.addAttribute("board", boardData);
+
         return "board/board";
     }
 
@@ -89,7 +92,7 @@ public class BoardController {
     public String getBoardWriteForm(HttpSession session, Model model) {
         if( !LoginSessionHelper.isValidate()) return "redirect:/";
         
-        model.addAttribute("requestData", new BoardWriteRequest());
+        model.addAttribute("writeRequest", new BoardWriteRequest());
         return "board/write";
     }
     
@@ -126,19 +129,17 @@ public class BoardController {
             return "redirect:/board/" + boardNo;
         }
 
-        BoardModifyRequest requestData = new BoardModifyRequest();
-        requestData.setBoardNo(board.getBoardNo());
-        requestData.setBoardTitle(board.getBoardTitle());
-        requestData.setContents(board.getContents());   
 
-        model.addAttribute("requestData", requestData);
+        BoardModifyRequest requestData = toModifyRequest(board);
+
+        model.addAttribute("modifyData", requestData);
         return "board/modify";
     }
 
     @PostMapping("/board/modify/{boardNo}")
     public String postBoardModify(
         @PathVariable("boardNo") Long boardNo,
-        @ModelAttribute(name="requestData") @Valid BoardModifyRequest param,
+        @ModelAttribute(name="modifyData") @Valid BoardModifyRequest param,
         @RequestParam(name="fileImage", required=false) List<MultipartFile> newFiles,
         @RequestParam(name="deleteImageNo", required=false) List<Long> deleteImageNoList
     ) {
@@ -162,7 +163,7 @@ public class BoardController {
     /*
      * 게시글 삭제 요청
      */
-    @DeleteMapping("/board/{boardNo}")
+    @PostMapping("/board/delete/{boardNo}")
     public String postBoardDelete( @PathVariable("boardNo") Long boardNo) {
             
         if(!LoginSessionHelper.isValidate()) return "redirect:/";
@@ -176,5 +177,36 @@ public class BoardController {
 
         return "redirect:/list?page=1";
     }
-    
+
+    public BoardData toBoardData(MyBoard domain){
+        BoardData boardData = new BoardData();
+        boardData.setBoardNo(domain.getBoardNo());
+        boardData.setBoardTitle(domain.getBoardTitle());
+        boardData.setContents(domain.getContents());
+        boardData.setViewCnt(domain.getViewCnt());
+        if(domain.getUpdateDate() == null){
+            boardData.setLastUpdateDate(domain.getCreateDate());
+        }else{
+            boardData.setLastUpdateDate(domain.getUpdateDate());
+        }
+
+        for (MyAttach image : domain.getAttaches()){
+            boardData.getAttachPaths().add(image.getAttachFullPath());
+        }
+        boardData.setComments(domain.getComments());
+
+        return boardData;
+    }
+    public BoardModifyRequest toModifyRequest(MyBoard domain){
+        BoardModifyRequest request = new BoardModifyRequest();
+        request.setBoardNo(domain.getBoardNo());
+        request.setBoardTitle(domain.getBoardTitle());
+        request.setContents(domain.getContents());
+
+        for(MyAttach image : domain.getAttaches()){
+            request.addAttaches(image);
+        }
+
+        return request;
+    }
 }
