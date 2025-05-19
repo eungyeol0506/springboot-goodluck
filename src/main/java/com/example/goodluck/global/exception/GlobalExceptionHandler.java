@@ -131,9 +131,9 @@ public class GlobalExceptionHandler {
             } else if (uri.contains("password")){
                 model.addAttribute("requestData", dto);
             } else if (uri.contains("write")){
-                model.addAttribute("requestData", dto);
+                model.addAttribute("writeRequest", dto);
             } else if (uri.contains("modify")){
-                model.addAttribute("requestData", dto);
+                model.addAttribute("modifyData", dto);
             } 
 
             // model.addAttribute("preValue", dto); // fallback

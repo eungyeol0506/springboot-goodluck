@@ -63,11 +63,15 @@ public class AttachService {
      * 첨부파일 삭제 메서드
      */
     public void remove(List<MyAttach> attaches){
+        List<Long> attachNos = new ArrayList<>();
 
         for(MyAttach attach : attaches){
-            String relativcePathName = attach.getFilePath() + attach.getFileName();
+            String relativcePathName = attach.getFilePath() + "/" + attach.getFileName();
             fileService.delete(relativcePathName);
+            attachNos.add(attach.getAttachNo());
         }
+
+        attachRepository.remove(attachNos);
 
     }
 

@@ -10,6 +10,7 @@ import lombok.Data;
 
 @Data
 public class BoardData {
+    
     private Long boardNo;
     private String boardTitle;
     private String contents;

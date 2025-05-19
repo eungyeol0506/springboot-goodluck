@@ -14,22 +14,11 @@
     </textarea>
 </div>
 
-    <!-- 글 수정 시 노출 -->
-    <!-- <div th:if="${mode == 'modify'}">
-        <div th:replace="~{board/fragment/existing-images :: existingImages}"></div>
-        
-        <div class="mt-4">
-            <h5 class="mb-3">새 이미지 추가</h5>
-            <div th:replace="~{board/fragment/thumbnail-img :: thumbnails}"></div>
-        </div> -->
-    <!-- </div> -->
-
-
 <div th:fragment="writeFields">
     <div th:replace="~{ ::commonFields}" ></div>
 </div>
 
 <div th:fragment="modifyFields">
-    <input type="hidden"  th:field="*{boardNo}"/>
     <div th:replace="~{ ::commonFields}" ></div>
+    <input type="hidden"  th:field="*{boardNo}"/>
 </div>

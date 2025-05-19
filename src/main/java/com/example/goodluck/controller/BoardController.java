@@ -18,7 +18,6 @@ import com.example.goodluck.service.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -130,19 +129,17 @@ public class BoardController {
             return "redirect:/board/" + boardNo;
         }
 
-        BoardModifyRequest requestData = new BoardModifyRequest();
-        requestData.setBoardNo(board.getBoardNo());
-        requestData.setBoardTitle(board.getBoardTitle());
-        requestData.setContents(board.getContents());   
 
-        model.addAttribute("requestData", requestData);
+        BoardModifyRequest requestData = toModifyRequest(board);
+
+        model.addAttribute("modifyData", requestData);
         return "board/modify";
     }
 
     @PostMapping("/board/modify/{boardNo}")
     public String postBoardModify(
         @PathVariable("boardNo") Long boardNo,
-        @ModelAttribute(name="requestData") @Valid BoardModifyRequest param,
+        @ModelAttribute(name="modifyData") @Valid BoardModifyRequest param,
         @RequestParam(name="fileImage", required=false) List<MultipartFile> newFiles,
         @RequestParam(name="deleteImageNo", required=false) List<Long> deleteImageNoList
     ) {
@@ -199,5 +196,17 @@ public class BoardController {
         boardData.setComments(domain.getComments());
 
         return boardData;
+    }
+    public BoardModifyRequest toModifyRequest(MyBoard domain){
+        BoardModifyRequest request = new BoardModifyRequest();
+        request.setBoardNo(domain.getBoardNo());
+        request.setBoardTitle(domain.getBoardTitle());
+        request.setContents(domain.getContents());
+
+        for(MyAttach image : domain.getAttaches()){
+            request.addAttaches(image);
+        }
+
+        return request;
     }
 }
