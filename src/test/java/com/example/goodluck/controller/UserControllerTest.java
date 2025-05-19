@@ -207,7 +207,7 @@ public class UserControllerTest {
                                 .param("userName","teeeestttt")
                                 )
                         .andExpect(status().is3xxRedirection())
-                        .andExpect(redirectedUrl("/"))
+                        .andExpect(redirectedUrl("/login"))
                         ;
                 
             }
