@@ -94,9 +94,9 @@ public class GlobalExceptionHandler {
 
     // 정의 외 에러 발생 
     @ExceptionHandler(RuntimeException.class)
-    public String handleRuntimeException(RuntimeException exception){
-
-        return "error";
+    public String handleRuntimeException(RuntimeException exception, Model model){
+        model.addAttribute("notice", exception.getMessage());
+        return "error/500";
     }
 
     /*
@@ -160,7 +160,7 @@ public class GlobalExceptionHandler {
             else if(requestUri != null && requestUri.contains("modify")){
                 return "board/modify";
             }
-            return "error";
+            return "error/500";
         }
     }
 }
