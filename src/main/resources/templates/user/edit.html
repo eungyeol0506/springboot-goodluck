@@ -18,11 +18,13 @@
             <div class="card mt-4 mb-3"  style="width: 100%; max-width: 800px;">
                 <h3 class="card-header">프로필 수정</h3>
                 
-                <form th:action="@{/profile/form}"
+                <form class="m-4"
+                        th:action="@{/profile/form}"
                         method="post"
                         enctype="multipart/form-data">
 
-                    <div th:insert="~{user/fragment/imageFields :: imgFields(image=${editRequest.imageFullPath})}"></div>
+                    <div style="text-align: center;" 
+                         th:insert="~{user/fragment/imageFields :: imgFields(image=${editRequest.imageFullPath})}"></div>
                     
                     <div th:object="${editRequest}" class="mb-4">
                         <div th:insert="~{user/fragment/userFields :: editFields}"></div>

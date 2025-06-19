@@ -19,11 +19,13 @@
             <div class="card mt-4 mb-3"  style="width: 100%; max-width: 800px;">
                 <h3 class="card-header">회원가입</h3>
 
-                <form th:action="@{/regist}"
+                <form  class="m-4"
+                        th:action="@{/regist}"
                         method="post"
                         enctype="multipart/form-data">
-
-                    <div th:insert="~{user/fragment/imageFields :: imgFields(image=null)}"></div>
+                
+                    <div style="text-align: center;" 
+                         th:insert="~{user/fragment/imageFields :: imgFields(image=null)}"></div>
 
                     <div th:object="${registRequest}" class="mb-4">
                         <div th:insert="~{user/fragment/userFields :: registFields}"></div>
