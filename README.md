@@ -1,20 +1,18 @@
 # springboot-goodluck
 > 본 프로젝트는 스프링부트의 활용 및 실습 목적으로 진행하였습니다.
-
+> 
+![home image](image.png)
 ## Project Overview
-**demo**
-> 개발중
+이 프로젝트는 스프링부트의 예외처리 및 테스트 기반의 개발을 목적으로 개인으로 진행되었습니다. 
 
-이 프로젝트는 스프링부트의 실습 목적으로 개인으로 진행되었습니다. 
+[행운 수집 다이어리](http://www.10x10.co.kr/shopping/category_prd.asp?itemid=4783393) 의 아이디어를 벤치마킹하여 제작한 웹 서비스로, 행운을 기록하며 모으는 기능을 제공합니다.
 
-[행운 수집 다이어리](http://www.10x10.co.kr/shopping/category_prd.asp?itemid=4783393) 벤치마킹하여 제작한 서비스로, 소소한 행운을 기록하며 행복을 전달합니다.
-
-기본적인 `file handle`, `SpringSecurity`, `Test` 기반 검증을 중점으로 `Thymeleaf`를 사용하여 `WebMvc`를 구현합니다. 
+`multipartFile`, `SpringSecurity` 기능을 포함하여 `Test` 코드 작성을 중점으로 `Thymeleaf`를 사용하여 `WebMvc`를 구현하는 것을 목표로 하였습니다.
 
 ## Tech Stack
 
 #### Architecture
-> 개발중
+> 
 
 #### Backend
 <div align=""> 
@@ -79,3 +77,5 @@
 
 ### 참고 자료
 - [타임리프 문서](https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html)
+- [부트워치](https://bootswatch.com/minty/)
+- [서블릿 웹 애플리케이션](https://docs.spring.io/spring-boot/reference/web/servlet.html#web.servlet.spring-mvc.static-content)
