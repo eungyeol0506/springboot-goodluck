@@ -1,7 +1,7 @@
 # springboot-goodluck
 > 본 프로젝트는 스프링부트의 활용 및 실습 목적으로 진행하였습니다.
 > 
-![home image](image.png)
+![home image](home.png)
 ## Project Overview
 이 프로젝트는 스프링부트의 예외처리 및 테스트 기반의 개발을 목적으로 개인으로 진행되었습니다. 
 
