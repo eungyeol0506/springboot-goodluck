@@ -41,7 +41,7 @@ public class UserService {
             String relativeFileName = fileService.save(image, 0L, SaveType.PROFILE);
             if( !relativeFileName.equals("FAILED")){
                 String path = FilePathHelper.getDirectoryPath(relativeFileName);
-                String name = FilePathHelper.getFileNameOlny(relativeFileName) + FilePathHelper.getExtension(relativeFileName);
+                String name = FilePathHelper.getFileNameOlny(relativeFileName) + "." + FilePathHelper.getExtension(relativeFileName);
                 user.setProfileImgPath(path);
                 user.setProfileImgName(name);
             }
